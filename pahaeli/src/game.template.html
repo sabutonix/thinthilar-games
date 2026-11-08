@@ -7,6 +7,20 @@
 <meta name="description" content="နေ့စဉ် မြန်မာ ပဟေဠိ — စကားလုံး၊ စကားပုံ၊ အုပ်စုခွဲ">
 <meta property="og:title" content="ပဟေဠိ — နေ့စဉ် မြန်မာ ပဟေဠိ">
 <meta property="og:description" content="စကားလုံး ခန့်မှန်း၊ စကားပုံ စီ၊ အုပ်စုခွဲ — နေ့တိုင်း ပဟေဠိအသစ်">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#2563eb">
+<meta name="apple-mobile-web-app-title" content="ပဟေဠိ">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Thin Thi Lar Games">
+<meta property="og:url" content="https://game.thinthilar.com/pahaeli/">
+<meta property="og:image" content="https://game.thinthilar.com/assets/og-pahaeli.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="ပဟေဠိ — နေ့စဉ် မြန်မာ ပဟေဠိ">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@400;600;700&family=Padauk:wght@700&display=swap" rel="stylesheet">
@@ -109,6 +123,13 @@ header{display:flex;align-items:center;gap:10px}
 .toast{position:fixed;left:50%;top:18px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:999px;font-weight:600;font-size:.92rem;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20;max-width:90vw;text-align:center}
 .toast.on{opacity:1}
 .shake{animation:shake .35s}
+.cell.flip{animation:flip .5s ease both}
+@keyframes flip{0%{transform:rotateX(-90deg)}100%{transform:rotateX(0)}}
+.pop{animation:pop .35s ease both}
+@keyframes pop{0%{transform:scale(.85)}60%{transform:scale(1.08)}100%{transform:scale(1)}}
+.key,.piece,.word,.btn,.card{transition:transform .08s}
+.key:active,.piece:active,.word:active,.btn:active,.card:active{transform:scale(.95)}
+.fx{position:fixed;inset:0;pointer-events:none;z-index:30}
 @keyframes shake{20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
 @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;padding:16px;z-index:10}
@@ -307,6 +328,7 @@ if(mode==='U'&&!CUP) mode='MENU';
 let day = todayIdx;
 if(CH){ day=CH.d; S.ch=S.ch||{}; S.ch[CH.m+'-'+CH.d]={n:CH.n,s:CH.s}; }
 const key = (m,d)=> m+'-'+d;
+const FX={row:-1, locks:[], group:-1, win:false};
 function G(m=mode,d=day){ const k= m==='U' ? 'U-'+CUP.id : key(m,d); if(!S.games[k]) S.games[k]=fresh(m,d); return S.games[k]; }
 function fresh(m,d){
   if(m==='A'||m==='U') return {guesses:[],cur:[],done:false,won:false,hint:false};
@@ -356,7 +378,7 @@ $('#btnStats').onclick=()=>{
 };
 
 function finish(m, won){
-  const g=G(m); g.done=true; if(m!=='B') g.won=won;
+  const g=G(m); g.done=true; if(m!=='B') g.won=won; if(won) FX.win=true;
   if(m!=='U' && day===todayIdx && !g.counted){
     g.counted=true; const s=S.stats[m]||(S.stats[m]={played:0,won:0,streak:0,max:0,last:-9});
     s.played++; if(won){ s.won++; s.streak = (s.last===day-1)? s.streak+1 : 1; s.max=Math.max(s.max,s.streak); s.last=day; } else { s.streak=0; s.last=day; }
@@ -384,7 +406,7 @@ function renderA(){
   let rows='';
   for(let r=0;r<6;r++){
     let cells='';
-    if(r<g.guesses.length){ const sc=scoreRow(g.guesses[r],ans); g.guesses[r].forEach((x,i)=>cells+=`<div class="cell ${sc[i]}">${x}</div>`); }
+    if(r<g.guesses.length){ const sc=scoreRow(g.guesses[r],ans); const fl=FX.row===r; g.guesses[r].forEach((x,i)=>cells+=`<div class="cell ${sc[i]}${fl?' flip':''}"${fl?` style="animation-delay:${i*220}ms"`:''}>${x}</div>`); }
     else if(r===g.guesses.length && !g.done){ for(let i=0;i<2;i++){ const x=g.cur[i]; cells+= x?`<div class="cell filled">${x}</div>` : (g.hint&&i===0?`<div class="cell hint">${ans[0]}</div>`:`<div class="cell"></div>`);} }
     else cells='<div class="cell"></div><div class="cell"></div>';
     rows+=`<div class="row">${cells}</div>`;
@@ -401,7 +423,7 @@ function renderA(){
   $('#aGo').onclick=()=>{
     if(g.cur.length<2){ toast(t('need2')); return shake(); }
     const w=g.cur.join(''); if(p.v && !p.v.includes(w)){ toast(t('notword')); return shake(); }
-    g.guesses.push(g.cur.slice()); g.cur=[];
+    g.guesses.push(g.cur.slice()); g.cur=[]; FX.row=g.guesses.length-1;
     const won = w===p.a; if(won||g.guesses.length>=6) finish(M,won); else save();
     render();
   };
@@ -418,7 +440,7 @@ function renderB(){
   }
   const used=new Set(g.slots.filter(x=>x!=null));
   let slots=''; for(let i=0;i<n;i++){ const ti=g.slots[i];
-    slots+= ti==null ? `<button class="piece empty" data-i="${i}" aria-label="empty">${num(i+1)}</button>` : `<button class="piece ${g.locked[i]?'lock':''}" data-i="${i}">${p.t[ti]}</button>`; }
+    slots+= ti==null ? `<button class="piece empty" data-i="${i}" aria-label="empty">${num(i+1)}</button>` : `<button class="piece ${g.locked[i]?'lock':''}${FX.locks.includes(i)?' pop':''}" data-i="${i}"${FX.locks.includes(i)?` style="animation-delay:${FX.locks.indexOf(i)*90}ms"`:''}>${p.t[ti]}</button>`; }
   el.innerHTML=`${chalBanner('B')}<p class="howto">${t('bHow')}</p>
    <div class="slots" id="slots">${slots}</div>
    <div class="bank">${g.order.filter(ti=>!used.has(ti)).map(ti=>`<button class="piece" data-t="${ti}">${p.t[ti]}</button>`).join('')}</div>
@@ -429,7 +451,7 @@ function renderB(){
   $('#bHint').onclick=()=>{ const i=[...Array(n).keys()].find(i=>!g.locked[i]); if(i==null) return;
     const other=g.slots.indexOf(i); if(other>=0) g.slots[other]=null; g.slots[i]=i; g.locked[i]=true; g.hints++; save(); renderB(); };
   $('#bGo').onclick=()=>{
-    const row=[]; for(let i=0;i<n;i++){ const ok=g.slots[i]===i; row.push(ok?'🟩':'⬜'); if(ok) g.locked[i]=true; else g.slots[i]=null; }
+    const row=[]; FX.locks=[]; for(let i=0;i<n;i++){ const ok=g.slots[i]===i; row.push(ok?'🟩':'⬜'); if(ok&&!g.locked[i]) FX.locks.push(i); if(ok) g.locked[i]=true; else g.slots[i]=null; }
     g.rows.push(row.join('')); if(g.locked.filter(Boolean).length===n && [...Array(n).keys()].every(i=>g.locked[i])) finish('B',true); else save();
     render();
   };
@@ -446,7 +468,7 @@ function renderC(){
   const disp=w=>w.split('|').join('\u200b');
   let html=`${g.done?'':chalBanner('C')}<p class="howto">${t('cHow')}</p><div class="grid16">`;
   const showGroups = g.done ? [...g.found, ...groups.map((_,i)=>i).filter(i=>!g.found.includes(i))] : g.found;
-  for(const i of showGroups){ const x=groups[i]; html+=`<div class="solved d${x.d}"><b>${label(x)}</b><span>${x.w.map(disp).join('၊ ')}</span></div>`; }
+  for(const i of showGroups){ const x=groups[i]; html+=`<div class="solved d${x.d}${FX.group===i?' pop':''}"><b>${label(x)}</b><span>${x.w.map(disp).join('၊ ')}</span></div>`; }
   if(!g.done) for(const w of g.order.filter(w=>!foundSet.has(w))) html+=`<button class="word ${g.sel.includes(w)?'sel':''}" data-w="${w}">${disp(w)}</button>`;
   html+='</div>';
   if(!g.done){
@@ -464,7 +486,7 @@ function renderC(){
     if(g.guesses.some(x=>x.slice().sort().join('|')===keyS)){ toast(t('tried')); return; }
     g.guesses.push(g.sel.slice());
     const hit=groups.findIndex(x=>g.sel.every(w=>x.w.includes(w)));
-    if(hit>=0){ g.found.push(hit); g.sel=[]; if(g.found.length===4) finish('C',true); else save(); }
+    if(hit>=0){ g.found.push(hit); g.sel=[]; FX.group=hit; if(g.found.length===4) finish('C',true); else save(); }
     else { const close=groups.some(x=>g.sel.filter(w=>x.w.includes(w)).length===3); g.mistakes++; toast(close?t('oneAway'):'✗');
       if(g.mistakes>=4) finish('C',false); else save(); }
     render();
@@ -636,7 +658,19 @@ function renderFriends(){
   list.querySelectorAll('[data-inv]').forEach(b=>b.onclick=()=>{ const gr=S.groups[+b.dataset.inv]; shareOrCopy(tf('frInvMsg',{g:gr.name,c:gr.code})+'\n'+SITE_URL+'?g='+gr.code+'#friends'); });
   list.querySelectorAll('[data-leave]').forEach(b=>b.onclick=()=>{ const gr=S.groups[+b.dataset.leave]; rpc('leave_group',{p_code:gr.code,p_player:pid()}).catch(()=>{}); S.groups=S.groups.filter(x=>x!==gr); save(); renderFriends(); });
 }
-function render(){ $('#result').hidden=true; if(mode==='U'&&!CUP) mode='MENU'; renderChrome(); ({MENU:renderMenu,A:renderA,B:renderB,C:renderC,U:renderA,MAKE:renderMake,F:renderFriends})[mode](); renderChrome(); }
+function confetti(){
+  if(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const cv=document.createElement('canvas'); cv.className='fx'; const W=cv.width=innerWidth*devicePixelRatio, H=cv.height=innerHeight*devicePixelRatio; document.body.appendChild(cv);
+  const x=cv.getContext('2d'), C=['#2563eb','#e3b54f','#2f8f5b','#d4a017','#8b5cf6','#ffffff'], d=devicePixelRatio;
+  const ps=Array.from({length:140},()=>({x:W/2+(Math.random()-.5)*W*.3, y:H*.35, vx:(Math.random()-.5)*16*d, vy:(-Math.random()*15-6)*d, s:(Math.random()*7+5)*d, r:Math.random()*6, vr:(Math.random()-.5)*.3, c:C[Math.random()*C.length|0]}));
+  const t0=performance.now();
+  (function step(t){ const k=(t-t0)/1800; x.clearRect(0,0,W,H);
+    for(const p of ps){ p.vy+=.5*d; p.vx*=.99; p.x+=p.vx; p.y+=p.vy; p.r+=p.vr; x.save(); x.globalAlpha=Math.max(0,1-k); x.translate(p.x,p.y); x.rotate(p.r); x.fillStyle=p.c; x.fillRect(-p.s/2,-p.s/3,p.s,p.s*.66); x.restore(); }
+    if(k<1) requestAnimationFrame(step); else cv.remove(); })(t0);
+}
+function render(){ $('#result').hidden=true; if(mode==='U'&&!CUP) mode='MENU'; renderChrome(); ({MENU:renderMenu,A:renderA,B:renderB,C:renderC,U:renderA,MAKE:renderMake,F:renderFriends})[mode](); renderChrome();
+  if(FX.win) setTimeout(confetti, mode==='A'||mode==='U'?650:150);
+  FX.row=-1; FX.locks=[]; FX.group=-1; FX.win=false; }
 render();
 </script>
 </body>
