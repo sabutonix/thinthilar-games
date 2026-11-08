@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ပဟေဠိ Daily Myanmar Puzzles</title>
+<meta name="description" content="နေ့စဉ် မြန်မာ ပဟေဠိ — စကားလုံး၊ စကားပုံ၊ အုပ်စုခွဲ">
+<meta property="og:title" content="ပဟေဠိ — နေ့စဉ် မြန်မာ ပဟေဠိ">
+<meta property="og:description" content="စကားလုံး ခန့်မှန်း၊ စကားပုံ စီ၊ အုပ်စုခွဲ — နေ့တိုင်း ပဟေဠိအသစ်">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@400;600;700&family=Padauk:wght@700&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: one phone-width column — header, mode tabs, the puzzle, a share card. Jade lacquer + pagoda gold. */
+:root{
+  --bg:#eef3f0; --surface:#ffffff; --ink:#14302a; --muted:#5d746d; --line:#cfdcd6;
+  --jade:#1f6f5c; --gold:#c9962b; --gold-soft:#f5e7c4;
+  --hit:#2f8f5b; --near:#d4a017; --miss:#8a9893;
+  --g1:#e9c46a; --g2:#7cc08a; --g3:#79a7d8; --g4:#b28fd0;
+  --tile:#f6f9f7; --tile-ink:#14302a; --g-ink:#1a1a1a; --on-jade:#ffffff;
+  --display:"Padauk","Noto Sans Myanmar","Myanmar Text","Pyidaungsu",serif;
+  --body:"Noto Sans Myanmar","Pyidaungsu","Myanmar Text","Padauk",system-ui,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0d1d19; --surface:#142924; --ink:#e6efe9; --muted:#9db3ab; --line:#28443c;
+    --jade:#5fc1a4; --gold:#e3b54f; --gold-soft:#3a3220;
+    --hit:#3aa36a; --near:#c99a19; --miss:#4d5e58;
+    --g1:#c9a543; --g2:#4f9c5f; --g3:#4b7fb5; --g4:#8c69ad;
+    --tile:#1b342e; --tile-ink:#e6efe9; --g-ink:#ffffff; --on-jade:#0d1d19; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0d1d19; --surface:#142924; --ink:#e6efe9; --muted:#9db3ab; --line:#28443c;
+  --jade:#5fc1a4; --gold:#e3b54f; --gold-soft:#3a3220;
+  --hit:#3aa36a; --near:#c99a19; --miss:#4d5e58;
+  --g1:#c9a543; --g2:#4f9c5f; --g3:#4b7fb5; --g4:#8c69ad;
+  --tile:#1b342e; --tile-ink:#e6efe9; --g-ink:#ffffff; --on-jade:#0d1d19; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);line-height:1.7}
+body{min-height:100%;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,a:focus-visible,select:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.wrap{max-width:520px;margin:0 auto;padding:12px 16px 40px;display:flex;flex-direction:column;gap:14px}
+header{display:flex;align-items:center;gap:10px}
+.brand{display:flex;flex-direction:column;flex:1;min-width:0}
+.home{color:var(--muted);text-decoration:none;font-size:.85rem;align-self:flex-start}
+.brand h1 a{color:inherit;text-decoration:none}
+.brand h1{font-family:var(--display);font-size:2rem;line-height:1.2;margin:0;color:var(--jade);letter-spacing:.01em}
+.brand small{color:var(--muted);font-size:.82rem}
+.iconbtn{border:1px solid var(--line);background:var(--surface);border-radius:10px;min-width:42px;height:42px;padding:0 10px;font-size:.9rem;font-weight:600}
+.tabs[hidden]{display:none}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:5px}
+.tab{border:0;background:transparent;border-radius:10px;padding:8px 4px;font-weight:600;font-size:.95rem;color:var(--muted);display:flex;flex-direction:column;align-items:center;line-height:1.4}
+.tab .st{font-size:.72rem;font-weight:400}
+.tab[aria-selected="true"]{background:var(--jade);color:var(--on-jade)}
+.tab[aria-selected="true"] .st{color:var(--on-jade);opacity:.85}
+.meta{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:.85rem;color:var(--muted)}
+.meta select{font:inherit;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:2px 6px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:14px}
+.howto{margin:0;font-size:.92rem;color:var(--muted)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.8rem;color:var(--muted)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:4px}
+/* Word mode */
+.board{display:grid;gap:6px;justify-content:center}
+.row{display:grid;grid-template-columns:repeat(2,112px);gap:6px}
+.cell{height:52px;border:2px solid var(--line);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.35rem;font-weight:600;background:var(--tile);color:var(--tile-ink);transition:transform .25s}
+.cell.filled{border-color:var(--muted)}
+.cell.hint{color:var(--gold);border-style:dashed;border-color:var(--gold)}
+.cell.hit,.key.hit{background:var(--hit);border-color:var(--hit);color:#fff}
+.cell.near,.key.near{background:var(--near);border-color:var(--near);color:#1d1600}
+.cell.miss,.key.miss{background:var(--miss);border-color:var(--miss);color:#fff}
+.keys{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.key{border:1px solid var(--line);background:var(--tile);color:var(--tile-ink);border-radius:10px;min-height:50px;font-size:1.15rem;font-weight:600;padding:4px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{flex:1;min-height:46px;border-radius:12px;border:1px solid var(--line);background:var(--surface);font-weight:600;padding:6px 12px}
+.btn.primary{background:var(--jade);border-color:var(--jade);color:var(--on-jade)}
+.btn.gold{background:var(--gold-soft);border-color:var(--gold);color:var(--ink)}
+.btn:disabled{opacity:.45;cursor:default}
+/* Proverb mode */
+.slots{display:flex;flex-wrap:wrap;gap:6px;min-height:56px;padding:10px;border:2px dashed var(--line);border-radius:12px;background:var(--bg)}
+.piece{border:1px solid var(--line);background:var(--tile);color:var(--tile-ink);border-radius:10px;padding:6px 12px;font-size:1.15rem;font-weight:600;min-height:44px}
+.piece.lock{background:var(--hit);border-color:var(--hit);color:#fff;cursor:default}
+.piece.empty{border-style:dashed;color:var(--muted);min-width:56px;background:transparent}
+.bank{display:flex;flex-wrap:wrap;gap:8px}
+.tries{display:flex;flex-direction:column;gap:2px;font-size:1rem;letter-spacing:2px}
+.proverb-done{font-family:var(--display);font-size:1.5rem;color:var(--jade);text-wrap:balance;margin:0}
+/* Groups mode */
+.grid16{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.word{min-height:62px;border-radius:10px;border:1px solid var(--line);background:var(--tile);color:var(--tile-ink);font-weight:600;font-size:.92rem;padding:4px;line-height:1.35}
+.word.sel{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.solved{border-radius:10px;padding:8px 10px;text-align:center;color:var(--g-ink);grid-column:1/-1}
+.solved b{display:block;font-size:.95rem}
+.solved span{font-size:.85rem}
+.d1{background:var(--g1)}.d2{background:var(--g2)}.d3{background:var(--g3)}.d4{background:var(--g4)}
+.dots{display:flex;gap:6px;align-items:center;font-size:.85rem;color:var(--muted)}
+.dots i{width:12px;height:12px;border-radius:50%;background:var(--jade);display:inline-block}
+.dots i.off{background:var(--line)}
+/* Result */
+.result[hidden]{display:none}
+.result{border:2px solid var(--gold);background:var(--gold-soft);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.result h2{margin:0;font-family:var(--display);font-size:1.4rem}
+.sharebox{white-space:pre-wrap;font-family:var(--body);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px;font-size:.9rem;margin:0;width:100%;resize:none;color:var(--ink)}
+.links{display:flex;gap:8px;flex-wrap:wrap}
+.links a{flex:1;text-align:center;text-decoration:none;color:var(--ink);border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:10px;font-weight:600;font-size:.9rem}
+.next{font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.toast{position:fixed;left:50%;top:18px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:999px;font-weight:600;font-size:.92rem;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20;max-width:90vw;text-align:center}
+.toast.on{opacity:1}
+.shake{animation:shake .35s}
+@keyframes shake{20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;padding:16px;z-index:10}
+.modal.on{display:flex}
+.sheet{background:var(--surface);color:var(--ink);border-radius:16px;max-width:460px;width:100%;max-height:85vh;overflow:auto;padding:18px;display:flex;flex-direction:column;gap:10px}
+.sheet h2{margin:0;font-family:var(--display);font-size:1.4rem;color:var(--jade)}
+.sheet h3{margin:6px 0 0;font-size:1rem}
+.sheet p{margin:0;font-size:.92rem}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center}
+.stats b{display:block;font-size:1.4rem;font-variant-numeric:tabular-nums}
+.stats span{font-size:.72rem;color:var(--muted)}
+.menu{display:flex;flex-direction:column;gap:10px}
+.card{display:grid;grid-template-columns:52px 1fr auto;gap:12px;align-items:center;text-align:left;border:1px solid var(--line);background:var(--tile);border-radius:14px;padding:14px;min-height:84px}
+.card:hover{border-color:var(--jade)}
+.card .ic{font-size:1.9rem;text-align:center}
+.card b{display:block;font-size:1.15rem;color:var(--ink)}
+.card small{display:block;color:var(--muted);font-size:.84rem;line-height:1.5}
+.pill{font-size:.75rem;font-weight:600;border-radius:999px;padding:3px 10px;white-space:nowrap;background:var(--gold-soft);color:var(--ink);border:1px solid var(--gold)}
+.pill.ok{background:var(--hit);border-color:var(--hit);color:#fff}
+.menu h2{margin:0;font-family:var(--display);font-size:1.3rem}
+footer{font-size:.75rem;color:var(--muted);text-align:center}
+@media (max-width:380px){.row{grid-template-columns:repeat(2,100px)}.word{font-size:.82rem}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="home" id="homeLink" href="../">← <span id="homeTxt"></span></a>
+  <header>
+    <div class="brand"><h1><a href="#" id="titleLink">ပဟေဠိ</a></h1><small id="tagline"></small></div>
+    <button class="iconbtn" id="btnLang" aria-label="Language">EN</button>
+    <button class="iconbtn" id="btnStats" aria-label="Stats">📊</button>
+    <button class="iconbtn" id="btnHelp" aria-label="Help">?</button>
+  </header>
+  <nav class="tabs" role="tablist">
+    <button class="tab" role="tab" id="tab-A" data-m="A"><span class="nm"></span><span class="st"></span></button>
+    <button class="tab" role="tab" id="tab-B" data-m="B"><span class="nm"></span><span class="st"></span></button>
+    <button class="tab" role="tab" id="tab-C" data-m="C"><span class="nm"></span><span class="st"></span></button>
+  </nav>
+  <div class="meta"><span id="pnum"></span><label><span id="archLbl"></span> <select id="arch"></select></label></div>
+  <main id="game" class="panel" aria-live="polite"></main>
+  <section id="result" class="result" hidden></section>
+  <footer id="foot"></footer>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<div class="modal" id="modal"><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
+
+<script id="puzzles" type="application/json">/*PUZZLES*/</script>
+<script>
+// ---------- Settings you can change ----------
+const HOME_URL = "https://game.thinthilar.com/pahaeli/"; // used in share links when the page runs somewhere else (e.g. a preview)
+const SITE_URL = (/^https?:/.test(location.protocol) && /thinthilar\.com$|github\.io$/.test(location.hostname)) ? location.origin+location.pathname : HOME_URL;
+const EPOCH = Date.UTC(2026,10,7,17,30); // Puzzle #1 = 8 Nov 2026, midnight Myanmar time (UTC+6:30)
+// ---------------------------------------------
+const P = JSON.parse(document.getElementById('puzzles').textContent);
+const DAY = 864e5, MMT = 6.5*36e5;
+const todayIdx = Math.max(0, Math.floor((Date.now()-EPOCH)/DAY));
+const $ = s => document.querySelector(s);
+const MYD = '၀၁၂၃၄၅၆၇၈၉';
+
+const T = {
+ my:{tag:"နေ့စဉ် မြန်မာ ပဟေဠိ",A:"စကားလုံး",B:"စကားပုံ",C:"အုပ်စုခွဲ",todo:"မကစားရသေး",done:"ပြီးပြီ ✓",num:"ပဟေဠိ",today:"ယနေ့",arch:"ရက်ရွေး",
+  aHow:"ဝှက်ထားတဲ့ နှစ်လုံးတွဲ စကားလုံးကို ၆ ကြိမ်အတွင်း ခန့်မှန်းပါ။ အောက်က အလုံးတွေကို နှိပ်ပြီး ရွေးပါ။",
+  hit:"နေရာမှန်",near:"ပါတယ်၊ နေရာမှား",miss:"မပါဘူး",del:"⌫ ဖျက်",guess:"ခန့်မှန်းမယ်",hint:"💡 အရိပ်အမြွက်",
+  need2:"နှစ်လုံး ရွေးပါ",notword:"ဒီစကားလုံး စာရင်းထဲမှာ မရှိပါ",won:"ဟုတ်ပြီ! 🎉",lost:"နောက်နေ့ ထပ်ကြိုးစားပါ",ansWas:"အဖြေ —",
+  bHow:"စကားပုံ အပိုင်းအစတွေကို နှိပ်ပြီး အစီအစဉ်မှန်အောင် စီပါ။ အပိုင်းကို ပြန်နှိပ်ရင် ပြန်ဖယ်ပါတယ်။",
+  check:"စစ်မယ်",bWon:"စကားပုံ ပြည့်စုံပါပြီ!",discuss:"ဒီစကားပုံရဲ့ အဓိပ္ပာယ်ကို မိတ်ဆွေတွေနဲ့ ဆွေးနွေးကြည့်ပါ။",checks:"ကြိမ်",
+  cHow:"စကားလုံး ၁၆ လုံးကို လေးလုံးစီ အုပ်စု ၄ စု ခွဲပါ။ လေးလုံး ရွေးပြီး တင်ပါ။",shuffle:"ရောမွှေ",clear:"ရွေးတာဖျက်",submit:"တင်မယ်",
+  left:"အမှား ကျန်",oneAway:"တစ်လုံးပဲ လွဲတယ်!",tried:"ဒါ စမ်းပြီးပြီ",cWon:"အုပ်စုအားလုံး ခွဲပြီးပါပြီ!",cLost:"ဒီနေ့ မရခဲ့ပါ — အဖြေတွေ",
+  share:"မျှဝေမယ်",copy:"ကော်ပီကူး",copied:"ကော်ပီကူးပြီးပါပြီ — Facebook/Viber မှာ ကပ်ပါ",copyFail:"စာကို ကိုယ်တိုင် ရွေးပြီး ကော်ပီကူးပါ",
+  next:"နောက်ပဟေဠိ",others:"တခြား ပဟေဠိတွေလည်း ကစားကြည့်ပါ!",stats:"စာရင်းအင်း",played:"ကစားပြီး",winp:"နိုင်နှုန်း %",streak:"ဆက်တိုက်",best:"အများဆုံး",
+  help:"ကစားနည်း",close:"ပိတ်မယ်",archNote:"ယခင်ရက် ပဟေဠိ — ဆက်တိုက်ရေတွက်မှု မပါဝင်ပါ",
+  foot:"နေ့တိုင်း မြန်မာစံတော်ချိန် သန်းခေါင်မှာ ပဟေဠိအသစ် ထွက်ပါတယ်။",
+  home:"ဂိမ်းများ",pick:"ယနေ့ ပဟေဠိ ရွေးပါ",dA:"နှစ်လုံးတွဲ စကားလုံးကို ၆ ကြိမ်အတွင်း ခန့်မှန်း",dB:"စကားပုံ အပိုင်းအစတွေကို အစီအစဉ်မှန် စီ",dC:"စကားလုံး ၁၆ လုံးကို အုပ်စု ၄ စု ခွဲ",
+  play:"ကစားမယ်",nextGame:"နောက်ပဟေဠိ ကစားမယ် →",allDone:"ယနေ့ ပဟေဠိ ၃ ခုလုံး ပြီးပါပြီ! 🎉",menu:"ပဟေဠိ မီနူး"},
+ en:{tag:"Daily Myanmar puzzles",A:"Word",B:"Proverb",C:"Groups",todo:"Not played",done:"Done ✓",num:"Puzzle",today:"Today",arch:"Day",
+  aHow:"Guess the hidden two-syllable word in 6 tries. Tap the tiles below to build your guess.",
+  hit:"Right place",near:"In the word, wrong place",miss:"Not in the word",del:"⌫ Delete",guess:"Guess",hint:"💡 Hint",
+  need2:"Pick two tiles",notword:"That's not in the word list",won:"You got it! 🎉",lost:"Try again tomorrow",ansWas:"The answer —",
+  bHow:"Tap the pieces to put the proverb in the right order. Tap a placed piece to take it back.",
+  check:"Check",bWon:"Proverb complete!",discuss:"Talk about what this proverb means with your friends.",checks:"checks",
+  cHow:"Sort the 16 words into 4 groups of 4. Pick four, then submit.",shuffle:"Shuffle",clear:"Deselect",submit:"Submit",
+  left:"Mistakes left",oneAway:"One away!",tried:"Already tried that",cWon:"All groups found!",cLost:"Not today — here are the groups",
+  share:"Share",copy:"Copy",copied:"Copied — paste it on Facebook or Viber",copyFail:"Select the text and copy it yourself",
+  next:"Next puzzle in",others:"Try the other puzzles too!",stats:"Statistics",played:"Played",winp:"Win %",streak:"Streak",best:"Best",
+  help:"How to play",close:"Close",archNote:"Past puzzle — doesn't count toward your streak",
+  foot:"A new puzzle every day at midnight Myanmar time.",
+  home:"All games",pick:"Pick today's puzzle",dA:"Guess the two-syllable word in 6 tries",dB:"Put the proverb pieces in order",dC:"Sort 16 words into 4 groups",
+  play:"Play",nextGame:"Play the next puzzle →",allDone:"All 3 puzzles done today! 🎉",menu:"Puzzle menu"}
+};
+
+// ---------- storage (safe) ----------
+let S = {lang:"my", games:{}, stats:{}};
+try{ const raw = localStorage.getItem('pahaeli.v1'); if(raw) S = Object.assign(S, JSON.parse(raw)); const l=localStorage.getItem('tg.lang'); if(l) S.lang=l; }catch(e){}
+function save(){ try{ localStorage.setItem('pahaeli.v1', JSON.stringify(S)); }catch(e){} }
+const t = k => T[S.lang][k];
+const num = n => S.lang==='my' ? String(n).replace(/\d/g,d=>MYD[d]) : String(n);
+
+// ---------- seeded shuffle ----------
+function rng(seed){ let a = seed>>>0; return ()=>{ a|=0; a=a+0x6D2B79F5|0; let x=Math.imul(a^a>>>15,1|a); x=x+Math.imul(x^x>>>7,61|x)^x; return ((x^x>>>14)>>>0)/4294967296; }; }
+function shuffled(arr, seed){ const r=rng(seed), a=arr.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
+
+const HASH={A:'word',B:'proverb',C:'groups'}, FROMHASH={word:'A',proverb:'B',groups:'C'};
+let mode = FROMHASH[(location.hash||'').replace('#','').toLowerCase()] || 'MENU';
+window.addEventListener('hashchange',()=>{ mode = FROMHASH[location.hash.replace('#','').toLowerCase()] || 'MENU'; render(); window.scrollTo(0,0); });
+let day = todayIdx;
+const key = (m,d)=> m+'-'+d;
+function G(m=mode,d=day){ const k=key(m,d); if(!S.games[k]) S.games[k]=fresh(m,d); return S.games[k]; }
+function fresh(m,d){
+  if(m==='A') return {guesses:[],cur:[],done:false,won:false,hint:false};
+  if(m==='B') return {slots:[],locked:[],rows:[],done:false,hints:0};
+  return {found:[],guesses:[],sel:[],mistakes:0,done:false,won:false,order:null};
+}
+const pz = (m,d)=> m==='C' ? P.C[d%P.C.length] : P[m][d%P[m].length];
+
+// ---------- toast & modal ----------
+let tt; function toast(msg){ const el=$('#toast'); el.textContent=msg; el.classList.add('on'); clearTimeout(tt); tt=setTimeout(()=>el.classList.remove('on'),1800); }
+function openModal(html){ $('#sheet').innerHTML=html+`<button class="btn primary" id="mClose">${t('close')}</button>`; $('#modal').classList.add('on'); $('#mClose').onclick=closeModal; $('#mClose').focus(); }
+function closeModal(){ $('#modal').classList.remove('on'); }
+$('#modal').addEventListener('click',e=>{ if(e.target.id==='modal') closeModal(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
+
+// ---------- chrome ----------
+function renderChrome(){
+  document.querySelector('.tabs').hidden = mode==='MENU'; $('#homeTxt').textContent=t('home');
+  document.documentElement.lang = S.lang==='my'?'my':'en';
+  $('#tagline').textContent=t('tag'); $('#btnLang').textContent = S.lang==='my'?'EN':'မြန်';
+  for(const m of ['A','B','C']){
+    const b=$('#tab-'+m); b.setAttribute('aria-selected', m===mode); b.querySelector('.nm').textContent=t(m);
+    const g=S.games[key(m,day)]; b.querySelector('.st').textContent = g&&g.done ? t('done') : t('todo');
+  }
+  $('#pnum').textContent = `${t('num')} #${num(day+1)}` + (day!==todayIdx ? ` · ${t('archNote')}`:'');
+  $('#archLbl').textContent = t('arch');
+  const sel=$('#arch'); sel.innerHTML='';
+  for(let d=todayIdx; d>=0 && d>todayIdx-60; d--){ const o=document.createElement('option'); o.value=d; o.textContent = d===todayIdx? `${t('today')} (#${num(d+1)})` : '#'+num(d+1); if(d===day) o.selected=true; sel.appendChild(o); }
+  $('#foot').textContent=t('foot');
+}
+$('#arch').onchange=e=>{ day=+e.target.value; render(); };
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>go(b.dataset.m));
+function go(m){ if(m==='MENU'){ try{history.pushState(null,'',location.pathname);}catch(e){} mode='MENU'; render(); } else location.hash=HASH[m]; }
+$('#titleLink').onclick=e=>{ e.preventDefault(); go('MENU'); };
+$('#btnLang').onclick=()=>{ S.lang = S.lang==='my'?'en':'my'; try{localStorage.setItem('tg.lang',S.lang);}catch(e){} save(); render(); };
+$('#btnHelp').onclick=()=>openModal(`<h2>${t('help')}</h2>
+ <h3>🔤 ${t('A')}</h3><p>${t('aHow')}</p>
+ <div class="legend"><span><i style="background:var(--hit)"></i>${t('hit')}</span><span><i style="background:var(--near)"></i>${t('near')}</span><span><i style="background:var(--miss)"></i>${t('miss')}</span></div>
+ <h3>📜 ${t('B')}</h3><p>${t('bHow')}</p><h3>🧩 ${t('C')}</h3><p>${t('cHow')}</p><p class="next">${t('foot')}</p>`);
+$('#btnStats').onclick=()=>{
+  let h=`<h2>${t('stats')}</h2>`;
+  for(const m of ['A','B','C']){ const s=S.stats[m]||{played:0,won:0,streak:0,max:0};
+    h+=`<h3>${t(m)}</h3><div class="stats"><div><b>${num(s.played)}</b><span>${t('played')}</span></div><div><b>${num(s.played?Math.round(100*s.won/s.played):0)}</b><span>${t('winp')}</span></div><div><b>${num(s.streak)}</b><span>${t('streak')}</span></div><div><b>${num(s.max)}</b><span>${t('best')}</span></div></div>`; }
+  openModal(h);
+};
+
+function finish(m, won){
+  const g=G(m); g.done=true; if(m!=='B') g.won=won;
+  if(day===todayIdx && !g.counted){
+    g.counted=true; const s=S.stats[m]||(S.stats[m]={played:0,won:0,streak:0,max:0,last:-9});
+    s.played++; if(won){ s.won++; s.streak = (s.last===day-1)? s.streak+1 : 1; s.max=Math.max(s.max,s.streak); s.last=day; } else { s.streak=0; s.last=day; }
+  }
+  save();
+}
+
+// ---------- WORD (A) ----------
+function scoreRow(guess, ans){
+  const res=guess.map((x,i)=> x===ans[i]?'hit':null); const rest=ans.filter((x,i)=>res[i]!=='hit');
+  return res.map((r,i)=>{ if(r) return r; const k=rest.indexOf(guess[i]); if(k>=0){rest.splice(k,1); return 'near';} return 'miss'; });
+}
+function syl2(w,bank){ for(const a of bank) if(w.startsWith(a) && bank.includes(w.slice(a.length))) return [a,w.slice(a.length)]; return null; }
+function renderA(){
+  const p=pz('A',day), g=G('A'); const ans=p.s; const el=$('#game');
+  const best={}; g.guesses.forEach(gs=>scoreRow(gs,ans).forEach((r,i)=>{ const x=gs[i]; const rank={hit:3,near:2,miss:1}; if(!best[x]||rank[r]>rank[best[x]]) best[x]=r; }));
+  let rows='';
+  for(let r=0;r<6;r++){
+    let cells='';
+    if(r<g.guesses.length){ const sc=scoreRow(g.guesses[r],ans); g.guesses[r].forEach((x,i)=>cells+=`<div class="cell ${sc[i]}">${x}</div>`); }
+    else if(r===g.guesses.length && !g.done){ for(let i=0;i<2;i++){ const x=g.cur[i]; cells+= x?`<div class="cell filled">${x}</div>` : (g.hint&&i===0?`<div class="cell hint">${ans[0]}</div>`:`<div class="cell"></div>`);} }
+    else cells='<div class="cell"></div><div class="cell"></div>';
+    rows+=`<div class="row">${cells}</div>`;
+  }
+  el.innerHTML=`<p class="howto">${t('aHow')}</p>
+   <div class="legend"><span><i style="background:var(--hit)"></i>${t('hit')}</span><span><i style="background:var(--near)"></i>${t('near')}</span><span><i style="background:var(--miss)"></i>${t('miss')}</span></div>
+   <div class="board" id="board">${rows}</div>
+   ${g.done?'':`<div class="keys">${p.b.map(x=>`<button class="key ${best[x]||''}" data-s="${x}">${x}</button>`).join('')}</div>
+   <div class="actions"><button class="btn" id="aDel">${t('del')}</button><button class="btn gold" id="aHint" ${g.hint?'disabled':''}>${t('hint')}</button><button class="btn primary" id="aGo">${t('guess')}</button></div>`}`;
+  if(g.done) return renderResult();
+  el.querySelectorAll('.key').forEach(k=>k.onclick=()=>{ if(g.cur.length<2){ g.cur.push(k.dataset.s); save(); renderA(); } });
+  $('#aDel').onclick=()=>{ g.cur.pop(); save(); renderA(); };
+  $('#aHint').onclick=()=>{ g.hint=true; save(); renderA(); toast(`💡 ${ans[0]} …`); };
+  $('#aGo').onclick=()=>{
+    if(g.cur.length<2){ toast(t('need2')); return shake(); }
+    const w=g.cur.join(''); if(!p.v.includes(w)){ toast(t('notword')); return shake(); }
+    g.guesses.push(g.cur.slice()); g.cur=[];
+    const won = w===p.a; if(won||g.guesses.length>=6) finish('A',won); else save();
+    render();
+  };
+}
+function shake(){ const b=$('#board .row:nth-child('+(G('A').guesses.length+1)+')'); if(b){ b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake'); } }
+
+// ---------- PROVERB (B) ----------
+function renderB(){
+  const p=pz('B',day), g=G('B'), n=p.t.length, el=$('#game');
+  if(!g.order){ let o=shuffled([...Array(n).keys()], 7919*(day+1)); if(o.every((x,i)=>x===i)) o.reverse(); g.order=o; }
+  if(g.done){
+    el.innerHTML=`<p class="proverb-done">${p.p}</p><p class="howto">${t('discuss')}</p>`;
+    return renderResult();
+  }
+  const used=new Set(g.slots.filter(x=>x!=null));
+  let slots=''; for(let i=0;i<n;i++){ const ti=g.slots[i];
+    slots+= ti==null ? `<button class="piece empty" data-i="${i}" aria-label="empty">${num(i+1)}</button>` : `<button class="piece ${g.locked[i]?'lock':''}" data-i="${i}">${p.t[ti]}</button>`; }
+  el.innerHTML=`<p class="howto">${t('bHow')}</p>
+   <div class="slots" id="slots">${slots}</div>
+   <div class="bank">${g.order.filter(ti=>!used.has(ti)).map(ti=>`<button class="piece" data-t="${ti}">${p.t[ti]}</button>`).join('')}</div>
+   ${g.rows.length?`<div class="tries">${g.rows.map(r=>r).join('<br>')}</div>`:''}
+   <div class="actions"><button class="btn gold" id="bHint">${t('hint')}</button><button class="btn primary" id="bGo" ${g.slots.filter(x=>x!=null).length<n?'disabled':''}>${t('check')}</button></div>`;
+  el.querySelectorAll('.bank .piece').forEach(b=>b.onclick=()=>{ const i=[...Array(n).keys()].find(i=>g.slots[i]==null); if(i!=null){ g.slots[i]=+b.dataset.t; save(); renderB(); } });
+  el.querySelectorAll('#slots .piece').forEach(b=>b.onclick=()=>{ const i=+b.dataset.i; if(g.slots[i]!=null && !g.locked[i]){ g.slots[i]=null; save(); renderB(); } });
+  $('#bHint').onclick=()=>{ const i=[...Array(n).keys()].find(i=>!g.locked[i]); if(i==null) return;
+    const other=g.slots.indexOf(i); if(other>=0) g.slots[other]=null; g.slots[i]=i; g.locked[i]=true; g.hints++; save(); renderB(); };
+  $('#bGo').onclick=()=>{
+    const row=[]; for(let i=0;i<n;i++){ const ok=g.slots[i]===i; row.push(ok?'🟩':'⬜'); if(ok) g.locked[i]=true; else g.slots[i]=null; }
+    g.rows.push(row.join('')); if(g.locked.filter(Boolean).length===n && [...Array(n).keys()].every(i=>g.locked[i])) finish('B',true); else save();
+    render();
+  };
+}
+
+// ---------- GROUPS (C) ----------
+function renderC(){
+  const raw=pz('C',day), g=G('C'), el=$('#game');
+  const groups=raw.map(([gi,...wi])=>{ const G0=P.G[gi]; return {d:G0.d,my:G0.my,en:G0.en,w:wi.map(i=>G0.w[i])}; });
+  const all=groups.flatMap(x=>x.w);
+  if(!g.order) g.order=shuffled(all, 104729*(day+1));
+  const foundSet=new Set(g.found.flatMap(i=>groups[i].w));
+  const label=x=> S.lang==='my'? x.my : x.en;
+  const disp=w=>w.split('|').join('\u200b');
+  let html=`<p class="howto">${t('cHow')}</p><div class="grid16">`;
+  const showGroups = g.done ? [...g.found, ...groups.map((_,i)=>i).filter(i=>!g.found.includes(i))] : g.found;
+  for(const i of showGroups){ const x=groups[i]; html+=`<div class="solved d${x.d}"><b>${label(x)}</b><span>${x.w.map(disp).join('၊ ')}</span></div>`; }
+  if(!g.done) for(const w of g.order.filter(w=>!foundSet.has(w))) html+=`<button class="word ${g.sel.includes(w)?'sel':''}" data-w="${w}">${disp(w)}</button>`;
+  html+='</div>';
+  if(!g.done){
+    const left=4-g.mistakes;
+    html+=`<div class="dots">${t('left')}: ${[0,1,2,3].map(i=>`<i class="${i<left?'':'off'}"></i>`).join('')}</div>
+    <div class="actions"><button class="btn" id="cShuf">${t('shuffle')}</button><button class="btn" id="cClr">${t('clear')}</button><button class="btn primary" id="cGo" ${g.sel.length!==4?'disabled':''}>${t('submit')}</button></div>`;
+  }
+  el.innerHTML=html;
+  if(g.done) return renderResult();
+  el.querySelectorAll('.word').forEach(b=>b.onclick=()=>{ const w=b.dataset.w; const k=g.sel.indexOf(w); if(k>=0) g.sel.splice(k,1); else if(g.sel.length<4) g.sel.push(w); save(); renderC(); });
+  $('#cShuf').onclick=()=>{ g.order=shuffled(g.order, Date.now()&0xffff); save(); renderC(); };
+  $('#cClr').onclick=()=>{ g.sel=[]; save(); renderC(); };
+  $('#cGo').onclick=()=>{
+    const keyS=g.sel.slice().sort().join('|');
+    if(g.guesses.some(x=>x.slice().sort().join('|')===keyS)){ toast(t('tried')); return; }
+    g.guesses.push(g.sel.slice());
+    const hit=groups.findIndex(x=>g.sel.every(w=>x.w.includes(w)));
+    if(hit>=0){ g.found.push(hit); g.sel=[]; if(g.found.length===4) finish('C',true); else save(); }
+    else { const close=groups.some(x=>g.sel.filter(w=>x.w.includes(w)).length===3); g.mistakes++; toast(close?t('oneAway'):'✗');
+      if(g.mistakes>=4) finish('C',false); else save(); }
+    render();
+  };
+}
+
+// ---------- RESULT + SHARE ----------
+function shareText(){
+  const n=num(day+1), url=SITE_URL+'#'+HASH[mode];
+  let body='';
+  if(mode==='A'){ const p=pz('A',day), g=G('A'), ans=p.s;
+    const em={hit:'🟩',near:'🟨',miss:'⬜'};
+    body=`🔤 ${t('A')} ${g.won?num(g.guesses.length):'X'}/${num(6)}${g.hint?' 💡':''}\n`+g.guesses.map(gs=>scoreRow(gs,ans).map(r=>em[r]).join('')).join('\n');
+  } else if(mode==='B'){ const g=G('B');
+    body=`📜 ${t('B')} ✅ ${num(g.rows.length)} ${t('checks')}${g.hints?' '+'💡'.repeat(g.hints):''}\n`+g.rows.join('\n');
+  } else { const raw=pz('C',day), g=G('C'); const col={1:'🟨',2:'🟩',3:'🟦',4:'🟪'};
+    const gw=raw.map(([gi,...wi])=>({d:P.G[gi].d,w:wi.map(i=>P.G[gi].w[i])}));
+    body=`🧩 ${t('C')} ${g.won?'✅':'✗'}\n`+g.guesses.map(gs=>gs.map(w=>col[gw.find(x=>x.w.includes(w)).d]).join('')).join('\n');
+  }
+  return `ပဟေဠိ #${n}\n${body}\n${url}`;
+}
+function nextBtn(){ const left=['A','B','C'].filter(m=>!(S.games[key(m,day)]||{}).done);
+  return left.length? `<button class="btn gold" onclick="go('${left[0]}')">${t('nextGame')} ${t(left[0])}</button>` : `<p class="next"><b>${t('allDone')}</b></p>`; }
+function renderResult(){
+  const r=$('#result'); const g=G(); const txt=shareText();
+  let head='';
+  if(mode==='A'){ const p=pz('A',day); head = g.won? t('won') : `${t('ansWas')} ${p.a}`; }
+  else if(mode==='B') head=t('bWon'); else head = g.won? t('cWon'): t('cLost');
+  const url=SITE_URL+'#'+HASH[mode];
+  r.hidden=false;
+  r.innerHTML=`<h2>${head}</h2>
+   <textarea class="sharebox" id="shareTxt" rows="${txt.split('\n').length}" readonly>${txt}</textarea>
+   <div class="actions"><button class="btn primary" id="rShare">${t('share')}</button><button class="btn" id="rCopy">${t('copy')}</button></div>
+   <div class="links"><a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}" target="_blank" rel="noopener" id="rFb">Facebook</a><a href="viber://forward?text=${encodeURIComponent(txt)}" id="rViber">Viber</a></div>
+   ${nextBtn()}
+   ${day===todayIdx?`<p class="next">${t('next')}: <span id="cd"></span></p>`:''}`;
+  $('#rCopy').onclick=copy;
+  $('#rFb').addEventListener('click',()=>{ copy(true); });
+  $('#rShare').onclick=async()=>{ try{ if(navigator.share){ await navigator.share({text:txt}); return; } }catch(e){ if(e&&e.name==='AbortError') return; } copy(); };
+  tick();
+}
+async function copy(quiet){ const txt=$('#shareTxt').value; try{ await navigator.clipboard.writeText(txt); if(quiet!==true) toast(t('copied')); }catch(e){ const ta=$('#shareTxt'); ta.focus(); ta.select(); if(quiet!==true) toast(t('copyFail')); } }
+function tick(){ const el=$('#cd'); if(!el) return; let ms=EPOCH+(todayIdx+1)*DAY-Date.now(); if(ms<0) ms=0;
+  const h=Math.floor(ms/36e5), m=Math.floor(ms%36e5/6e4), s=Math.floor(ms%6e4/1e3); el.textContent=num(`${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`); }
+setInterval(tick,1000);
+
+function renderMenu(){
+  const ic={A:'🔤',B:'📜',C:'🧩'};
+  $('#game').innerHTML=`<div class="menu"><h2>${t('pick')}</h2>${['A','B','C'].map(m=>{ const g=S.games[key(m,day)];
+    return `<button class="card" onclick="go('${m}')"><span class="ic">${ic[m]}</span><span><b>${t(m)}</b><small>${t('d'+m)}</small></span><span class="pill ${g&&g.done?'ok':''}">${g&&g.done?t('done'):t('play')}</span></button>`; }).join('')}</div>`;
+}
+function render(){ $('#result').hidden=true; renderChrome(); ({MENU:renderMenu,A:renderA,B:renderB,C:renderC})[mode](); renderChrome(); }
+render();
+</script>
+</body>
+</html>
