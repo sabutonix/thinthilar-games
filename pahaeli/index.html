@@ -51,7 +51,7 @@ header{display:flex;align-items:center;gap:10px}
 .brand h1{font-family:var(--display);font-size:2rem;line-height:1.2;margin:0;color:var(--ink);letter-spacing:.01em}
 .brand small{color:var(--muted);font-size:.82rem}
 .iconbtn{border:1px solid var(--line);background:var(--surface);border-radius:10px;min-width:42px;height:42px;padding:0 10px;font-size:.9rem;font-weight:600}
-.tabs[hidden]{display:none}
+.tabs[hidden],.meta[hidden]{display:none}
 .tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:5px}
 .tab{border:0;background:transparent;border-radius:10px;padding:8px 4px;font-weight:600;font-size:.95rem;color:var(--muted);display:flex;flex-direction:column;align-items:center;line-height:1.4}
 .tab .st{font-size:.72rem;font-weight:400}
@@ -129,6 +129,15 @@ header{display:flex;align-items:center;gap:10px}
 .pill{font-size:.75rem;font-weight:600;border-radius:999px;padding:3px 10px;white-space:nowrap;background:var(--gold-soft);color:var(--ink);border:1px solid var(--gold)}
 .pill.ok{background:var(--hit);border-color:var(--hit);color:#fff}
 .menu h2{margin:0;font-family:var(--display);font-size:1.3rem}
+.banner{border:1px solid var(--line);background:var(--bg);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.banner b{font-size:.98rem}.banner span{font-size:.88rem;color:var(--muted)}
+.banner.chal{border-color:var(--jade)}
+.vs{margin:0;font-weight:600;font-size:1.05rem}.vs small{font-weight:400;color:var(--muted);font-size:.85rem}
+.chalbox{display:flex;flex-direction:column;gap:4px;font-size:.85rem;color:var(--muted)}
+.chalbox input,.form input{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 12px;min-height:46px;flex:1;min-width:0}
+.form{display:flex;flex-direction:column;gap:6px}.form label{font-size:.88rem;font-weight:600}
+.err{color:#b42318;font-size:.88rem;margin:0;min-height:1em}
+.card.gift{border-style:dashed}
 footer{font-size:.75rem;color:var(--muted);text-align:center}
 @media (max-width:380px){.row{grid-template-columns:repeat(2,100px)}.word{font-size:.82rem}}
 </style>
@@ -182,7 +191,17 @@ const T = {
   help:"ကစားနည်း",close:"ပိတ်မယ်",archNote:"ယခင်ရက် ပဟေဠိ — ဆက်တိုက်ရေတွက်မှု မပါဝင်ပါ",
   foot:"နေ့တိုင်း မြန်မာစံတော်ချိန် သန်းခေါင်မှာ ပဟေဠိအသစ် ထွက်ပါတယ်။",
   home:"ဂိမ်းများ",pick:"ယနေ့ ပဟေဠိ ရွေးပါ",dA:"နှစ်လုံးတွဲ စကားလုံးကို ၆ ကြိမ်အတွင်း ခန့်မှန်း",dB:"စကားပုံ အပိုင်းအစတွေကို အစီအစဉ်မှန် စီ",dC:"စကားလုံး ၁၆ လုံးကို အုပ်စု ၄ စု ခွဲ",
-  play:"ကစားမယ်",nextGame:"နောက်ပဟေဠိ ကစားမယ် →",allDone:"ယနေ့ ပဟေဠိ ၃ ခုလုံး ပြီးပါပြီ! 🎉",menu:"ပဟေဠိ မီနူး"},
+  play:"ကစားမယ်",nextGame:"နောက်ပဟေဠိ ကစားမယ် →",allDone:"ယနေ့ ပဟေဠိ ၃ ခုလုံး ပြီးပါပြီ! 🎉",menu:"ပဟေဠိ မီနူး",
+  chal:"⚔️ သူငယ်ချင်းကို စိန်ခေါ်မယ်",yourName:"သင့်နာမည်",namePh:"ဥပမာ ကိုအောင်",needName:"နာမည် ထည့်ပါ",
+  chalBanner:"⚔️ {n} က ဒီပဟေဠိကို {s} နဲ့ ဖြေပြီးပြီ — သင် ကျော်နိုင်မလား?",chalWin:"🏆 {n} ကို နိုင်သွားပြီ!",chalTie:"🤝 {n} နဲ့ သရေ",chalLose:"😅 ဒီတစ်ခါ {n} နိုင်သွားတယ်",
+  chalMsg:"ပဟေဠိ #{d} ({m}) ကို ငါ {s} နဲ့ ဖြေနိုင်တယ်။ မင်းရော? ⚔️",chalReady:"စိန်ခေါ်လင့်ခ် အဆင်သင့် — Viber/Messenger မှာ ပို့ပါ",
+  scA:"{k}/၆ ကြိမ်",scB:"{k} ကြိမ်စစ်",scC:"အမှား {k}",scX:"မဖြေနိုင်",
+  img:"📷 ပုံနဲ့ မျှဝေ",imgSave:"ပုံကို ဖိနှိပ်ပြီး သိမ်းပါ၊ ပြီးရင် Facebook မှာ တင်ပါ",dl:"ပုံ ဒေါင်းမယ်",
+  mkT:"ကိုယ်ပိုင် ပဟေဠိ",mkD:"🎁 နှစ်လုံးတွဲ စကားလုံး ရွေးပြီး သူငယ်ချင်းကို ပို့ပါ",mkHow:"သူငယ်ချင်း ခန့်မှန်းရမယ့် နှစ်လုံးတွဲ စကားလုံးကို ရေးပါ။ လင့်ခ်ထဲမှာ အဖြေကို ဝှက်ထားပါတယ်။",
+  mkWord:"ဝှက်မယ့် စကားလုံး (နှစ်လုံးတွဲ)",mkWordPh:"ဥပမာ မုန့်ဟင်း",mkHint:"အရိပ်အမြွက် (မထည့်လည်းရ)",mkHintPh:"ဥပမာ မနက်စာ",mkBtn:"လင့်ခ် ဖန်တီးမယ်",
+  mkErr2:"နှစ်လုံးတွဲ မြန်မာ စကားလုံး ထည့်ပါ (ဥပမာ မုန့်ဟင်း)",mkBad:"ဒီစကားလုံး သုံးလို့မရပါ",mkDone:"လင့်ခ် အဆင်သင့်! သူငယ်ချင်းကို ပို့ပါ",
+  mkMsg:"🎁 {n} က မင်းအတွက် ပဟေဠိ လုပ်ထားတယ်! ဖြေကြည့်ပါ",mkTry:"ကိုယ်တိုင် စမ်းကြည့်မယ်",
+  giftHead:"🎁 {n} ရဲ့ ပဟေဠိ",giftHint:"အရိပ်အမြွက်: {h}",giftMake:"🎁 ကိုယ်တိုင်လည်း လုပ်ပြီး ပြန်ပို့မယ်",badLink:"ဒီလင့်ခ် မမှန်ပါ"},
  en:{tag:"Daily Myanmar puzzles",A:"Word",B:"Proverb",C:"Groups",todo:"Not played",done:"Done ✓",num:"Puzzle",today:"Today",arch:"Day",
   aHow:"Guess the hidden two-syllable word in 6 tries. Tap the tiles below to build your guess.",
   hit:"Right place",near:"In the word, wrong place",miss:"Not in the word",del:"⌫ Delete",guess:"Guess",hint:"💡 Hint",
@@ -196,7 +215,17 @@ const T = {
   help:"How to play",close:"Close",archNote:"Past puzzle — doesn't count toward your streak",
   foot:"A new puzzle every day at midnight Myanmar time.",
   home:"All games",pick:"Pick today's puzzle",dA:"Guess the two-syllable word in 6 tries",dB:"Put the proverb pieces in order",dC:"Sort 16 words into 4 groups",
-  play:"Play",nextGame:"Play the next puzzle →",allDone:"All 3 puzzles done today! 🎉",menu:"Puzzle menu"}
+  play:"Play",nextGame:"Play the next puzzle →",allDone:"All 3 puzzles done today! 🎉",menu:"Puzzle menu",
+  chal:"⚔️ Challenge a friend",yourName:"Your name",namePh:"e.g. Ko Aung",needName:"Enter your name",
+  chalBanner:"⚔️ {n} solved this in {s} — can you beat that?",chalWin:"🏆 You beat {n}!",chalTie:"🤝 A tie with {n}",chalLose:"😅 {n} wins this time",
+  chalMsg:"I solved ပဟေဠိ #{d} ({m}) in {s}. Can you beat me? ⚔️",chalReady:"Challenge link ready — send it on Viber or Messenger",
+  scA:"{k}/6",scB:"{k} checks",scC:"{k} mistakes",scX:"not solved",
+  img:"📷 Share as image",imgSave:"Press and hold the image to save it, then post it on Facebook",dl:"Download image",
+  mkT:"My own puzzle",mkD:"🎁 Pick a two-syllable word and send it to a friend",mkHow:"Write a two-syllable word for your friend to guess. The answer is hidden inside the link.",
+  mkWord:"Secret word (two syllables)",mkWordPh:"e.g. မုန့်ဟင်း",mkHint:"Hint (optional)",mkHintPh:"e.g. breakfast",mkBtn:"Create link",
+  mkErr2:"Enter a two-syllable Burmese word, e.g. မုန့်ဟင်း",mkBad:"That word can't be used",mkDone:"Link ready! Send it to a friend",
+  mkMsg:"🎁 {n} made a ပဟေဠိ for you! Can you solve it?",mkTry:"Try it yourself",
+  giftHead:"🎁 A puzzle from {n}",giftHint:"Hint: {h}",giftMake:"🎁 Make one back",badLink:"This link doesn't work"}
 };
 
 // ---------- storage (safe) ----------
@@ -204,20 +233,49 @@ let S = {lang:"my", games:{}, stats:{}};
 try{ const raw = localStorage.getItem('pahaeli.v1'); if(raw) S = Object.assign(S, JSON.parse(raw)); const l=localStorage.getItem('tg.lang'); if(l) S.lang=l; }catch(e){}
 function save(){ try{ localStorage.setItem('pahaeli.v1', JSON.stringify(S)); }catch(e){} }
 const t = k => T[S.lang][k];
+const tf = (k,o) => t(k).replace(/\{(\w)\}/g,(_,x)=> o[x]!=null? o[x] : '');
+const esc = x => String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const num = n => S.lang==='my' ? String(n).replace(/\d/g,d=>MYD[d]) : String(n);
 
 // ---------- seeded shuffle ----------
 function rng(seed){ let a = seed>>>0; return ()=>{ a|=0; a=a+0x6D2B79F5|0; let x=Math.imul(a^a>>>15,1|a); x=x+Math.imul(x^x>>>7,61|x)^x; return ((x^x>>>14)>>>0)/4294967296; }; }
 function shuffled(arr, seed){ const r=rng(seed), a=arr.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
 
-const HASH={A:'word',B:'proverb',C:'groups'}, FROMHASH={word:'A',proverb:'B',groups:'C'};
+// ---------- links: challenge (?c=) and gift puzzles (?p=) ----------
+const KEY=[112,97,104,101,108,105];
+function enc(o){ const b=new TextEncoder().encode(JSON.stringify(o)); let bin=''; b.forEach((x,i)=>bin+=String.fromCharCode(x^KEY[i%KEY.length])); return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); }
+function dec(str){ try{ const bin=atob(str.replace(/-/g,'+').replace(/_/g,'/')); const b=Uint8Array.from(bin,(c,i)=>c.charCodeAt(0)^KEY[i%KEY.length]); return JSON.parse(new TextDecoder().decode(b)); }catch(e){ return null; } }
+function hashStr(x){ let h=2166136261; for(const ch of x){ h^=ch.codePointAt(0); h=Math.imul(h,16777619); } return (h>>>0).toString(36); }
+function syl(w){ const out=[]; const a=Array.from(w.normalize('NFC').replace(/[\s​]/g,''));
+  for(let i=0;i<a.length;i++){ const c=a[i], cp=c.codePointAt(0);
+    const isCons=cp>=0x1000&&cp<=0x1021, isInd=(cp>=0x1023&&cp<=0x102A)||cp===0x103F||(cp>=0x104C&&cp<=0x104F);
+    let nx=a[i+1]; if(nx==='့') nx=a[i+2];
+    const brk = i===0 || isInd || (isCons && a[i-1]!=='္' && nx!=='်' && nx!=='္');
+    if(brk) out.push(c); else out[out.length-1]+=c; }
+  return out; }
+const BLOCK=['လီး','စောက်','လိုး','ခွေးမ','မအေ','ငါလိုး','ဖာသည်'];
+const NAME_MAX=24;
+let CUP=null, CH=null;
+(function readLinks(){
+  const q=new URLSearchParams(location.search); let changed=false;
+  if(q.get('p')){ const o=dec(q.get('p')); changed=true;
+    if(o && typeof o.w==='string'){ const sy=syl(o.w); if(sy.length===2){ CUP={w:sy, h:String(o.h||'').slice(0,40), n:String(o.n||'').slice(0,NAME_MAX)||'?', id:hashStr(q.get('p'))}; } }
+    if(!CUP) setTimeout(()=>toast(t('badLink')),300); }
+  if(q.get('c')){ const o=dec(q.get('c')); changed=true;
+    if(o && 'ABC'.includes(o.m) && Number.isInteger(o.d) && o.d>=0 && o.d<=todayIdx && Number.isFinite(o.s)){ CH={m:o.m,d:o.d,n:String(o.n||'?').slice(0,NAME_MAX),s:o.s}; } }
+  if(changed){ try{ history.replaceState(null,'',location.pathname+(CUP?'#gift':CH?'#'+({A:'word',B:'proverb',C:'groups'})[CH.m]:location.hash)); }catch(e){} }
+})();
+const HASH={A:'word',B:'proverb',C:'groups',U:'gift',MAKE:'make'}, FROMHASH={word:'A',proverb:'B',groups:'C',make:'MAKE'};
+if(CUP) FROMHASH.gift='U';
 let mode = FROMHASH[(location.hash||'').replace('#','').toLowerCase()] || 'MENU';
 window.addEventListener('hashchange',()=>{ mode = FROMHASH[location.hash.replace('#','').toLowerCase()] || 'MENU'; render(); window.scrollTo(0,0); });
+if(mode==='U'&&!CUP) mode='MENU';
 let day = todayIdx;
+if(CH){ day=CH.d; S.ch=S.ch||{}; S.ch[CH.m+'-'+CH.d]={n:CH.n,s:CH.s}; }
 const key = (m,d)=> m+'-'+d;
-function G(m=mode,d=day){ const k=key(m,d); if(!S.games[k]) S.games[k]=fresh(m,d); return S.games[k]; }
+function G(m=mode,d=day){ const k= m==='U' ? 'U-'+CUP.id : key(m,d); if(!S.games[k]) S.games[k]=fresh(m,d); return S.games[k]; }
 function fresh(m,d){
-  if(m==='A') return {guesses:[],cur:[],done:false,won:false,hint:false};
+  if(m==='A'||m==='U') return {guesses:[],cur:[],done:false,won:false,hint:false};
   if(m==='B') return {slots:[],locked:[],rows:[],done:false,hints:0};
   return {found:[],guesses:[],sel:[],mistakes:0,done:false,won:false,order:null};
 }
@@ -232,7 +290,9 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
 
 // ---------- chrome ----------
 function renderChrome(){
-  document.querySelector('.tabs').hidden = mode==='MENU'; $('#homeTxt').textContent=t('home');
+  const solo = mode==='MENU'||mode==='U'||mode==='MAKE';
+  document.querySelector('.tabs').hidden = solo; $('#homeTxt').textContent=t('home');
+  document.querySelector('.meta').hidden = mode==='U'||mode==='MAKE';
   document.documentElement.lang = S.lang==='my'?'my':'en';
   $('#tagline').textContent=t('tag'); $('#btnLang').textContent = S.lang==='my'?'EN':'မြန်';
   for(const m of ['A','B','C']){
@@ -247,7 +307,7 @@ function renderChrome(){
 }
 $('#arch').onchange=e=>{ day=+e.target.value; render(); };
 document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>go(b.dataset.m));
-function go(m){ if(m==='MENU'){ try{history.pushState(null,'',location.pathname);}catch(e){} mode='MENU'; render(); } else location.hash=HASH[m]; }
+function go(m){ if(m==='U'||m==='MAKE'){ if(location.hash==='#'+HASH[m]){ mode=m; render(); } else location.hash=HASH[m]; return; } if(m==='MENU'){ try{history.pushState(null,'',location.pathname);}catch(e){} mode='MENU'; render(); } else location.hash=HASH[m]; }
 $('#titleLink').onclick=e=>{ e.preventDefault(); go('MENU'); };
 $('#btnLang').onclick=()=>{ S.lang = S.lang==='my'?'en':'my'; try{localStorage.setItem('tg.lang',S.lang);}catch(e){} save(); render(); };
 $('#btnHelp').onclick=()=>openModal(`<h2>${t('help')}</h2>
@@ -263,7 +323,7 @@ $('#btnStats').onclick=()=>{
 
 function finish(m, won){
   const g=G(m); g.done=true; if(m!=='B') g.won=won;
-  if(day===todayIdx && !g.counted){
+  if(m!=='U' && day===todayIdx && !g.counted){
     g.counted=true; const s=S.stats[m]||(S.stats[m]={played:0,won:0,streak:0,max:0,last:-9});
     s.played++; if(won){ s.won++; s.streak = (s.last===day-1)? s.streak+1 : 1; s.max=Math.max(s.max,s.streak); s.last=day; } else { s.streak=0; s.last=day; }
   }
@@ -276,8 +336,15 @@ function scoreRow(guess, ans){
   return res.map((r,i)=>{ if(r) return r; const k=rest.indexOf(guess[i]); if(k>=0){rest.splice(k,1); return 'near';} return 'miss'; });
 }
 function syl2(w,bank){ for(const a of bank) if(w.startsWith(a) && bank.includes(w.slice(a.length))) return [a,w.slice(a.length)]; return null; }
+function giftPuzzle(){
+  if(CUP._p) return CUP._p;
+  const pool=[...new Set(P.A.flatMap(x=>x.b))].filter(x=>!CUP.w.includes(x));
+  const seed=parseInt(CUP.id,36)||1; const extra=shuffled(pool,seed).slice(0,10);
+  CUP._p={a:CUP.w.join(''), s:CUP.w, b:shuffled([...CUP.w,...extra],seed+7), v:null};
+  return CUP._p; }
 function renderA(){
-  const p=pz('A',day), g=G('A'); const ans=p.s; const el=$('#game');
+  const M = mode==='U' ? 'U' : 'A';
+  const p = M==='U' ? giftPuzzle() : pz('A',day), g=G(M); const ans=p.s; const el=$('#game');
   const best={}; g.guesses.forEach(gs=>scoreRow(gs,ans).forEach((r,i)=>{ const x=gs[i]; const rank={hit:3,near:2,miss:1}; if(!best[x]||rank[r]>rank[best[x]]) best[x]=r; }));
   let rows='';
   for(let r=0;r<6;r++){
@@ -287,7 +354,7 @@ function renderA(){
     else cells='<div class="cell"></div><div class="cell"></div>';
     rows+=`<div class="row">${cells}</div>`;
   }
-  el.innerHTML=`<p class="howto">${t('aHow')}</p>
+  el.innerHTML=`${M==='U'?`<div class="banner"><b>${esc(tf('giftHead',{n:CUP.n}))}</b>${CUP.h?`<span>${esc(tf('giftHint',{h:CUP.h}))}</span>`:''}</div>`:chalBanner('A')}<p class="howto">${t('aHow')}</p>
    <div class="legend"><span><i style="background:var(--hit)"></i>${t('hit')}</span><span><i style="background:var(--near)"></i>${t('near')}</span><span><i style="background:var(--miss)"></i>${t('miss')}</span></div>
    <div class="board" id="board">${rows}</div>
    ${g.done?'':`<div class="keys">${p.b.map(x=>`<button class="key ${best[x]||''}" data-s="${x}">${x}</button>`).join('')}</div>
@@ -298,13 +365,13 @@ function renderA(){
   $('#aHint').onclick=()=>{ g.hint=true; save(); renderA(); toast(`💡 ${ans[0]} …`); };
   $('#aGo').onclick=()=>{
     if(g.cur.length<2){ toast(t('need2')); return shake(); }
-    const w=g.cur.join(''); if(!p.v.includes(w)){ toast(t('notword')); return shake(); }
+    const w=g.cur.join(''); if(p.v && !p.v.includes(w)){ toast(t('notword')); return shake(); }
     g.guesses.push(g.cur.slice()); g.cur=[];
-    const won = w===p.a; if(won||g.guesses.length>=6) finish('A',won); else save();
+    const won = w===p.a; if(won||g.guesses.length>=6) finish(M,won); else save();
     render();
   };
 }
-function shake(){ const b=$('#board .row:nth-child('+(G('A').guesses.length+1)+')'); if(b){ b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake'); } }
+function shake(){ const b=$('#board .row:nth-child('+(G().guesses.length+1)+')'); if(b){ b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake'); } }
 
 // ---------- PROVERB (B) ----------
 function renderB(){
@@ -317,7 +384,7 @@ function renderB(){
   const used=new Set(g.slots.filter(x=>x!=null));
   let slots=''; for(let i=0;i<n;i++){ const ti=g.slots[i];
     slots+= ti==null ? `<button class="piece empty" data-i="${i}" aria-label="empty">${num(i+1)}</button>` : `<button class="piece ${g.locked[i]?'lock':''}" data-i="${i}">${p.t[ti]}</button>`; }
-  el.innerHTML=`<p class="howto">${t('bHow')}</p>
+  el.innerHTML=`${chalBanner('B')}<p class="howto">${t('bHow')}</p>
    <div class="slots" id="slots">${slots}</div>
    <div class="bank">${g.order.filter(ti=>!used.has(ti)).map(ti=>`<button class="piece" data-t="${ti}">${p.t[ti]}</button>`).join('')}</div>
    ${g.rows.length?`<div class="tries">${g.rows.map(r=>r).join('<br>')}</div>`:''}
@@ -342,7 +409,7 @@ function renderC(){
   const foundSet=new Set(g.found.flatMap(i=>groups[i].w));
   const label=x=> S.lang==='my'? x.my : x.en;
   const disp=w=>w.split('|').join('\u200b');
-  let html=`<p class="howto">${t('cHow')}</p><div class="grid16">`;
+  let html=`${g.done?'':chalBanner('C')}<p class="howto">${t('cHow')}</p><div class="grid16">`;
   const showGroups = g.done ? [...g.found, ...groups.map((_,i)=>i).filter(i=>!g.found.includes(i))] : g.found;
   for(const i of showGroups){ const x=groups[i]; html+=`<div class="solved d${x.d}"><b>${label(x)}</b><span>${x.w.map(disp).join('၊ ')}</span></div>`; }
   if(!g.done) for(const w of g.order.filter(w=>!foundSet.has(w))) html+=`<button class="word ${g.sel.includes(w)?'sel':''}" data-w="${w}">${disp(w)}</button>`;
@@ -370,9 +437,15 @@ function renderC(){
 }
 
 // ---------- RESULT + SHARE ----------
+function scoreOf(m,g){ if(m==='A'||m==='U') return g.won? g.guesses.length : 7; if(m==='B') return g.rows.length+(g.hints||0); return g.won? g.mistakes : 5; }
+function scoreTxt(m,s){ if((m==='A'||m==='U')&&s>6 || m==='C'&&s>4) return t('scX'); return tf(m==='C'?'scC':m==='B'?'scB':'scA',{k:num(s)}); }
+function chalBanner(m){ const c=(S.ch||{})[m+'-'+day]; const g=S.games[key(m,day)]; if(!c||(g&&g.done)) return '';
+  return `<div class="banner chal"><b>${esc(tf('chalBanner',{n:c.n,s:scoreTxt(m,c.s)}))}</b></div>`; }
 function shareText(){
-  const n=num(day+1), url=SITE_URL+'#'+HASH[mode];
+  const n=num(day+1), url=SITE_URL+'#'+(mode==='U'?'make':HASH[mode]);
   let body='';
+  if(mode==='U'){ const p=giftPuzzle(), g=G('U'); const em={hit:'🟩',near:'🟨',miss:'⬜'};
+    return `ပဟေဠိ ${tf('giftHead',{n:CUP.n})} ${g.won?num(g.guesses.length):'X'}/${num(6)}\n`+g.guesses.map(gs=>scoreRow(gs,p.s).map(r=>em[r]).join('')).join('\n')+`\n${url}`; }
   if(mode==='A'){ const p=pz('A',day), g=G('A'), ans=p.s;
     const em={hit:'🟩',near:'🟨',miss:'⬜'};
     body=`🔤 ${t('A')} ${g.won?num(g.guesses.length):'X'}/${num(6)}${g.hint?' 💡':''}\n`+g.guesses.map(gs=>scoreRow(gs,ans).map(r=>em[r]).join('')).join('\n');
@@ -389,22 +462,58 @@ function nextBtn(){ const left=['A','B','C'].filter(m=>!(S.games[key(m,day)]||{}
 function renderResult(){
   const r=$('#result'); const g=G(); const txt=shareText();
   let head='';
-  if(mode==='A'){ const p=pz('A',day); head = g.won? t('won') : `${t('ansWas')} ${p.a}`; }
+  if(mode==='A'||mode==='U'){ const p= mode==='U'? giftPuzzle() : pz('A',day); head = g.won? t('won') : `${t('ansWas')} ${p.a}`; }
   else if(mode==='B') head=t('bWon'); else head = g.won? t('cWon'): t('cLost');
-  const url=SITE_URL+'#'+HASH[mode];
+  const url=SITE_URL+'#'+(mode==='U'?'make':HASH[mode]);
+  const c=(S.ch||{})[mode+'-'+day]; let vs='';
+  if(c && mode!=='U'){ const me=scoreOf(mode,g); vs=`<p class="vs">${esc(tf(me<c.s?'chalWin':me===c.s?'chalTie':'chalLose',{n:c.n}))}<br><small>${t('yourName')==='Your name'?'You':'သင်'}: ${scoreTxt(mode,me)} · ${esc(c.n)}: ${scoreTxt(mode,c.s)}</small></p>`; }
   r.hidden=false;
-  r.innerHTML=`<h2>${head}</h2>
+  r.innerHTML=`<h2>${head}</h2>${vs}
    <textarea class="sharebox" id="shareTxt" rows="${txt.split('\n').length}" readonly>${txt}</textarea>
    <div class="actions"><button class="btn primary" id="rShare">${t('share')}</button><button class="btn" id="rCopy">${t('copy')}</button></div>
+   <button class="btn" id="rImg">${t('img')}</button>
    <div class="links"><a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}" target="_blank" rel="noopener" id="rFb">Facebook</a><a href="viber://forward?text=${encodeURIComponent(txt)}" id="rViber">Viber</a></div>
-   ${nextBtn()}
+   ${mode==='U' ? `<button class="btn gold" onclick="go('MAKE')">${t('giftMake')}</button>` : `<div class="chalbox"><label for="chName">${t('yourName')}</label><div class="actions"><input id="chName" maxlength="${NAME_MAX}" placeholder="${t('namePh')}" value="${esc(S.name||'')}"><button class="btn primary" id="rChal">${t('chal')}</button></div></div>${nextBtn()}`}
    ${day===todayIdx?`<p class="next">${t('next')}: <span id="cd"></span></p>`:''}`;
   $('#rCopy').onclick=copy;
   $('#rFb').addEventListener('click',()=>{ copy(true); });
+  $('#rImg').onclick=shareImage;
+  if($('#rChal')) $('#rChal').onclick=()=>{ const nm=$('#chName').value.trim().slice(0,NAME_MAX); if(!nm){ toast(t('needName')); $('#chName').focus(); return; }
+    S.name=nm; save(); const link=SITE_URL+'?c='+enc({m:mode,d:day,n:nm,s:scoreOf(mode,g)})+'#'+HASH[mode];
+    const msg=tf('chalMsg',{d:num(day+1),m:t(mode),s:scoreTxt(mode,scoreOf(mode,g))})+'\n'+link;
+    shareOrCopy(msg, t('chalReady')); };
   $('#rShare').onclick=async()=>{ try{ if(navigator.share){ await navigator.share({text:txt}); return; } }catch(e){ if(e&&e.name==='AbortError') return; } copy(); };
   tick();
 }
+async function shareOrCopy(text, okMsg){
+  try{ if(navigator.share){ await navigator.share({text}); return; } }catch(e){ if(e&&e.name==='AbortError') return; }
+  try{ await navigator.clipboard.writeText(text); toast(okMsg||t('copied')); }catch(e){ openModal(`<p>${t('copyFail')}</p><textarea class="sharebox" rows="5" readonly>${esc(text)}</textarea>`); } }
 async function copy(quiet){ const txt=$('#shareTxt').value; try{ await navigator.clipboard.writeText(txt); if(quiet!==true) toast(t('copied')); }catch(e){ const ta=$('#shareTxt'); ta.focus(); ta.select(); if(quiet!==true) toast(t('copyFail')); } }
+async function shareImage(){
+  const W=1080,H=1080, cv=document.createElement('canvas'); cv.width=W; cv.height=H; const x=cv.getContext('2d');
+  try{ await Promise.all(['700 120px Padauk','600 46px "Noto Sans Myanmar"','400 38px "Noto Sans Myanmar"'].map(f=>document.fonts.load(f,'ပဟေဠိ'))); }catch(e){}
+  const BODY='"Noto Sans Myanmar","Pyidaungsu","Myanmar Text",sans-serif';
+  const rr=(X,Y,w,h,r,fill)=>{ x.beginPath(); x.moveTo(X+r,Y); x.arcTo(X+w,Y,X+w,Y+h,r); x.arcTo(X+w,Y+h,X,Y+h,r); x.arcTo(X,Y+h,X,Y,r); x.arcTo(X,Y,X+w,Y,r); x.closePath(); x.fillStyle=fill; x.fill(); };
+  x.fillStyle='#e9ecf1'; x.fillRect(0,0,W,H); rr(60,60,W-120,H-120,48,'#ffffff');
+  x.textAlign='center'; x.fillStyle='#1f2937'; x.font='700 120px Padauk,'+BODY; x.fillText('ပဟေဠိ',W/2,250);
+  const lines=shareText().split('\n'); x.fillStyle='#2563eb'; x.font='600 46px '+BODY;
+  x.fillText(mode==='U'? tf('giftHead',{n:CUP.n}) : `${t(mode)} · #${num(day+1)}`, W/2, 340);
+  const COL={'🟩':'#2f8f5b','🟨':'#d4a017','⬜':'#c3cad4','🟦':'#3b82f6','🟪':'#8b5cf6'};
+  const rows=lines.slice(1,-1).map(l=>Array.from(l).filter(ch=>COL[ch])).filter(r=>r.length);
+  const cols=Math.max(1,...rows.map(r=>r.length)), gap=14;
+  const size=Math.min(110, Math.floor((W-300-gap*(cols-1))/cols), Math.floor((470-gap*(rows.length-1))/Math.max(1,rows.length)));
+  const gw=cols*size+(cols-1)*gap, gx=(W-gw)/2, gh=rows.length*size+(rows.length-1)*gap, gy=390+Math.max(0,(470-gh)/2);
+  rows.forEach((r,ri)=>r.forEach((ch,ci)=>rr(gx+ci*(size+gap), gy+ri*(size+gap), size, size, 14, COL[ch])));
+  const g=G(); const m=mode; let sc= m==='U' ? (g.won? `${num(g.guesses.length)}/${num(6)}`:'X') : scoreTxt(m,scoreOf(m,g));
+  const st=(S.stats[m]||{}).streak||0; x.fillStyle='#1f2937'; x.font='600 54px '+BODY;
+  x.fillText(sc + (m!=='U'&&st>1&&day===todayIdx? `   🔥 ${num(st)}`:''), W/2, 920);
+  x.fillStyle='#6b7280'; x.font='400 38px '+BODY; x.fillText('game.thinthilar.com', W/2, 985);
+  const blob=await new Promise(res=>cv.toBlob(res,'image/png'));
+  const file= blob && typeof File==='function' ? new File([blob],'pahaeli.png',{type:'image/png'}) : null;
+  try{ if(file && navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file], text: lines[lines.length-1]}); return; } }catch(e){ if(e&&e.name==='AbortError') return; }
+  const url=cv.toDataURL('image/png');
+  openModal(`<img src="${url}" alt="ပဟေဠိ result" style="width:100%;border-radius:12px"><p>${t('imgSave')}</p><a class="btn" href="${url}" download="pahaeli.png" style="text-align:center;text-decoration:none;color:var(--ink);padding:10px">${t('dl')}</a>`);
+}
 function tick(){ const el=$('#cd'); if(!el) return; let ms=EPOCH+(todayIdx+1)*DAY-Date.now(); if(ms<0) ms=0;
   const h=Math.floor(ms/36e5), m=Math.floor(ms%36e5/6e4), s=Math.floor(ms%6e4/1e3); el.textContent=num(`${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`); }
 setInterval(tick,1000);
@@ -412,9 +521,33 @@ setInterval(tick,1000);
 function renderMenu(){
   const ic={A:'🔤',B:'📜',C:'🧩'};
   $('#game').innerHTML=`<div class="menu"><h2>${t('pick')}</h2>${['A','B','C'].map(m=>{ const g=S.games[key(m,day)];
-    return `<button class="card" onclick="go('${m}')"><span class="ic">${ic[m]}</span><span><b>${t(m)}</b><small>${t('d'+m)}</small></span><span class="pill ${g&&g.done?'ok':''}">${g&&g.done?t('done'):t('play')}</span></button>`; }).join('')}</div>`;
+    return `<button class="card" onclick="go('${m}')"><span class="ic">${ic[m]}</span><span><b>${t(m)}</b><small>${t('d'+m)}</small></span><span class="pill ${g&&g.done?'ok':''}">${g&&g.done?t('done'):t('play')}</span></button>`; }).join('')}
+    <button class="card gift" onclick="go('MAKE')"><span class="ic">🎁</span><span><b>${t('mkT')}</b><small>${t('mkD')}</small></span><span class="pill">${t('play')}</span></button></div>`;
 }
-function render(){ $('#result').hidden=true; renderChrome(); ({MENU:renderMenu,A:renderA,B:renderB,C:renderC})[mode](); renderChrome(); }
+function renderMake(){
+  const el=$('#game');
+  el.innerHTML=`<div class="menu"><h2>${t('mkT')}</h2><p class="howto">${t('mkHow')}</p>
+   <div class="form"><label for="mkWord">${t('mkWord')}</label><input id="mkWord" maxlength="20" placeholder="${t('mkWordPh')}" autocomplete="off">
+   <label for="mkHint">${t('mkHint')}</label><input id="mkHint" maxlength="40" placeholder="${t('mkHintPh')}" autocomplete="off">
+   <label for="mkName">${t('yourName')}</label><input id="mkName" maxlength="${NAME_MAX}" placeholder="${t('namePh')}" value="${esc(S.name||'')}">
+   <p class="err" id="mkErr" role="alert"></p>
+   <button class="btn primary" id="mkGo">${t('mkBtn')}</button></div><div id="mkOut"></div></div>`;
+  ['mkWord','mkName'].forEach(id=>$('#'+id).oninput=()=>{$('#mkErr').textContent='';});
+  $('#mkGo').onclick=()=>{
+    const w=$('#mkWord').value.trim(), h=$('#mkHint').value.trim().slice(0,40), nm=$('#mkName').value.trim().slice(0,NAME_MAX);
+    const sy=syl(w);
+    if(sy.length!==2 || !sy.every(x=>/^[\u1000-\u109F]+$/.test(x))){ $('#mkErr').textContent=t('mkErr2'); $('#mkWord').focus(); return; }
+    if(BLOCK.some(b=>w.includes(b)||h.includes(b)||nm.includes(b))){ $('#mkErr').textContent=t('mkBad'); return; }
+    if(!nm){ $('#mkErr').textContent=t('needName'); $('#mkName').focus(); return; }
+    S.name=nm; save();
+    const link=SITE_URL+'?p='+enc({w:sy.join(''),h,n:nm})+'#gift'; const msg=tf('mkMsg',{n:nm})+'\n'+link;
+    $('#mkOut').innerHTML=`<div class="result"><h2>${t('mkDone')}</h2><textarea class="sharebox" rows="3" readonly>${esc(msg)}</textarea>
+      <div class="actions"><button class="btn primary" id="mkShare">${t('share')}</button><a class="btn" href="viber://forward?text=${encodeURIComponent(msg)}" style="text-align:center;text-decoration:none;color:var(--ink);padding:10px">Viber</a></div>
+      <a class="btn" href="${esc(link)}" style="text-align:center;text-decoration:none;color:var(--ink);padding:10px">${t('mkTry')}</a></div>`;
+    $('#mkShare').onclick=()=>shareOrCopy(msg);
+  };
+}
+function render(){ $('#result').hidden=true; if(mode==='U'&&!CUP) mode='MENU'; renderChrome(); ({MENU:renderMenu,A:renderA,B:renderB,C:renderC,U:renderA,MAKE:renderMake})[mode](); renderChrome(); }
 render();
 </script>
 </body>
