@@ -11,32 +11,32 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@400;600;700&family=Padauk:wght@700&display=swap" rel="stylesheet">
 <style>
-/* Layout idea: one phone-width column — header, mode tabs, the puzzle, a share card. Jade lacquer + pagoda gold. */
+/* Layout idea: one phone-width column — header, mode tabs, the puzzle, a share card. Calm grey base, blue for anything tappable, gold for wins. */
 :root{
-  --bg:#eef3f0; --surface:#ffffff; --ink:#14302a; --muted:#5d746d; --line:#cfdcd6;
-  --jade:#1f6f5c; --gold:#c9962b; --gold-soft:#f5e7c4;
+  --bg:#f3f4f6; --surface:#ffffff; --ink:#1f2937; --muted:#6b7280; --line:#d9dde3;
+  --jade:#2563eb; --gold:#c9962b; --gold-soft:#fdf3dc;
   --hit:#2f8f5b; --near:#d4a017; --miss:#8a9893;
   --g1:#e9c46a; --g2:#7cc08a; --g3:#79a7d8; --g4:#b28fd0;
-  --tile:#f6f9f7; --tile-ink:#14302a; --g-ink:#1a1a1a; --on-jade:#ffffff;
+  --tile:#f9fafb; --tile-ink:#14302a; --g-ink:#1a1a1a; --on-jade:#ffffff;
   --display:"Padauk","Noto Sans Myanmar","Myanmar Text","Pyidaungsu",serif;
   --body:"Noto Sans Myanmar","Pyidaungsu","Myanmar Text","Padauk",system-ui,sans-serif;
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --bg:#0d1d19; --surface:#142924; --ink:#e6efe9; --muted:#9db3ab; --line:#28443c;
-    --jade:#5fc1a4; --gold:#e3b54f; --gold-soft:#3a3220;
+    --bg:#0f141b; --surface:#171d26; --ink:#e5e9f0; --muted:#9aa4b2; --line:#2a3240;
+    --jade:#6b9cff; --gold:#e3b54f; --gold-soft:#3a3220;
     --hit:#3aa36a; --near:#c99a19; --miss:#4d5e58;
     --g1:#c9a543; --g2:#4f9c5f; --g3:#4b7fb5; --g4:#8c69ad;
-    --tile:#1b342e; --tile-ink:#e6efe9; --g-ink:#ffffff; --on-jade:#0d1d19; color-scheme:dark;
+    --tile:#1d2430; --tile-ink:#e6efe9; --g-ink:#ffffff; --on-jade:#0f141b; color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
-  --bg:#0d1d19; --surface:#142924; --ink:#e6efe9; --muted:#9db3ab; --line:#28443c;
-  --jade:#5fc1a4; --gold:#e3b54f; --gold-soft:#3a3220;
+  --bg:#0f141b; --surface:#171d26; --ink:#e5e9f0; --muted:#9aa4b2; --line:#2a3240;
+  --jade:#6b9cff; --gold:#e3b54f; --gold-soft:#3a3220;
   --hit:#3aa36a; --near:#c99a19; --miss:#4d5e58;
   --g1:#c9a543; --g2:#4f9c5f; --g3:#4b7fb5; --g4:#8c69ad;
-  --tile:#1b342e; --tile-ink:#e6efe9; --g-ink:#ffffff; --on-jade:#0d1d19; color-scheme:dark;
+  --tile:#1d2430; --tile-ink:#e6efe9; --g-ink:#ffffff; --on-jade:#0f141b; color-scheme:dark;
 }
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);line-height:1.7}
@@ -48,7 +48,7 @@ header{display:flex;align-items:center;gap:10px}
 .brand{display:flex;flex-direction:column;flex:1;min-width:0}
 .home{color:var(--muted);text-decoration:none;font-size:.85rem;align-self:flex-start}
 .brand h1 a{color:inherit;text-decoration:none}
-.brand h1{font-family:var(--display);font-size:2rem;line-height:1.2;margin:0;color:var(--jade);letter-spacing:.01em}
+.brand h1{font-family:var(--display);font-size:2rem;line-height:1.2;margin:0;color:var(--ink);letter-spacing:.01em}
 .brand small{color:var(--muted);font-size:.82rem}
 .iconbtn{border:1px solid var(--line);background:var(--surface);border-radius:10px;min-width:42px;height:42px;padding:0 10px;font-size:.9rem;font-weight:600}
 .tabs[hidden]{display:none}

@@ -11,23 +11,23 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@400;600;700&family=Padauk:wght@700&display=swap" rel="stylesheet">
 <style>
-/* Layout idea: a phone-width shelf of game cards; live games first, coming-soon cards quieter. Same jade + gold as ပဟေဠိ. */
+/* Layout idea: a phone-width shelf of game cards; live games first, coming-soon cards quieter. Grey base + blue actions, same as ပဟေဠိ. */
 :root{
-  --bg:#eef3f0; --surface:#ffffff; --ink:#14302a; --muted:#5d746d; --line:#cfdcd6;
-  --jade:#1f6f5c; --gold:#c9962b; --gold-soft:#f5e7c4; --hit:#2f8f5b; --on-jade:#ffffff;
+  --bg:#f3f4f6; --surface:#ffffff; --ink:#1f2937; --muted:#6b7280; --line:#d9dde3;
+  --jade:#2563eb; --gold:#c9962b; --gold-soft:#fdf3dc; --hit:#2f8f5b; --on-jade:#ffffff;
   --display:"Padauk","Noto Sans Myanmar","Myanmar Text","Pyidaungsu",serif;
   --body:"Noto Sans Myanmar","Pyidaungsu","Myanmar Text","Padauk",system-ui,sans-serif;
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --bg:#0d1d19; --surface:#142924; --ink:#e6efe9; --muted:#9db3ab; --line:#28443c;
-    --jade:#5fc1a4; --gold:#e3b54f; --gold-soft:#3a3220; --hit:#3aa36a; --on-jade:#0d1d19; color-scheme:dark;
+    --bg:#0f141b; --surface:#171d26; --ink:#e5e9f0; --muted:#9aa4b2; --line:#2a3240;
+    --jade:#6b9cff; --gold:#e3b54f; --gold-soft:#3a3220; --hit:#3aa36a; --on-jade:#0f141b; color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
-  --bg:#0d1d19; --surface:#142924; --ink:#e6efe9; --muted:#9db3ab; --line:#28443c;
-  --jade:#5fc1a4; --gold:#e3b54f; --gold-soft:#3a3220; --hit:#3aa36a; --on-jade:#0d1d19; color-scheme:dark;
+  --bg:#0f141b; --surface:#171d26; --ink:#e5e9f0; --muted:#9aa4b2; --line:#2a3240;
+  --jade:#6b9cff; --gold:#e3b54f; --gold-soft:#3a3220; --hit:#3aa36a; --on-jade:#0f141b; color-scheme:dark;
 }
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);line-height:1.7}
@@ -35,7 +35,7 @@ a:focus-visible,button:focus-visible{outline:3px solid var(--gold);outline-offse
 .wrap{max-width:520px;margin:0 auto;padding:16px 16px 40px;display:flex;flex-direction:column;gap:16px}
 header{display:flex;align-items:center;gap:10px}
 .brand{flex:1}
-.brand h1{font-family:var(--display);font-size:1.9rem;line-height:1.25;margin:0;color:var(--jade)}
+.brand h1{font-family:var(--display);font-size:1.9rem;line-height:1.25;margin:0;color:var(--ink)}
 .brand small{color:var(--muted);font-size:.85rem}
 .iconbtn{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;min-width:44px;height:42px;font:inherit;font-weight:600;cursor:pointer}
 h2{margin:0;font-size:1rem;color:var(--muted);font-weight:600}
