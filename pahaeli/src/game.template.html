@@ -138,6 +138,15 @@ header{display:flex;align-items:center;gap:10px}
 .form{display:flex;flex-direction:column;gap:6px}.form label{font-size:.88rem;font-weight:600}
 .err{color:#b42318;font-size:.88rem;margin:0;min-height:1em}
 .card.gift{border-style:dashed}
+.daystats{margin:0;font-size:.9rem;color:var(--muted)}.daystats b{color:var(--ink)}
+.form.box{border:1px solid var(--line);border-radius:14px;padding:12px;background:var(--tile)}.form h3{margin:0;font-size:1rem}
+.grp{border:2px solid var(--jade);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px;background:var(--surface);margin-bottom:10px}
+.grphead{display:flex;gap:10px;align-items:center;justify-content:space-between}.grphead span{display:flex;flex-direction:column}.grphead small{color:var(--muted);font-size:.78rem}
+.btn.sm{flex:0 0 auto;min-height:38px;font-size:.88rem}
+.board2 table{width:100%;border-collapse:collapse;font-size:.92rem;font-variant-numeric:tabular-nums}
+.board2 th{font-size:.75rem;color:var(--muted);text-align:left;font-weight:600;padding:4px}.board2 td{padding:6px 4px;border-top:1px solid var(--line)}
+.board2 tr.me td{font-weight:700;color:var(--jade)}
+.linkbtn{background:none;border:0;color:var(--muted);font-size:.8rem;align-self:flex-end;text-decoration:underline;padding:4px}
 footer{font-size:.75rem;color:var(--muted);text-align:center}
 @media (max-width:380px){.row{grid-template-columns:repeat(2,100px)}.word{font-size:.82rem}}
 </style>
@@ -169,6 +178,8 @@ footer{font-size:.75rem;color:var(--muted);text-align:center}
 // ---------- Settings you can change ----------
 const HOME_URL = "https://game.thinthilar.com/pahaeli/"; // used in share links when the page runs somewhere else (e.g. a preview)
 const SITE_URL = (/^https?:/.test(location.protocol) && /thinthilar\.com$|github\.io$/.test(location.hostname)) ? location.origin+location.pathname : HOME_URL;
+const SB_URL = "https://rxfsmvbukzlcdgvkjcsg.supabase.co";   // Supabase project URL (public)
+const SB_KEY = "sb_publishable_8ElijCo3o5fFzw6VqtMuJA_WQsWB7vS";   // Supabase publishable key (public by design; tables are locked, only safe functions are callable)
 const EPOCH = Date.UTC(2026,10,7,17,30); // Puzzle #1 = 8 Nov 2026, midnight Myanmar time (UTC+6:30)
 // ---------------------------------------------
 const P = JSON.parse(document.getElementById('puzzles').textContent);
@@ -201,7 +212,15 @@ const T = {
   mkWord:"ဝှက်မယ့် စကားလုံး (နှစ်လုံးတွဲ)",mkWordPh:"ဥပမာ မုန့်ဟင်း",mkHint:"အရိပ်အမြွက် (မထည့်လည်းရ)",mkHintPh:"ဥပမာ မနက်စာ",mkBtn:"လင့်ခ် ဖန်တီးမယ်",
   mkErr2:"နှစ်လုံးတွဲ မြန်မာ စကားလုံး ထည့်ပါ (ဥပမာ မုန့်ဟင်း)",mkBad:"ဒီစကားလုံး သုံးလို့မရပါ",mkDone:"လင့်ခ် အဆင်သင့်! သူငယ်ချင်းကို ပို့ပါ",
   mkMsg:"🎁 {n} က မင်းအတွက် ပဟေဠိ လုပ်ထားတယ်! ဖြေကြည့်ပါ",mkTry:"ကိုယ်တိုင် စမ်းကြည့်မယ်",
-  giftHead:"🎁 {n} ရဲ့ ပဟေဠိ",giftHint:"အရိပ်အမြွက်: {h}",giftMake:"🎁 ကိုယ်တိုင်လည်း လုပ်ပြီး ပြန်ပို့မယ်",badLink:"ဒီလင့်ခ် မမှန်ပါ"},
+  giftHead:"🎁 {n} ရဲ့ ပဟေဠိ",giftHint:"အရိပ်အမြွက်: {h}",giftMake:"🎁 ကိုယ်တိုင်လည်း လုပ်ပြီး ပြန်ပို့မယ်",badLink:"ဒီလင့်ခ် မမှန်ပါ",
+  stP:"👥 ကစားသူ {p} ယောက် · ဖြေနိုင်သူ {x}%",stAvg:"ပျမ်းမျှ {a}",stBetter:"သင်က ကစားသူ {x}% ထက် ပိုကောင်းတယ် 💪",stFirst:"ယနေ့ ပထမဆုံး ဖြေတဲ့သူ ဖြစ်ပါတယ်! 🎉",
+  frT:"သူငယ်ချင်း အုပ်စု",frD:"👥 အုပ်စုဖွဲ့ပြီး အပတ်စဉ် အမှတ်ယှဉ်ပါ",frHow:"သူငယ်ချင်း၊ မိသားစု၊ လုပ်ဖော်ကိုင်ဖက်တွေနဲ့ အုပ်စုဖွဲ့ပါ။ ယနေ့ ပဟေဠိ ဖြေတိုင်း အမှတ်ရပြီး အပတ်စဉ် အဆင့်ကို ကြည့်နိုင်ပါတယ်။",
+  frWeek:"ဒီအပတ် (တနင်္လာ–တနင်္ဂနွေ)",frPts:"အမှတ်: ပဟေဠိ တစ်ခု ဖြေနိုင်ရင် ၁–၆ မှတ် (ကြိမ်နည်းလေ အမှတ်များလေ)",frCol:"အမှတ်",frSolved:"ဖြေနိုင်",
+  frNew:"အုပ်စုအသစ် ဖွဲ့မယ်",frName:"အုပ်စု နာမည်",frNamePh:"ဥပမာ ကြက်တောင်အသင်း",frCreate:"အုပ်စု ဖွဲ့မယ်",
+  frJoin:"အုပ်စု ဝင်မယ်",frCode:"အုပ်စု ကုဒ်",frCodePh:"ဥပမာ K7M2QX",frJoinBtn:"ဝင်မယ်",frInvite:"📨 ဖိတ်မယ်",frLeave:"ထွက်မယ်",
+  frInvMsg:"👥 ပဟေဠိ အုပ်စု \"{g}\" ကို ဝင်ပြီး အပတ်စဉ် ယှဉ်ကြရအောင်! ကုဒ်: {c}",frInvited:"📨 \"{g}\" အုပ်စုကို ဖိတ်ခံထားရပါတယ်",frNone:"အုပ်စု မရှိသေးပါ — အသစ်ဖွဲ့ပါ ဒါမှမဟုတ် ကုဒ်နဲ့ ဝင်ပါ",
+  frEmpty:"ဒီအပတ် မကစားရသေး",frMe:"(သင်)",frCreated:"အုပ်စု ဖွဲ့ပြီးပါပြီ — သူငယ်ချင်းတွေကို ဖိတ်ပါ",frJoined:"အုပ်စု ဝင်ပြီးပါပြီ",
+  errNet:"ချိတ်ဆက်လို့ မရပါ၊ နောက်မှ ထပ်စမ်းပါ",errNoGroup:"ဒီကုဒ်နဲ့ အုပ်စု မရှိပါ",errFull:"အုပ်စု ပြည့်နေပါပြီ",errMany:"ယနေ့ အုပ်စု ဖွဲ့တာ များလွန်းပါပြီ",errNeedGroup:"အုပ်စု နာမည် ထည့်ပါ",errCode:"ကုဒ် ထည့်ပါ"},
  en:{tag:"Daily Myanmar puzzles",A:"Word",B:"Proverb",C:"Groups",todo:"Not played",done:"Done ✓",num:"Puzzle",today:"Today",arch:"Day",
   aHow:"Guess the hidden two-syllable word in 6 tries. Tap the tiles below to build your guess.",
   hit:"Right place",near:"In the word, wrong place",miss:"Not in the word",del:"⌫ Delete",guess:"Guess",hint:"💡 Hint",
@@ -225,7 +244,15 @@ const T = {
   mkWord:"Secret word (two syllables)",mkWordPh:"e.g. မုန့်ဟင်း",mkHint:"Hint (optional)",mkHintPh:"e.g. breakfast",mkBtn:"Create link",
   mkErr2:"Enter a two-syllable Burmese word, e.g. မုန့်ဟင်း",mkBad:"That word can't be used",mkDone:"Link ready! Send it to a friend",
   mkMsg:"🎁 {n} made a ပဟေဠိ for you! Can you solve it?",mkTry:"Try it yourself",
-  giftHead:"🎁 A puzzle from {n}",giftHint:"Hint: {h}",giftMake:"🎁 Make one back",badLink:"This link doesn't work"}
+  giftHead:"🎁 A puzzle from {n}",giftHint:"Hint: {h}",giftMake:"🎁 Make one back",badLink:"This link doesn't work",
+  stP:"👥 {p} players · {x}% solved",stAvg:"average {a}",stBetter:"You did better than {x}% of players 💪",stFirst:"You're the first to finish today! 🎉",
+  frT:"Friend groups",frD:"👥 Make a group and compete every week",frHow:"Make a group with friends, family or coworkers. Every puzzle you solve today earns points, and you can see the weekly ranking.",
+  frWeek:"This week (Mon–Sun)",frPts:"Points: 1–6 for each solved puzzle — fewer tries, more points",frCol:"Points",frSolved:"Solved",
+  frNew:"Make a new group",frName:"Group name",frNamePh:"e.g. Badminton club",frCreate:"Create group",
+  frJoin:"Join a group",frCode:"Group code",frCodePh:"e.g. K7M2QX",frJoinBtn:"Join",frInvite:"📨 Invite",frLeave:"Leave",
+  frInvMsg:"👥 Join my ပဟေဠိ group \"{g}\" and let's compete every week! Code: {c}",frInvited:"📨 You're invited to \"{g}\"",frNone:"No groups yet — make one or join with a code",
+  frEmpty:"Nobody has played this week yet",frMe:"(you)",frCreated:"Group created — now invite your friends",frJoined:"You joined the group",
+  errNet:"Couldn't connect. Try again later.",errNoGroup:"No group with that code",errFull:"That group is full",errMany:"You've made too many groups today",errNeedGroup:"Enter a group name",errCode:"Enter a code"}
 };
 
 // ---------- storage (safe) ----------
@@ -234,6 +261,12 @@ try{ const raw = localStorage.getItem('pahaeli.v1'); if(raw) S = Object.assign(S
 function save(){ try{ localStorage.setItem('pahaeli.v1', JSON.stringify(S)); }catch(e){} }
 const t = k => T[S.lang][k];
 const tf = (k,o) => t(k).replace(/\{(\w)\}/g,(_,x)=> o[x]!=null? o[x] : '');
+const SB_ON = /^https:\/\//.test(SB_URL);
+async function rpc(fn,args){ if(!SB_ON) throw new Error('offline');
+  const r=await fetch(SB_URL+'/rest/v1/rpc/'+fn,{method:'POST',headers:Object.assign({apikey:SB_KEY,'Content-Type':'application/json'}, /^sb_/.test(SB_KEY)?{}:{Authorization:'Bearer '+SB_KEY}),body:JSON.stringify(args)});
+  const j=await r.json().catch(()=>null); if(!r.ok) throw new Error((j&&j.message)||('HTTP '+r.status)); return j; }
+function errMsg(e){ const m=String(e&&e.message||''); return /not found/.test(m)?t('errNoGroup'):/full/.test(m)?t('errFull'):/too many/.test(m)?t('errMany'):t('errNet'); }
+function pid(){ if(!S.pid){ S.pid = (window.crypto&&crypto.randomUUID) ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0; return (c==='x'?r:(r&3|8)).toString(16);}); save(); } return S.pid; }
 const esc = x => String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const num = n => S.lang==='my' ? String(n).replace(/\d/g,d=>MYD[d]) : String(n);
 
@@ -255,7 +288,7 @@ function syl(w){ const out=[]; const a=Array.from(w.normalize('NFC').replace(/[\
   return out; }
 const BLOCK=['လီး','စောက်','လိုး','ခွေးမ','မအေ','ငါလိုး','ဖာသည်'];
 const NAME_MAX=24;
-let CUP=null, CH=null;
+let CUP=null, CH=null, JOIN=null;
 (function readLinks(){
   const q=new URLSearchParams(location.search); let changed=false;
   if(q.get('p')){ const o=dec(q.get('p')); changed=true;
@@ -263,9 +296,10 @@ let CUP=null, CH=null;
     if(!CUP) setTimeout(()=>toast(t('badLink')),300); }
   if(q.get('c')){ const o=dec(q.get('c')); changed=true;
     if(o && 'ABC'.includes(o.m) && Number.isInteger(o.d) && o.d>=0 && o.d<=todayIdx && Number.isFinite(o.s)){ CH={m:o.m,d:o.d,n:String(o.n||'?').slice(0,NAME_MAX),s:o.s}; } }
-  if(changed){ try{ history.replaceState(null,'',location.pathname+(CUP?'#gift':CH?'#'+({A:'word',B:'proverb',C:'groups'})[CH.m]:location.hash)); }catch(e){} }
+  if(q.get('g')){ JOIN=q.get('g').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6); changed=true; }
+  if(changed){ try{ history.replaceState(null,'',location.pathname+(CUP?'#gift':JOIN?'#friends':CH?'#'+({A:'word',B:'proverb',C:'groups'})[CH.m]:location.hash)); }catch(e){} }
 })();
-const HASH={A:'word',B:'proverb',C:'groups',U:'gift',MAKE:'make'}, FROMHASH={word:'A',proverb:'B',groups:'C',make:'MAKE'};
+const HASH={A:'word',B:'proverb',C:'groups',U:'gift',MAKE:'make',F:'friends'}, FROMHASH={word:'A',proverb:'B',groups:'C',make:'MAKE',friends:'F'};
 if(CUP) FROMHASH.gift='U';
 let mode = FROMHASH[(location.hash||'').replace('#','').toLowerCase()] || 'MENU';
 window.addEventListener('hashchange',()=>{ mode = FROMHASH[location.hash.replace('#','').toLowerCase()] || 'MENU'; render(); window.scrollTo(0,0); });
@@ -290,9 +324,9 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
 
 // ---------- chrome ----------
 function renderChrome(){
-  const solo = mode==='MENU'||mode==='U'||mode==='MAKE';
+  const solo = mode==='MENU'||mode==='U'||mode==='MAKE'||mode==='F';
   document.querySelector('.tabs').hidden = solo; $('#homeTxt').textContent=t('home');
-  document.querySelector('.meta').hidden = mode==='U'||mode==='MAKE';
+  document.querySelector('.meta').hidden = mode==='U'||mode==='MAKE'||mode==='F';
   document.documentElement.lang = S.lang==='my'?'my':'en';
   $('#tagline').textContent=t('tag'); $('#btnLang').textContent = S.lang==='my'?'EN':'မြန်';
   for(const m of ['A','B','C']){
@@ -307,7 +341,7 @@ function renderChrome(){
 }
 $('#arch').onchange=e=>{ day=+e.target.value; render(); };
 document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>go(b.dataset.m));
-function go(m){ if(m==='U'||m==='MAKE'){ if(location.hash==='#'+HASH[m]){ mode=m; render(); } else location.hash=HASH[m]; return; } if(m==='MENU'){ try{history.pushState(null,'',location.pathname);}catch(e){} mode='MENU'; render(); } else location.hash=HASH[m]; }
+function go(m){ if(m==='U'||m==='MAKE'||m==='F'){ if(location.hash==='#'+HASH[m]){ mode=m; render(); } else location.hash=HASH[m]; return; } if(m==='MENU'){ try{history.pushState(null,'',location.pathname);}catch(e){} mode='MENU'; render(); } else location.hash=HASH[m]; }
 $('#titleLink').onclick=e=>{ e.preventDefault(); go('MENU'); };
 $('#btnLang').onclick=()=>{ S.lang = S.lang==='my'?'en':'my'; try{localStorage.setItem('tg.lang',S.lang);}catch(e){} save(); render(); };
 $('#btnHelp').onclick=()=>openModal(`<h2>${t('help')}</h2>
@@ -328,6 +362,7 @@ function finish(m, won){
     s.played++; if(won){ s.won++; s.streak = (s.last===day-1)? s.streak+1 : 1; s.max=Math.max(s.max,s.streak); s.last=day; } else { s.streak=0; s.last=day; }
   }
   save();
+  if(m!=='U' && day===todayIdx && !g.sent && SB_ON){ g.sending=rpc('submit_result',{p_player:pid(),p_day:day,p_mode:m,p_score:scoreOf(m,g),p_won: m==='B'?true:!!won}).then(()=>{ g.sent=true; save(); }).catch(()=>{}); }
 }
 
 // ---------- WORD (A) ----------
@@ -468,7 +503,7 @@ function renderResult(){
   const c=(S.ch||{})[mode+'-'+day]; let vs='';
   if(c && mode!=='U'){ const me=scoreOf(mode,g); vs=`<p class="vs">${esc(tf(me<c.s?'chalWin':me===c.s?'chalTie':'chalLose',{n:c.n}))}<br><small>${t('yourName')==='Your name'?'You':'သင်'}: ${scoreTxt(mode,me)} · ${esc(c.n)}: ${scoreTxt(mode,c.s)}</small></p>`; }
   r.hidden=false;
-  r.innerHTML=`<h2>${head}</h2>${vs}
+  r.innerHTML=`<h2>${head}</h2>${vs}${mode!=='U'&&SB_ON?'<p class="daystats" id="dayStats"></p>':''}
    <textarea class="sharebox" id="shareTxt" rows="${txt.split('\n').length}" readonly>${txt}</textarea>
    <div class="actions"><button class="btn primary" id="rShare">${t('share')}</button><button class="btn" id="rCopy">${t('copy')}</button></div>
    <button class="btn" id="rImg">${t('img')}</button>
@@ -478,6 +513,7 @@ function renderResult(){
   $('#rCopy').onclick=copy;
   $('#rFb').addEventListener('click',()=>{ copy(true); });
   $('#rImg').onclick=shareImage;
+  if(mode!=='U'&&SB_ON) loadStats(mode, g);
   if($('#rChal')) $('#rChal').onclick=()=>{ const nm=$('#chName').value.trim().slice(0,NAME_MAX); if(!nm){ toast(t('needName')); $('#chName').focus(); return; }
     S.name=nm; save(); const link=SITE_URL+'?c='+enc({m:mode,d:day,n:nm,s:scoreOf(mode,g)})+'#'+HASH[mode];
     const msg=tf('chalMsg',{d:num(day+1),m:t(mode),s:scoreTxt(mode,scoreOf(mode,g))})+'\n'+link;
@@ -485,6 +521,18 @@ function renderResult(){
   $('#rShare').onclick=async()=>{ try{ if(navigator.share){ await navigator.share({text:txt}); return; } }catch(e){ if(e&&e.name==='AbortError') return; } copy(); };
   tick();
 }
+async function loadStats(m, g){
+  const el=$('#dayStats'); if(!el) return; const d=day;
+  try{ if(g.sending) await g.sending; const st=await rpc('day_stats',{p_day:d,p_mode:m}); if(!$('#dayStats')||mode!==m||day!==d) return;
+    const pl=st.players||0; if(!pl){ el.remove(); return; }
+    if(pl===1 && g.sent){ el.textContent=t('stFirst'); return; }
+    const me=scoreOf(m,g); let worse=0; for(const [k,n] of Object.entries(st.dist||{})) if(+k>me) worse+=n;
+    const others = g.sent ? pl-1 : pl;
+    let h=esc(tf('stP',{p:num(pl),x:num(Math.round(100*(st.solved||0)/pl))}));
+    if(st.avg!=null) h+=' · '+esc(tf('stAvg',{a:scoreTxt(m,st.avg)}));
+    if(others>0 && worse>0) h+='<br><b>'+esc(tf('stBetter',{x:num(Math.round(100*worse/others))}))+'</b>';
+    el.innerHTML=h;
+  }catch(e){ const x=$('#dayStats'); if(x) x.remove(); } }
 async function shareOrCopy(text, okMsg){
   try{ if(navigator.share){ await navigator.share({text}); return; } }catch(e){ if(e&&e.name==='AbortError') return; }
   try{ await navigator.clipboard.writeText(text); toast(okMsg||t('copied')); }catch(e){ openModal(`<p>${t('copyFail')}</p><textarea class="sharebox" rows="5" readonly>${esc(text)}</textarea>`); } }
@@ -522,6 +570,7 @@ function renderMenu(){
   const ic={A:'🔤',B:'📜',C:'🧩'};
   $('#game').innerHTML=`<div class="menu"><h2>${t('pick')}</h2>${['A','B','C'].map(m=>{ const g=S.games[key(m,day)];
     return `<button class="card" onclick="go('${m}')"><span class="ic">${ic[m]}</span><span><b>${t(m)}</b><small>${t('d'+m)}</small></span><span class="pill ${g&&g.done?'ok':''}">${g&&g.done?t('done'):t('play')}</span></button>`; }).join('')}
+    ${SB_ON?`<button class="card gift" onclick="go('F')"><span class="ic">👥</span><span><b>${t('frT')}</b><small>${t('frD')}</small></span><span class="pill">${(S.groups||[]).length?num(S.groups.length):t('play')}</span></button>`:''}
     <button class="card gift" onclick="go('MAKE')"><span class="ic">🎁</span><span><b>${t('mkT')}</b><small>${t('mkD')}</small></span><span class="pill">${t('play')}</span></button></div>`;
 }
 function renderMake(){
@@ -547,7 +596,47 @@ function renderMake(){
     $('#mkShare').onclick=()=>shareOrCopy(msg);
   };
 }
-function render(){ $('#result').hidden=true; if(mode==='U'&&!CUP) mode='MENU'; renderChrome(); ({MENU:renderMenu,A:renderA,B:renderB,C:renderC,U:renderA,MAKE:renderMake})[mode](); renderChrome(); }
+function weekRange(){ const from=todayIdx-((todayIdx+6)%7); return [from, from+6]; }
+function renderFriends(){
+  const el=$('#game'); S.groups=S.groups||[];
+  const field=(id,lab,ph,val,max)=>`<label for="${id}">${lab}</label><input id="${id}" maxlength="${max}" placeholder="${ph}" value="${esc(val||'')}" autocomplete="off">`;
+  el.innerHTML=`<div class="menu"><h2>${t('frT')}</h2><p class="howto">${t('frHow')}</p>
+    ${JOIN?`<div class="banner chal"><b id="invTitle">${esc(tf('frInvited',{g:JOIN}))}</b></div>`:''}
+    <div id="grpList">${S.groups.length?'':`<p class="howto">${t('frNone')}</p>`}</div>
+    <div class="form box"><h3>${t('frJoin')}</h3>${field('jCode',t('frCode'),t('frCodePh'),JOIN||'',6)}${field('jName',t('yourName'),t('namePh'),S.name,NAME_MAX)}
+      <p class="err" id="jErr" role="alert"></p><button class="btn primary" id="jGo">${t('frJoinBtn')}</button></div>
+    <div class="form box"><h3>${t('frNew')}</h3>${field('cName',t('frName'),t('frNamePh'),'',40)}${field('cNick',t('yourName'),t('namePh'),S.name,NAME_MAX)}
+      <p class="err" id="cErr" role="alert"></p><button class="btn" id="cGo2">${t('frCreate')}</button></div>
+    <p class="next">${t('frPts')}</p></div>`;
+  if(JOIN && SB_ON) rpc('group_name',{p_code:JOIN}).then(n=>{ const x=$('#invTitle'); if(x&&n) x.textContent=tf('frInvited',{g:n}); }).catch(()=>{});
+  ['jCode','jName'].forEach(id=>$('#'+id).oninput=()=>{$('#jErr').textContent='';});
+  ['cName','cNick'].forEach(id=>$('#'+id).oninput=()=>{$('#cErr').textContent='';});
+  $('#jGo').onclick=async()=>{ const code=$('#jCode').value.trim().toUpperCase(), nm=$('#jName').value.trim();
+    if(!code){ $('#jErr').textContent=t('errCode'); return; } if(!nm){ $('#jErr').textContent=t('needName'); return; }
+    try{ const name=await rpc('join_group',{p_code:code,p_player:pid(),p_nick:nm}); S.name=nm;
+      S.groups=S.groups.filter(x=>x.code!==code); S.groups.unshift({code,name}); JOIN=null; save(); toast(t('frJoined')); renderFriends(); }
+    catch(e){ $('#jErr').textContent=errMsg(e); } };
+  $('#cGo2').onclick=async()=>{ const gn=$('#cName').value.trim(), nm=$('#cNick').value.trim();
+    if(!gn){ $('#cErr').textContent=t('errNeedGroup'); return; } if(!nm){ $('#cErr').textContent=t('needName'); return; }
+    if(BLOCK.some(b=>gn.includes(b)||nm.includes(b))){ $('#cErr').textContent=t('mkBad'); return; }
+    try{ const code=await rpc('create_group',{p_name:gn,p_player:pid(),p_nick:nm}); S.name=nm; S.groups.unshift({code,name:gn}); save(); toast(t('frCreated')); renderFriends(); }
+    catch(e){ $('#cErr').textContent=errMsg(e); } };
+  const [from,to]=weekRange(), list=$('#grpList');
+  S.groups.forEach((gr,i)=>{ const box=document.createElement('div'); box.className='grp';
+    box.innerHTML=`<div class="grphead"><span><b>${esc(gr.name)}</b><small>${t('frCode')}: ${esc(gr.code)} · ${t('frWeek')}</small></span>
+      <button class="btn gold sm" data-inv="${i}">${t('frInvite')}</button></div><div class="board2" id="b-${esc(gr.code)}">…</div>
+      <button class="linkbtn" data-leave="${i}">${t('frLeave')}</button>`;
+    list.appendChild(box);
+    rpc('group_board',{p_code:gr.code,p_from:from,p_to:to,p_player:pid()}).then(rows=>{
+      const b=document.getElementById('b-'+gr.code); if(!b) return;
+      if(!rows.length||rows.every(r=>!r.played)){ b.innerHTML=`<p class="howto">${t('frEmpty')}</p>`; }
+      b.innerHTML=(b.innerHTML.startsWith('<p')?b.innerHTML:'')+`<table><thead><tr><th>#</th><th></th><th>${t('frCol')}</th><th>${t('frSolved')}</th></tr></thead><tbody>${rows.map((r,k)=>`<tr class="${r.is_me?'me':''}"><td>${num(k+1)}</td><td>${esc(r.nickname)}${r.is_me?' '+t('frMe'):''}</td><td>${num(r.points)}</td><td>${num(r.solved)}</td></tr>`).join('')}</tbody></table>`;
+    }).catch(()=>{ const b=document.getElementById('b-'+gr.code); if(b) b.innerHTML=`<p class="err">${t('errNet')}</p>`; });
+  });
+  list.querySelectorAll('[data-inv]').forEach(b=>b.onclick=()=>{ const gr=S.groups[+b.dataset.inv]; shareOrCopy(tf('frInvMsg',{g:gr.name,c:gr.code})+'\n'+SITE_URL+'?g='+gr.code+'#friends'); });
+  list.querySelectorAll('[data-leave]').forEach(b=>b.onclick=()=>{ const gr=S.groups[+b.dataset.leave]; rpc('leave_group',{p_code:gr.code,p_player:pid()}).catch(()=>{}); S.groups=S.groups.filter(x=>x!==gr); save(); renderFriends(); });
+}
+function render(){ $('#result').hidden=true; if(mode==='U'&&!CUP) mode='MENU'; renderChrome(); ({MENU:renderMenu,A:renderA,B:renderB,C:renderC,U:renderA,MAKE:renderMake,F:renderFriends})[mode](); renderChrome(); }
 render();
 </script>
 </body>
