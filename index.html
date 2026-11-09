@@ -126,9 +126,9 @@ function render(){
   let h = done===3 ? `<span class="pill ok">${t.all}</span>` : done ? `<span class="pill go">${t.done.replace('{n}',num(done))}</span>` : `<span class="pill go">${t.none}</span>`;
   if(best>1) h+=`<span class="pill">${t.streak.replace('{n}',num(best))}</span>`;
   document.getElementById('pStatus').innerHTML=h;
-  const ep=eg&&eg.pet, es=document.getElementById('eStatus');
-  if(!ep) es.innerHTML=`<span class="pill go">${t.eNew}</span>`;
-  else { es.innerHTML=''; const sp=document.createElement('span'); sp.className='pill go'; sp.textContent= !ep.hatched ? t.eEgg : ep.away ? (ep.name+' · '+t.eAway) : ('🐾 '+ep.name); es.appendChild(sp); }
+  const pets= eg ? (eg.pets || (eg.pet?[eg.pet]:[])) : [], es=document.getElementById('eStatus');
+  if(!pets.length) es.innerHTML=`<span class="pill go">${t.eNew}</span>`;
+  else { es.innerHTML=''; pets.forEach(ep=>{ const sp=document.createElement('span'); sp.className='pill go'; sp.textContent= !ep.hatched ? t.eEgg : ep.away ? (ep.name+' · '+t.eAway) : ('🐾 '+ep.name); es.appendChild(sp); }); }
 }
 document.getElementById('lang').onclick=()=>{ lang= lang==='my'?'en':'my'; try{localStorage.setItem('tg.lang',lang);}catch(e){} render(); };
 render();

@@ -87,6 +87,14 @@ textarea{min-height:84px;font-family:ui-monospace,monospace;font-size:.8rem;word
 .dex{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .dex div{border:2px solid var(--line);border-radius:12px;padding:6px 2px;text-align:center;font-size:.7rem;line-height:1.3}
 .dex canvas{width:56px;height:56px;image-rendering:pixelated;display:block;margin:0 auto 2px}
+.slots{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.slots.extra{grid-template-columns:repeat(3,1fr) 56px}
+.slot{position:relative;border:2px solid var(--line);background:var(--surface);color:var(--ink);border-radius:14px;min-height:62px;padding:6px 4px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:.78rem;font-weight:600;line-height:1.25;overflow:hidden}
+.slot.on{border-color:var(--blue);box-shadow:0 0 0 2px rgba(37,99,235,.25)}
+.slot.add{border-style:dashed;background:var(--gold-soft);color:#7a5a12;border-color:var(--gold)}
+.slot.lock{border-style:dashed;color:var(--muted)}
+.slot .nm{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.slot .dot{position:absolute;top:4px;right:6px;width:18px;height:18px;border-radius:50%;background:#d9534f;color:#fff;font-size:.72rem;line-height:18px}
 .help h3{margin:6px 0 0;font-size:1.02rem}
 .help p,.help li{font-size:.92rem;line-height:1.65}
 .help ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px}
@@ -114,6 +122,7 @@ textarea{min-height:84px;font-family:ui-monospace,monospace;font-size:.8rem;word
     <button class="iconbtn" id="bDex" aria-label="Collection">📖</button>
     <button class="iconbtn" id="bLang">EN</button>
   </header>
+  <div class="slots" id="slots" aria-label="My pets"></div>
   <div class="device">
     <div class="bezel"><canvas id="cv" width="320" height="240" aria-label="pet screen"></canvas></div>
     <div class="status" id="status" aria-live="polite"></div>
@@ -141,8 +150,17 @@ const RM=window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').mat
 if(typeof CanvasRenderingContext2D!=='undefined' && !CanvasRenderingContext2D.prototype.roundRect) CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h){ this.rect(x,y,w,h); };
 const HOUR=36e5, DAY=864e5, STEP=5*60e3, EGG_MS=3*60e3;
 let lang='my'; try{ lang=localStorage.getItem('tg.lang')||'my'; }catch(e){}
-let S={v:1,pet:null,dex:{},past:[],eggs:0,streak:0};
-try{ const r=localStorage.getItem(KEY); if(r) S=Object.assign(S,JSON.parse(r)); }catch(e){}
+const MAXP=3;                              // pet homes
+const blank=()=>({v:2,pets:[],cur:0,tok:0,dex:{},past:[],eggs:0,streak:0});
+function migrate(o){                       // v1 (one pet) → v2 (up to 3 pets)
+  if(o.pet!==undefined){ o.pets= o.pet ? [o.pet] : (o.pets||[]); if(o.pet && o.pet.form) o.tok=(o.tok||0)+1; delete o.pet; }
+  if(!Array.isArray(o.pets)) o.pets=[];
+  o.tok=o.tok||0; o.cur=Math.max(0,Math.min(o.cur||0,o.pets.length-1)); o.v=2; return o;
+}
+let S=blank();
+try{ const r=localStorage.getItem(KEY); if(r) S=migrate(Object.assign(blank(),JSON.parse(r))); }catch(e){}
+const cur=()=>S.pets[S.cur]||null;
+const canEgg=()=>S.pets.length===0 || S.tok>0;
 function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} }
 const clamp=v=>Math.max(0,Math.min(100,v));
 const MYD='၀၁၂၃၄၅၆၇၈၉';
@@ -166,7 +184,7 @@ my:{tag:'ဥလေးတစ်လုံး မွေးကြည့်ရအေ�
  stages:['ဥ','မွေးကင်းစ','ကလေး','ဆယ်ကျော်သက်','အရွယ်ရောက်'],
  mH:'ဗိုက်',mJ:'ပျော်',mC:'သန့်',mE:'အား',age:'အသက် {d} ရက်',care:'ပြုစုမှု',
  forms:{shiny:'အရမ်းချစ်စရာ ✨',normal:'ပုံမှန်',scruffy:'ဖရိုဖရဲလေး'},
- grown:'{name} အရွယ်ရောက်ပြီ!',grownD:'ဥအသစ် ယူလို့ရပြီ။ {name} ကို စုဆောင်းမှုစာအုပ်မှာ သိမ်းထားမယ်။',
+ grown:'{name} အရွယ်ရောက်ပြီ!',grownD:'ဥအသစ် တစ်လုံး ရပြီ! 🥚 {name} နဲ့အတူ မွေးလို့ရတယ် — အကောင်လေး ၃ ကောင်ထိ ထားလို့ရတယ်။',
  newEgg:'ဥအသစ် ယူမယ်',newEggQ:'{name} ကို စာအုပ်ထဲ သိမ်းပြီး ဥအသစ် ယူမလား?',keep:'ဆက်မွေးမယ်',
  share:'📷 ပုံ မျှဝေမယ်',shareText:'ငါ့ ဥလေးထဲက {rar} {sp} “{name}” ထွက်လာတယ်! မင်းရော ဘာထွက်မလဲ? 🥚',
  dex:'စုဆောင်းမှု စာအုပ်',found:'{n}/{m} တွေ့ပြီ',myPets:'မွေးခဲ့တဲ့ အကောင်လေးများ',noPast:'မရှိသေးပါ',
@@ -177,6 +195,11 @@ my:{tag:'ဥလေးတစ်လုံး မွေးကြည့်ရအေ�
  awayS:'{name} ထွက်သွားပြီ… ',leaveFood:'🍚 ထမင်း ချထားမယ်',leftToday:'ဒီနေ့ ထမင်းချထားပြီးပြီ — မနက်ဖြန် ထပ်ချပေးပါ',
  awayDays:'ထမင်းချထားတာ {n}/၃ ရက်',back:'{name} ပြန်လာပြီ! 🎉',hatchedToast:'{name} ကို ကြိုဆိုပါတယ်!',
  lucky:'ကံကောင်းခြင်း အာမခံ — ဒီတစ်ခါ သာမန်ထက် ပိုကောင်းမယ်!',unknown:'???',
+ newSlot:'ဥအသစ်',lockSlot:'နေရာလွတ်',needAdult:'အကောင်လေး တစ်ကောင် အရွယ်ရောက် (၇ ရက်) မှ ဥအသစ် ရမယ်',
+ getNow:'အခုယူမယ်',later:'နောက်မှ',eggLabel:'ဥလေး',ready:'ပေါက်ပြီ!',cancel:'မလုပ်တော့ဘူး',
+ full3:'အိမ် ၃ လုံး ပြည့်နေပြီ',full3D:'ဥအသစ်အတွက် နေရာလွတ်ဖို့ တောထဲ ပြန်လွှတ်ပေးမယ့် အကောင်လေး တစ်ကောင် ရွေးပါ။',
+ free:'🌳 တောထဲ ပြန်လွှတ်မယ်',freeQ:'{name} ကို တောထဲ ပြန်လွှတ်မှာ သေချာလား? ပြန်ခေါ်လို့ မရတော့ဘူး — ဒါပေမယ့် စုဆောင်းမှု စာအုပ်ထဲမှာ အမြဲ ရှိနေမယ်။',
+ freeYes:'🌳 လွှတ်မယ်',freed:'{name} ပျော်ပျော်ကြီး တောထဲ ပြေးသွားပြီ 🌳',freedTag:'🌳 တောထဲ ပြန်လွှတ်ခဲ့',
  help:'ကစားနည်း',howBtn:'ကစားနည်း',
  hEggT:'🥚 ဥလေး ယူခြင်း',hEgg:'“ဥလေး ယူမယ်” ကို နှိပ်ပါ။ ဥက ၃ မိနစ်နေရင် ပေါက်မယ်။ ဥကို နှိပ်ပြီး နွေးပေးရင် ပိုမြန်မြန် ပေါက်မယ်။ မပေါက်ခင်လေးမှာ ဥက ရှားပါးမှုအရောင်နဲ့ လင်းလာမယ် — ရွှေရောင်ဆိုရင် အလွန်ရှားပါးပဲ!',
  hRarT:'⭐ ဥထဲက ဘာထွက်မလဲ — ရှားပါးမှု',hRar:'ဥတိုင်းမှာ ဘာ တိရစ္ဆာန်ထွက်မလဲဆိုတာ ကံပေါ်မှာ မူတည်တယ်။',
@@ -192,7 +215,8 @@ my:{tag:'ဥလေးတစ်လုံး မွေးကြည့်ရအေ�
  hTip:'💡 တစ်နေ့ ၂–၃ ခါ ဝင်ကြည့်ပေးရင် လုံလောက်ပါတယ်။',
  hGrowT:'🌱 ကြီးပြင်းခြင်း',hGrow:'မွေးကင်းစ (ရက် ၀–၁) → ကလေး (ရက် ၁–၃) → ဆယ်ကျော်သက် (ရက် ၃–၇) → ၇ ရက်မြောက်မှာ အရွယ်ရောက်မယ်။ ကောင်းကောင်း ပြုစုရင် “အရမ်းချစ်စရာ ✨” ဖြစ်မယ်၊ လျစ်လျူရှုရင် “ဖရိုဖရဲလေး” ဖြစ်မယ်။',
  hAwayT:'😢 ထွက်ပြေးသွားရင်',hAway:'၂ ရက်လုံး လုံးဝ မပြုစုရင် အကောင်လေးက စာလေး ချန်ပြီး ထွက်သွားမယ် (မသေပါဘူး)။ တစ်နေ့ တစ်ခါ ထမင်းချထားပေးပါ — ၃ ရက် ချထားရင် ပြန်လာမယ်။ ဒါပေမယ့် ဖရိုဖရဲလေး ဖြစ်သွားနိုင်တယ်။',
- hBookT:'📖 စုဆောင်းမှု စာအုပ်',hBook:'ထွက်ခဲ့တဲ့ တိရစ္ဆာန်တွေ စာအုပ်ထဲ ရောက်မယ်။ မတွေ့ရသေးတာတွေက အရိပ်ပဲ မြင်ရမယ်။ အရွယ်ရောက်ရင် ဥအသစ် ယူလို့ရပြီ — အရင်အကောင်ကို စာအုပ်ထဲ သိမ်းထားမယ်။',
+ hSlotT:'🏠 အိမ် ၃ လုံး',hSlot:'အကောင်လေး ၃ ကောင်ထိ မွေးလို့ရတယ်။ အပေါ်က ခလုတ်တွေနဲ့ တစ်ကောင်ချင်း ပြောင်းကြည့်ပါ (အနီစက်ပါရင် ပြုစုဖို့ လိုနေတယ်)။ အကောင်လေး တစ်ကောင် အရွယ်ရောက်တိုင်း ဥအသစ် တစ်လုံး ရမယ်။ အိမ် ၃ လုံး ပြည့်နေရင် တစ်ကောင်ကို တောထဲ ပြန်လွှတ်ပြီးမှ ဥအသစ် ယူလို့ရမယ်။',
+ hBookT:'📖 စုဆောင်းမှု စာအုပ်',hBook:'ထွက်ခဲ့တဲ့ တိရစ္ဆာန်တွေ စာအုပ်ထဲ ရောက်မယ်။ မတွေ့ရသေးတာတွေက အရိပ်ပဲ မြင်ရမယ်။ တောထဲ ပြန်လွှတ်လိုက်တဲ့ အကောင်လေးတွေလည်း စာအုပ်ထဲမှာ အမြဲ ရှိနေမယ်။',
  hSaveT:'💾 သိမ်းဆည်းခြင်း',hSave:'အကောင်လေးကို ဒီဖုန်း browser ထဲမှာ သိမ်းထားတာပါ။ browser data ဖျက်ရင် ပျောက်နိုင်လို့ “အခြေအနေ → အရန်ကုဒ်” ကို ကူးသိမ်းထားပါ။ အကောင့်နဲ့ ဝင်ပြီး သိမ်းနိုင်တာ မကြာခင် လာမယ်။',
  hShareT:'📷 မျှဝေခြင်း',hShare:'ဥပေါက်တဲ့အခါ၊ အခြေအနေ စာမျက်နှာ၊ အရွယ်ရောက်တဲ့အခါ — “ပုံ မျှဝေမယ်” နဲ့ Facebook မှာ ကြွားလို့ရတယ်!'},
 en:{tag:"Let's raise a little egg",foot:'Free to play',
@@ -211,7 +235,7 @@ en:{tag:"Let's raise a little egg",foot:'Free to play',
  stages:['Egg','Baby','Child','Teen','Adult'],
  mH:'Tummy',mJ:'Happy',mC:'Clean',mE:'Energy',age:'{d} days old',care:'Care',
  forms:{shiny:'Extra lovely ✨',normal:'Normal',scruffy:'A bit scruffy'},
- grown:'{name} is all grown up!',grownD:"You can get a new egg now. {name} will be kept in your collection book.",
+ grown:'{name} is all grown up!',grownD:"You earned a new egg! 🥚 Raise it alongside {name} — you can keep up to 3 pets.",
  newEgg:'Get a new egg',newEggQ:'Keep {name} in your book and get a new egg?',keep:'Keep raising',
  share:'📷 Share picture',shareText:'My Little Egg hatched a {rar} {sp} called “{name}”! What will yours be? 🥚',
  dex:'Collection book',found:'{n}/{m} found',myPets:'Pets you raised',noPast:'None yet',
@@ -222,6 +246,11 @@ en:{tag:"Let's raise a little egg",foot:'Free to play',
  awayS:'{name} ran away… ',leaveFood:'🍚 Leave some rice',leftToday:'You left rice today — leave more tomorrow',
  awayDays:'Rice left on {n}/3 days',back:'{name} came back! 🎉',hatchedToast:'Welcome, {name}!',
  lucky:'Lucky bonus — this egg is better than common!',unknown:'???',
+ newSlot:'New egg',lockSlot:'Empty home',needAdult:'You get a new egg each time one of your pets grows up (day 7)',
+ getNow:'Get it now',later:'Later',eggLabel:'Egg',ready:'Ready!',cancel:'Cancel',
+ full3:'All 3 homes are full',full3D:'To make room for the new egg, choose a pet to free to the wild.',
+ free:'🌳 Free to the wild',freeQ:"Free {name} to the wild? You can't call it back — but it will always be in your collection book.",
+ freeYes:'🌳 Free it',freed:'{name} ran happily into the forest 🌳',freedTag:'🌳 freed to the wild',
  help:'How to play',howBtn:'How to play',
  hEggT:'🥚 Getting your egg',hEgg:'Tap “Get my egg”. It hatches in 3 minutes, and tapping the egg keeps it warm so it hatches faster. Just before hatching it glows in its rarity colour — gold means super rare!',
  hRarT:"⭐ What's inside — rarity",hRar:'Which animal comes out of each egg is down to luck.',
@@ -237,7 +266,8 @@ en:{tag:"Let's raise a little egg",foot:'Free to play',
  hTip:'💡 Checking in 2–3 times a day is enough.',
  hGrowT:'🌱 Growing up',hGrow:'Baby (day 0–1) → Child (day 1–3) → Teen (day 3–7) → Adult on day 7. Good care makes it “Extra lovely ✨”; neglect makes it “A bit scruffy”.',
  hAwayT:'😢 If it runs away',hAway:"If you don't care for it at all for 2 days, your pet leaves a note and goes out (it never dies). Leave rice once a day — after 3 days it comes back, but it may grow up a bit scruffy.",
- hBookT:'📖 Collection book',hBook:"Every animal you hatch goes in your book. The ones you haven't found show only as shadows. When your pet grows up you can get a new egg — your old pet is kept in the book.",
+ hSlotT:'🏠 3 pet homes',hSlot:"You can keep up to 3 pets. Switch between them with the buttons at the top (a red dot means that pet needs care). Each time one of your pets grows up you earn a new egg. If all 3 homes are full, free one pet to the wild to make room.",
+ hBookT:'📖 Collection book',hBook:"Every animal you hatch goes in your book. The ones you haven't found show only as shadows. Pets you free to the wild stay in your book forever.",
  hSaveT:'💾 Saving',hSave:'Your pet is saved in this phone\'s browser. Clearing browser data can delete it, so copy your code from “Status → Backup code”. Saving to an account is coming soon.',
  hShareT:'📷 Sharing',hShare:'When it hatches, on the Status screen, or when it grows up — tap “Share picture” to show it off on Facebook!'}
 };
@@ -251,10 +281,10 @@ function newEgg(){
   const w=RAR.map(r=>r.w); const lucky=S.streak>=5; if(lucky) w[0]=0;
   let x=Math.random()*w.reduce((a,b)=>a+b,0), r=0; while(r<w.length-1 && x>=w[r]){ x-=w[r]; r++; }
   const pool=SP.filter(s=>s.r===r), sp=pool[Math.floor(Math.random()*pool.length)];
-  const n=now(); S.pet={sp:sp.id,rar:r,laid:n,hatchAt:n+EGG_MS,hatched:0,lucky}; S.eggs=(S.eggs||0)+1; save();
+  const n=now(); if(S.tok>0) S.tok--; S.pets.push({sp:sp.id,rar:r,laid:n,hatchAt:n+EGG_MS,hatched:0,lucky}); S.cur=S.pets.length-1; S.eggs=(S.eggs||0)+1; G=null; save();
 }
-function hatch(){
-  const p=S.pet, n=now();
+function hatch(p){
+  const n=now();
   Object.assign(p,{hatched:n,last:n,lastCare:n,h:70,j:70,c:100,e:100,poop:0,poopT:0,sick:0,badM:0,cs:0,cn:0,awayTotal:0,away:null,scruffy:0,form:null,napUntil:0,name:p.name||''});
   S.dex[p.sp]=(S.dex[p.sp]||0)+1; S.streak= p.rar===0 ? (S.streak||0)+1 : 0; save();
 }
@@ -278,18 +308,20 @@ function step(p,ts){
   p.cs+=(p.h+p.j+p.c)/3; p.cn++;
   if(ts-p.lastCare>48*HOUR) p.away={since:ts,days:[]};
 }
-let pendingGrown=false;
+let grownQ=[];
 function sim(){
-  const p=S.pet; if(!p||!p.hatched) return;
   const n=now(); let moved=false;
-  if(n-p.last>60*DAY) p.last=n-60*DAY;           // safety cap
-  while(p.last+STEP<=n){ p.last+=STEP; step(p,p.last); moved=true; }
-  if(!p.form && !p.away && stage(p,n)===4){
-    const c=careAvg(p); p.form= (p.scruffy||c<45) ? 'scruffy' : c>=70 ? 'shiny' : 'normal'; moved=true; pendingGrown=true;
-  }
+  S.pets.forEach(p=>{
+    if(!p.hatched) return;
+    if(n-p.last>60*DAY) p.last=n-60*DAY;           // safety cap
+    while(p.last+STEP<=n){ p.last+=STEP; step(p,p.last); moved=true; }
+    if(!p.form && !p.away && stage(p,n)===4){
+      const c=careAvg(p); p.form= (p.scruffy||c<45) ? 'scruffy' : c>=70 ? 'shiny' : 'normal'; S.tok=(S.tok||0)+1; moved=true; grownQ.push(p);
+    }
+  });
   if(moved) save();
 }
-function cared(){ const p=S.pet; p.lastCare=now(); }
+function cared(){ const p=cur(); p.lastCare=now(); }
 const dayKey=ts=>{ const d=new Date(ts); return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); };
 
 /* ---------- screen drawing ---------- */
@@ -354,7 +386,7 @@ function drawPet(p,n){
   fxs.forEach(f=>{ const k=1-(f.until-tn)/1500; emo(f.e,x+size/2+f.dx,y-10-k*30,26); });
 }
 function render(){
-  frame++; const p=S.pet, n=now();
+  frame++; const p=cur(), n=now();
   if(!p) drawIntro();
   else if(!p.hatched) drawEgg(p,n);
   else if(p.away) drawAway(p,n);
@@ -367,8 +399,8 @@ const fmt=ms=>{ const s=Math.max(0,Math.ceil(ms/1000)); return num(Math.floor(s/
 let lastUI='';
 function refresh(){ lastUI=''; ui(); }
 function ui(){
-  const p=S.pet, n=now(); let st='', sub='', acts=[], cls='';
-  if(!p){ st=t('intro'); sub=t('intro2'); acts=[['🥚',t('getEgg'),startEgg,'gold'],['❓',t('howBtn'),showHelp]]; cls='two'; }
+  const p=cur(), n=now(); let st='', sub='', acts=[], cls='';
+  if(!p){ st=t('intro'); sub=t('intro2'); acts=[['🥚',t('getEgg'),getEggFlow,'gold'],['❓',t('howBtn'),showHelp]]; cls='two'; }
   else if(!p.hatched){ const left=p.hatchAt-n; st= left>0 ? t('hatchIn',{t:fmt(left)}) : t('hatching'); sub= left>0 ? t('warm') : ''; if(p.lucky) sub=t('lucky'); }
   else if(p.away){ st=t('awayS',{name:p.name}); sub=t('awayDays',{n:num(p.away.days.length)});
     const done=p.away.days.includes(dayKey(n)); acts=[['',done?t('leftToday'):t('leaveFood'),leaveFood,'gold',done]]; cls='one'; }
@@ -380,45 +412,69 @@ function ui(){
     acts=[['🍚',t('feed'),feedMenu],['🎾',t('play'),startGame],['🧼',t('clean'),doClean],
           [napping(p,n)?'☀️':'🌙',napping(p,n)?t('wake'):t('sleep'),doSleep],['💊',t('med'),doMed],['📋',t('info'),showInfo]];
   }
-  const key=JSON.stringify([st,sub,acts.map(a=>a[1]+a[4]),cls,lang]);
+  const key=JSON.stringify([st,sub,acts.map(a=>a[1]+a[4]),cls,lang,slotKey()]);
   if(key===lastUI) return; lastUI=key;
+  drawSlots();
   $('#status').innerHTML=esc(st)+(sub?'<small>'+esc(sub)+'</small>':'');
   const box=$('#actions'); box.className='actions '+cls; box.innerHTML='';
   acts.forEach(([ic,label,fn,c,dis])=>{ const b=document.createElement('button'); b.className='act '+(c||''); b.innerHTML=(ic?'<span>'+ic+'</span>':'')+esc(label); if(dis) b.disabled=true; b.onclick=fn; box.appendChild(b); });
 }
+function needs(p){ const n=now(); if(!p.hatched) return n>=p.hatchAt; return !!(p.away || p.sick || p.h<25 || (p.poop&&p.c<30) || p.j<25); }
+function slotKey(){ const n=now(); return S.cur+'|'+S.tok+'|'+S.pets.map(p=>[p.sp,p.name,p.hatched?stage(p,n):0,needs(p)?1:0].join(',')).join(';'); }
+function drawSlots(){
+  const box=$('#slots'); box.innerHTML=''; const n=now();
+  if(!S.pets.length){ box.style.display='none'; return; } box.style.display='';
+  const extra= S.pets.length>=MAXP && S.tok>0; box.className='slots'+(extra?' extra':'');
+  let adds=S.tok;                           // one "+ New egg" per egg earned
+  for(let i=0;i<MAXP;i++){
+    const p=S.pets[i], b=document.createElement('button');
+    if(p){ b.className='slot'+(i===S.cur?' on':''); b.appendChild(miniCanvas(p,48));
+      const nm=document.createElement('span'); nm.className='nm'; nm.textContent= p.hatched ? p.name : (n>=p.hatchAt?t('ready'):t('eggLabel')); b.appendChild(nm);
+      if(needs(p) && i!==S.cur){ const d=document.createElement('span'); d.className='dot'; d.textContent='!'; b.appendChild(d); }
+      b.setAttribute('aria-pressed',i===S.cur); b.onclick=()=>{ if(S.cur!==i){ S.cur=i; G=null; save(); refresh(); render(); } };
+    } else if(adds-- > 0){ b.className='slot add'; b.innerHTML='<span style="font-size:1.4rem">🥚</span>'+esc('+ '+t('newSlot')); b.onclick=getEggFlow; }
+    else { b.className='slot lock'; b.innerHTML='<span style="font-size:1.2rem">🔒</span>'+esc(t('lockSlot')); b.onclick=()=>toast(t('needAdult')); }
+    box.appendChild(b);
+  }
+  if(extra){ const b=document.createElement('button'); b.className='slot add'; b.innerHTML='<span style="font-size:1.3rem">🥚</span>+'; b.setAttribute('aria-label',t('newSlot')); b.onclick=getEggFlow; box.appendChild(b); }
+}
 function toast(msg){ const el=$('#toast'); el.textContent=msg; el.classList.add('on'); clearTimeout(toast.t); toast.t=setTimeout(()=>el.classList.remove('on'),2200); }
 
 /* ---------- actions ---------- */
-function startEgg(){ newEgg(); refresh(); }
-function awakeOr(){ const p=S.pet,n=now(); if(sleeping(p,n)){ toast(isNight(n)?t('nightNoWake'):t('asleep')); return false; } return true; }
+function getEggFlow(){
+  if(!canEgg()){ toast(t('needAdult')); return; }
+  if(S.pets.length>=MAXP){ chooseRelease(); return; }
+  newEgg(); closeDlg(); refresh();
+}
+function awakeOr(){ const p=cur(),n=now(); if(sleeping(p,n)){ toast(isNight(n)?t('nightNoWake'):t('asleep')); return false; } return true; }
 function feedMenu(){
   if(!awakeOr()) return;
   openDlg(`<h2>${esc(t('feedQ'))}</h2>
    <div class="btns"><button class="btn" id="fMeal">🍚 ${esc(t('meal'))}<br><small>${esc(t('mealD'))}</small></button>
    <button class="btn" id="fSnack">🍡 ${esc(t('snack'))}<br><small>${esc(t('snackD'))}</small></button></div>
    <button class="btn sec" id="dClose">${esc(t('close'))}</button>`);
-  $('#fMeal').onclick=()=>{ closeDlg(); const p=S.pet; if(p.h>=95){ toast(t('full')); return; } p.h=clamp(p.h+35); p.j=clamp(p.j+3); cared(); save(); pop('🍚'); toast(t('yum')); refresh(); };
-  $('#fSnack').onclick=()=>{ closeDlg(); const p=S.pet; p.h=clamp(p.h+8); p.j=clamp(p.j+15); cared(); save(); pop('🍡'); pop('💛'); toast(t('yum')); refresh(); };
+  $('#fMeal').onclick=()=>{ closeDlg(); const p=cur(); if(p.h>=95){ toast(t('full')); return; } p.h=clamp(p.h+35); p.j=clamp(p.j+3); cared(); save(); pop('🍚'); toast(t('yum')); refresh(); };
+  $('#fSnack').onclick=()=>{ closeDlg(); const p=cur(); p.h=clamp(p.h+8); p.j=clamp(p.j+15); cared(); save(); pop('🍡'); pop('💛'); toast(t('yum')); refresh(); };
 }
-function doClean(){ if(!awakeOr()) return; const p=S.pet; p.poop=0; p.poopT=0; p.c=100; cared(); save(); pop('🫧'); pop('✨'); toast(t('cleaned')); refresh(); }
+function doClean(){ if(!awakeOr()) return; const p=cur(); p.poop=0; p.poopT=0; p.c=100; cared(); save(); pop('🫧'); pop('✨'); toast(t('cleaned')); refresh(); }
 function doSleep(){
-  const p=S.pet,n=now();
+  const p=cur(),n=now();
   if(isNight(n)){ toast(t('nightNoWake')); return; }
   if(napping(p,n)){ p.napUntil=0; toast(t('woke')); } else { p.napUntil=n+HOUR; toast(t('napStart')); }
   save(); refresh();
 }
-function doMed(){ if(!awakeOr()) return; const p=S.pet; if(!p.sick){ toast(t('medNo')); return; } p.sick=0; p.badM=0; p.j=clamp(p.j-5); cared(); save(); pop('💊'); toast(t('medOk')); refresh(); }
-function startGame(){ if(!awakeOr()) return; const p=S.pet; if(p.e<15){ toast(t('tooTired')); return; } G={round:1,score:0,phase:'ask'}; refresh(); }
+function doMed(){ if(!awakeOr()) return; const p=cur(); if(!p.sick){ toast(t('medNo')); return; } p.sick=0; p.badM=0; p.j=clamp(p.j-5); cared(); save(); pop('💊'); toast(t('medOk')); refresh(); }
+function startGame(){ if(!awakeOr()) return; const p=cur(); if(p.e<15){ toast(t('tooTired')); return; } G={round:1,score:0,phase:'ask'}; refresh(); }
 function guess(side){
   if(!G||G.phase!=='ask') return;
   G.turn= Math.random()<.5 ? -1 : 1; G.ok= G.turn===side; if(G.ok) G.score++; G.phase='show'; refresh();
   setTimeout(()=>{
-    if(G.round>=5){ const p=S.pet, sc=G.score; p.j=clamp(p.j+5+sc*6); p.e=clamp(p.e-10); p.h=clamp(p.h-3); cared(); save(); G=null; toast(t('gameEnd',{n:num(sc)})); pop(sc>=3?'💛':'🙂'); if(sc>=4) confetti(); refresh(); return; }
+    if(G.round>=5){ const p=cur(), sc=G.score; p.j=clamp(p.j+5+sc*6); p.e=clamp(p.e-10); p.h=clamp(p.h-3); cared(); save(); G=null; toast(t('gameEnd',{n:num(sc)})); pop(sc>=3?'💛':'🙂'); if(sc>=4) confetti(); refresh(); return; }
     G.round++; G.phase='ask'; refresh();
   },1100);
 }
 function leaveFood(){
-  const p=S.pet,n=now(),k=dayKey(n); if(p.away.days.includes(k)) return;
+  const p=cur(),n=now(),k=dayKey(n); if(p.away.days.includes(k)) return;
   p.away.days.push(k);
   if(p.away.days.length>=3){
     p.awayTotal=(p.awayTotal||0)+(n-p.away.since); p.away=null; p.scruffy=1; p.h=60; p.j=60; p.c=70; p.e=80; p.poop=0; p.sick=0; p.badM=0; p.last=n; p.lastCare=n;
@@ -426,13 +482,13 @@ function leaveFood(){
   } else save();
   refresh();
 }
-cv.addEventListener('click',()=>{ const p=S.pet; if(p && !p.hatched && !hatchAnim){ const left=p.hatchAt-now(); if(left>2000){ p.hatchAt-=4000; save(); refresh(); } } });
+cv.addEventListener('click',()=>{ const p=cur(); if(p && !p.hatched && !hatchAnim){ const left=p.hatchAt-now(); if(left>2000){ p.hatchAt-=4000; save(); refresh(); } } });
 
 /* ---------- hatching ---------- */
 function checkHatch(){
-  const p=S.pet; if(!p||p.hatched||hatchAnim) return;
+  const p=cur(); if(!p||p.hatched||hatchAnim) return;
   if(now()>=p.hatchAt){ hatchAnim=performance.now(); refresh();
-    setTimeout(()=>{ hatchAnim=0; hatch(); refresh(); reveal(); }, RM?400:2200); }
+    setTimeout(()=>{ hatchAnim=0; hatch(p); refresh(); reveal(p); }, RM?400:2200); }
 }
 function petCanvas(sp,form,size){
   const c=document.createElement('canvas'); c.width=c.height=size; const x=c.getContext('2d'); x.imageSmoothingEnabled=false;
@@ -441,8 +497,8 @@ function petCanvas(sp,form,size){
   if(form==='scruffy'){ x.fillStyle='rgba(90,70,50,.75)'; DIRT.forEach(([c2,r])=>x.fillRect(o+c2*pxs,o+r*pxs,pxs,pxs)); }
   return c;
 }
-function reveal(){
-  const p=S.pet, s=spById(p.sp), r=RAR[p.rar];
+function reveal(p){
+  const s=spById(p.sp), r=RAR[p.rar];
   const sug=NAMES[lang][Math.floor(Math.random()*NAMES[lang].length)];
   openDlg(`<div class="reveal"><span class="pill" style="background:${r.col}">${esc(rarName(p.rar))}</span>
     <div id="rvArt"></div><h2>${esc(t('youGot',{sp:spName(s)}))}</h2></div>
@@ -464,31 +520,52 @@ dlg.addEventListener('cancel',e=>{ if(dlg.dataset.sticky) e.preventDefault(); })
 dlg.addEventListener('click',e=>{ if(e.target===dlg && !dlg.dataset.sticky) closeDlg(); });
 function meter(label,v){ v=Math.round(v); return `<div class="meter"><span>${esc(label)}</span><span class="bar"><b class="${v<25?'low':''}" style="width:${v}%"></b></span><span>${num(v)}</span></div>`; }
 function showInfo(){
-  const p=S.pet, n=now(), s=spById(p.sp), stg=stage(p,n), d=Math.floor(ageMs(p,n)/DAY);
+  const p=cur(), n=now(), s=spById(p.sp), stg=stage(p,n), d=Math.floor(ageMs(p,n)/DAY);
   openDlg(`<div class="reveal"><span class="pill" style="background:${RAR[p.rar].col}">${esc(rarName(p.rar))}</span><div id="inArt"></div>
     <h2>${esc(p.name)}</h2><p class="muted">${esc(spName(s))} · ${esc(T[lang].stages[stg])} · ${esc(t('age',{d:num(d)}))}${p.form?' · '+esc(T[lang].forms[p.form]):''}</p></div>
     ${meter(t('mH'),p.h)}${meter(t('mJ'),p.j)}${meter(t('mC'),p.c)}${meter(t('mE'),p.e)}${meter(t('care'),careAvg(p))}
-    <div class="btns"><button class="btn" id="iShare">${esc(t('share'))}</button>${stg===4?`<button class="btn gold" id="iNew">🥚 ${esc(t('newEgg'))}</button>`:''}</div>
-    <div class="btns"><button class="btn sec" id="iBk">${esc(t('backup'))}</button><button class="btn sec" id="dClose">${esc(t('close'))}</button></div>`);
+    <div class="btns"><button class="btn" id="iShare">${esc(t('share'))}</button>${S.tok>0?`<button class="btn gold" id="iNew">🥚 ${esc(t('newEgg'))}</button>`:''}</div>
+    <div class="btns"><button class="btn sec" id="iFree">${esc(t('free'))}</button><button class="btn sec" id="iBk">${esc(t('backup'))}</button></div>
+    <button class="btn sec" id="dClose">${esc(t('close'))}</button>`);
   $('#inArt').appendChild(petCanvas(p.sp,p.form,160));
   $('#iShare').onclick=()=>shareCard(p);
   $('#iBk').onclick=showBackup;
-  const nb=$('#iNew'); if(nb) nb.onclick=askNewEgg;
+  const nb=$('#iNew'); if(nb) nb.onclick=getEggFlow;
+  $('#iFree').onclick=()=>askRelease(S.cur);
 }
-function askNewEgg(){
-  const p=S.pet;
-  openDlg(`<h2>${esc(t('newEgg'))}</h2><p>${esc(t('newEggQ',{name:p.name}))}</p>
-    <div class="btns"><button class="btn gold" id="neYes">🥚 ${esc(t('newEgg'))}</button><button class="btn sec" id="dClose">${esc(t('keep'))}</button></div>`);
-  $('#neYes').onclick=()=>{ S.past=S.past||[]; S.past.push({sp:p.sp,rar:p.rar,name:p.name,form:p.form,hatched:p.hatched}); S.pet=null; newEgg(); closeDlg(); refresh(); };
-}
-function grownUp(){
-  const p=S.pet;
+function grownUp(p){
   openDlg(`<div class="reveal"><div id="gArt"></div><h2>${esc(t('grown',{name:p.name}))}</h2><p class="muted">${esc(T[lang].forms[p.form])}</p><p>${esc(t('grownD',{name:p.name}))}</p></div>
-   <div class="btns"><button class="btn" id="gShare">${esc(t('share'))}</button><button class="btn gold" id="gNew">🥚 ${esc(t('newEgg'))}</button></div>
-   <button class="btn sec" id="dClose">${esc(t('keep'))}</button>`);
+   <div class="btns"><button class="btn" id="gShare">${esc(t('share'))}</button><button class="btn gold" id="gNew">🥚 ${esc(t('getNow'))}</button></div>
+   <button class="btn sec" id="dClose">${esc(t('later'))}</button>`);
   $('#gArt').appendChild(petCanvas(p.sp,p.form,160));
-  $('#gShare').onclick=()=>shareCard(p); $('#gNew').onclick=askNewEgg;
+  $('#gShare').onclick=()=>shareCard(p); $('#gNew').onclick=getEggFlow;
   if(p.form==='shiny') confetti(3);
+}
+function petLine(p){ const n=now(); if(!p.hatched) return t('eggLabel'); return p.name+' · '+spName(spById(p.sp))+' · '+T[lang].stages[stage(p,n)]; }
+function chooseRelease(){
+  openDlg(`<h2>${esc(t('full3'))}</h2><p class="muted">${esc(t('full3D'))}</p>
+    <div class="past" id="relList">${S.pets.map((p,i)=>`<button class="btn sec relpick" data-i="${i}" style="display:flex;align-items:center;gap:10px;text-align:left"><span></span>${esc(petLine(p))}</button>`).join('')}</div>
+    <button class="btn sec" id="dClose">${esc(t('cancel'))}</button>`);
+  document.querySelectorAll('.relpick').forEach(b=>{ b.querySelector('span').replaceWith(miniCanvas(S.pets[+b.dataset.i],40)); b.onclick=()=>askRelease(+b.dataset.i,true); });
+}
+function askRelease(i,thenEgg){
+  const p=S.pets[i]; if(!p) return; const nm=p.hatched?p.name:t('eggLabel');
+  openDlg(`<div class="reveal"><div id="rArt"></div><h2>${esc(t('free'))}</h2><p>${esc(t('freeQ',{name:nm}))}</p></div>
+    <div class="btns"><button class="btn gold" id="rYes">${esc(t('freeYes'))}</button><button class="btn sec" id="dClose">${esc(t('cancel'))}</button></div>`);
+  $('#rArt').appendChild(miniCanvas(p,120));
+  $('#rYes').onclick=()=>{
+    if(p.hatched){ S.past=S.past||[]; S.past.push({sp:p.sp,rar:p.rar,name:p.name,form:p.form,hatched:p.hatched,freed:now()}); }
+    S.pets.splice(i,1); S.cur=Math.max(0,Math.min(S.cur>=i&&S.cur>0?S.cur-1:S.cur,S.pets.length-1)); G=null; save();
+    if(thenEgg && canEgg() && S.pets.length<MAXP){ newEgg(); }
+    closeDlg(); toast(t('freed',{name:nm})); refresh();
+  };
+}
+function miniCanvas(p,size){
+  const c=document.createElement('canvas'); c.width=c.height=size; const x=c.getContext('2d'); x.imageSmoothingEnabled=false;
+  const px=Math.floor(size/16), o=Math.floor((size-16*px)/2);
+  if(!p.hatched) A.draw(x,'egg',A.EGG_PAL,o,o,px);
+  else { const s=spById(p.sp), st=stage(p,now()); A.draw(x, st===1?'blob':s.body, s.pal, o, o, px); }
+  c.style.width=c.style.height=Math.min(size,48)+'px'; c.style.imageRendering='pixelated'; return c;
 }
 function showHelp(){
   const found=id=>S.dex&&S.dex[id];
@@ -502,6 +579,7 @@ function showHelp(){
     ${sec('hCareT',`<ul>${T[lang].hCare.map(x=>'<li>'+x+'</li>').join('')}</ul><p>${esc(t('hTip'))}</p>`)}
     ${sec('hGrowT',`<p>${esc(t('hGrow'))}</p>`)}
     ${sec('hAwayT',`<p>${esc(t('hAway'))}</p>`)}
+    ${sec('hSlotT',`<p>${esc(t('hSlot'))}</p>`)}
     ${sec('hBookT',`<p>${esc(t('hBook'))}</p>`)}
     ${sec('hSaveT',`<p>${esc(t('hSave'))}</p>`)}
     ${sec('hShareT',`<p>${esc(t('hShare'))}</p>`)}
@@ -512,7 +590,7 @@ function showDex(){
   const found=SP.filter(s=>S.dex[s.id]).length;
   let cells=SP.map(s=>`<div style="border-color:${S.dex[s.id]?RAR[s.r].col:'var(--line)'}" data-sp="${s.id}"><span></span>${S.dex[s.id]?esc(spName(s)):esc(t('unknown'))}</div>`).join('');
   for(let i=0;i<3;i++) cells+=`<div><span></span>${esc(t('unknown'))}</div>`;
-  const past=(S.past||[]).slice().reverse().map(q=>`<div>• ${esc(q.name)} — ${esc(spName(spById(q.sp)||SP[0]))}${q.form?' ('+esc(T[lang].forms[q.form])+')':''}</div>`).join('') || `<div class="muted">${esc(t('noPast'))}</div>`;
+  const past=(S.past||[]).slice().reverse().map(q=>`<div>• ${esc(q.name)} — ${esc(spName(spById(q.sp)||SP[0]))}${q.form?' ('+esc(T[lang].forms[q.form])+')':''}${q.freed?' · '+esc(t('freedTag')):''}</div>`).join('') || `<div class="muted">${esc(t('noPast'))}</div>`;
   openDlg(`<h2>📖 ${esc(t('dex'))}</h2><p class="muted">${esc(t('found',{n:num(found),m:num(SP.length)}))}</p>
     <div class="dex" id="dexGrid">${cells}</div><h2 style="font-size:1.1rem">${esc(t('myPets'))}</h2><div class="past">${past}</div>
     <button class="btn sec" id="dClose">${esc(t('close'))}</button>`);
@@ -538,9 +616,10 @@ function showBackup(){
   $('#bkCopy').onclick=async()=>{ try{ await navigator.clipboard.writeText(code); }catch(e){ const a=$('#bkOut'); a.select(); document.execCommand('copy'); } toast(t('copied')); };
   $('#bkGo').onclick=()=>{
     let o; try{ o=dec($('#bkIn').value); }catch(e){ o=null; }
-    if(!o || o.v!==1 || typeof o.dex!=='object' || (o.pet && !spById(o.pet.sp))){ toast(t('restoreBad')); return; }
-    if(S.pet && !confirm(t('restoreQ'))) return;
-    S=Object.assign({v:1,pet:null,dex:{},past:[],eggs:0,streak:0},o); save(); closeDlg(); refresh(); toast(t('restoreOk'));
+    if(o && (o.v===1||o.v===2) && typeof o.dex==='object') o=migrate(Object.assign(blank(),o)); else o=null;
+    if(!o || o.pets.some(q=>!q||!spById(q.sp))){ toast(t('restoreBad')); return; }
+    if(S.pets.length && !confirm(t('restoreQ'))) return;
+    S=o; G=null; save(); closeDlg(); refresh(); toast(t('restoreOk'));
   };
 }
 
@@ -590,12 +669,12 @@ $('#bDex').onclick=showDex;
 $('#bHelp').onclick=showHelp;
 if(DEV){
   const d=$('#dev'), add=(l,fn)=>{ const b=document.createElement('button'); b.textContent=l; b.onclick=()=>{ fn(); try{ localStorage.setItem('littleegg.dev',off); }catch(e){} refresh(); tick(); }; d.appendChild(b); };
-  add('+1h',()=>off+=HOUR); add('+6h',()=>off+=6*HOUR); add('+1d',()=>off+=DAY); add('hatch now',()=>{ if(S.pet&&!S.pet.hatched) S.pet.hatchAt=now(); });
-  add('reset time',()=>off=0); add('wipe all',()=>{ if(confirm('Wipe?')){ S={v:1,pet:null,dex:{},past:[],eggs:0,streak:0}; off=0; save(); } });
+  add('+1h',()=>off+=HOUR); add('+6h',()=>off+=6*HOUR); add('+1d',()=>off+=DAY); add('hatch now',()=>{ const p=cur(); if(p&&!p.hatched) p.hatchAt=now(); });
+  add('reset time',()=>off=0); add('wipe all',()=>{ if(confirm('Wipe?')){ S=blank(); off=0; save(); } });
 }
 function tick(){
   sim(); checkHatch();
-  if(pendingGrown && !dlg.open){ pendingGrown=false; grownUp(); }
+  if(grownQ.length && !dlg.open){ const p=grownQ.shift(); const i=S.pets.indexOf(p); if(i>=0){ S.cur=i; save(); refresh(); grownUp(p); } }
   ui();
 }
 applyLang(); tick(); render();
