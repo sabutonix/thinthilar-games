@@ -58,6 +58,7 @@ h2{margin:0;font-size:1rem;color:var(--muted);font-weight:600}
 a.card:hover{border-color:var(--jade)}
 .card.live{border:2px solid var(--jade)}
 .art{width:64px;height:64px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:2rem;background:var(--gold-soft)}
+.card.live .art.egg{background:var(--gold-soft);font-size:2rem}
 .card.live .art{background:var(--jade);color:var(--on-jade);font-family:var(--display);font-size:1.6rem}
 .card b{display:block;font-size:1.2rem}
 .card small{display:block;color:var(--muted);font-size:.86rem;line-height:1.5}
@@ -82,6 +83,10 @@ footer a{color:inherit}
       <span class="art">ပ</span>
       <span><b>ပဟေဠိ</b><small id="pDesc"></small><span class="row" id="pStatus"></span></span>
     </a>
+    <a class="card live" href="egg/">
+      <span class="art egg">🥚</span>
+      <span><b id="eT"></b><small id="eDesc"></small><span class="row" id="eStatus"></span></span>
+    </a>
   </section>
   <h2 id="hSoon"></h2>
   <section class="shelf">
@@ -98,18 +103,21 @@ const T={
  my:{h1:"ဂိမ်းများ",tag:"အခမဲ့ မြန်မာဂိမ်းများ — ဖုန်းနဲ့ ချက်ချင်းကစားလို့ရ",live:"ယခု ကစားနိုင်သည်",soon:"မကြာမီ လာမည်",
   pDesc:"နေ့စဉ် ပဟေဠိ ၃ မျိုး — စကားလုံး၊ စကားပုံ၊ အုပ်စုခွဲ",done:"ယနေ့ {n}/၃ ပြီး",none:"ယနေ့ ပဟေဠိ အသစ်",all:"ယနေ့ အားလုံးပြီး ✓",
   streak:"🔥 {n} ရက်ဆက်",farmT:"လယ်ယာ",farmD:"ကိုယ်ပိုင်လယ်ယာ စိုက်ပျိုးပြီး မိတ်ဆွေတွေရဲ့ လယ်ယာကို လည်ပတ်ပါ",carT:"ကားမောင်း",carD:"ရန်ကုန်လမ်းတွေပေါ် ကားမောင်းပြီး မိတ်ဆွေတွေရဲ့ အမှတ်ကို ကျော်ပါ",
-  soonPill:"မကြာမီ",foot:"အခမဲ့ ကစားနိုင်ပါသည်"},
+  soonPill:"မကြာမီ",foot:"အခမဲ့ ကစားနိုင်ပါသည်",
+  eT:"ဥလေး",eDesc:"ဥလေးတစ်လုံး မွေးပြီး ကြီးပြင်းအောင် ပြုစုပါ — ရှားပါး တိရစ္ဆာန်တွေ စုဆောင်းပါ",eNew:"အသစ် ✨",eEgg:"🥚 ဥ ပေါက်ခါနီး",eAway:"😢 ထွက်သွားပြီ"},
  en:{h1:"Games",tag:"Free Myanmar games — play right away on your phone",live:"Play now",soon:"Coming soon",
   pDesc:"3 daily Burmese puzzles — Word, Proverb, Groups",done:"{n}/3 done today",none:"New puzzles today",all:"All done today ✓",
   streak:"🔥 {n}-day streak",farmT:"Farm",farmD:"Grow your own farm and visit your friends' farms",carT:"Car",carD:"Drive the streets of Yangon and beat your friends' scores",
-  soonPill:"Coming soon",foot:"Free to play"}
+  soonPill:"Coming soon",foot:"Free to play",
+  eT:"Little Egg",eDesc:"Hatch a mystery egg and raise your pocket pet — collect rare animals",eNew:"New ✨",eEgg:"🥚 About to hatch",eAway:"😢 Ran away"}
 };
-let lang='my', ps={games:{},stats:{}};
+let lang='my', ps={games:{},stats:{}}, eg=null;
+try{ const e=localStorage.getItem('littleegg.v1'); if(e) eg=JSON.parse(e); }catch(e){}
 try{ lang=localStorage.getItem('tg.lang')||'my'; const r=localStorage.getItem('pahaeli.v1'); if(r) ps=Object.assign(ps,JSON.parse(r)); }catch(e){}
 const num=n=> lang==='my'? String(n).replace(/\d/g,d=>MYD[d]) : String(n);
 function render(){
   const t=T[lang]; document.documentElement.lang=lang==='my'?'my':'en';
-  for(const k of ['h1','tag','pDesc','farmT','farmD','carT','carD','foot']) document.getElementById(k).textContent=t[k];
+  for(const k of ['h1','tag','pDesc','eT','eDesc','farmT','farmD','carT','carD','foot']) document.getElementById(k).textContent=t[k];
   document.getElementById('hLive').textContent=t.live; document.getElementById('hSoon').textContent=t.soon;
   document.getElementById('s1').textContent=t.soonPill; document.getElementById('s2').textContent=t.soonPill;
   document.getElementById('lang').textContent= lang==='my'?'EN':'မြန်';
@@ -118,6 +126,9 @@ function render(){
   let h = done===3 ? `<span class="pill ok">${t.all}</span>` : done ? `<span class="pill go">${t.done.replace('{n}',num(done))}</span>` : `<span class="pill go">${t.none}</span>`;
   if(best>1) h+=`<span class="pill">${t.streak.replace('{n}',num(best))}</span>`;
   document.getElementById('pStatus').innerHTML=h;
+  const ep=eg&&eg.pet, es=document.getElementById('eStatus');
+  if(!ep) es.innerHTML=`<span class="pill go">${t.eNew}</span>`;
+  else { es.innerHTML=''; const sp=document.createElement('span'); sp.className='pill go'; sp.textContent= !ep.hatched ? t.eEgg : ep.away ? (ep.name+' · '+t.eAway) : ('🐾 '+ep.name); es.appendChild(sp); }
 }
 document.getElementById('lang').onclick=()=>{ lang= lang==='my'?'en':'my'; try{localStorage.setItem('tg.lang',lang);}catch(e){} render(); };
 render();
