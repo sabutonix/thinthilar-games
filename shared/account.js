@@ -22,13 +22,13 @@ const GAMES={
 
 const T={
  my:{title:'အကောင့်',pitch:'အကောင့်ဝင်ထားရင် ဂိမ်းအားလုံးရဲ့ တိုးတက်မှုကို သိမ်းထားပေးပြီး ဘယ်ဖုန်းကနေမဆို ဆက်ကစားနိုင်တယ်။',
-  google:'Google ဖြင့် ဝင်မယ်',privacy:'ကိုယ်ရေးအချက်အလက် မူဝါဒ',signedAs:'ဝင်ထားသည်',saved:'သိမ်းပြီးပြီ ✓',saving:'သိမ်းနေတယ်…',
+  google:'Google ဖြင့် ဝင်မယ်',facebook:'Facebook ဖြင့် ဝင်မယ်',privacy:'ကိုယ်ရေးအချက်အလက် မူဝါဒ',signedAs:'ဝင်ထားသည်',saved:'သိမ်းပြီးပြီ ✓',saving:'သိမ်းနေတယ်…',
   offline:'အင်တာနက် မရ — နောက်မှ ထပ်သိမ်းမယ်',signOut:'အကောင့်မှ ထွက်မယ်',signOutNote:'ထွက်ပြီးရင်လည်း ဒီဖုန်းမှာ ဆက်ကစားလို့ရတယ်။ ပြန်ဝင်ရင် အကောင့်ထဲက တိုးတက်မှု ပြန်ရမယ်။',
   close:'ပိတ်မယ်',later:'နောက်မှ',conflictT:'ဘယ်ဟာကို ထားမလဲ?',conflictD:'{game} အတွက် ဒီဖုန်းမှာရော အကောင့်ထဲမှာပါ တိုးတက်မှု ရှိနေတယ်။ ဘယ်ဟာကို ထားမလဲ?',
   useCloud:'အကောင့်ထဲကဟာ',useLocal:'ဒီဖုန်းထဲကဟာ',conflictN:'မရွေးတဲ့ဘက်ကဟာကို အစားထိုးလိုက်မယ်။',
   hi:'မင်္ဂလာပါ {name}! တိုးတက်မှု သိမ်းထားပြီ',err:'အကောင့်ဝင်လို့ မရပါ — ထပ်ကြိုးစားကြည့်ပါ',out:'အကောင့်မှ ထွက်ပြီးပြီ',games:'သိမ်းထားသော ဂိမ်းများ'},
  en:{title:'Account',pitch:'Sign in to save your progress in every game and continue on any phone.',
-  google:'Continue with Google',privacy:'Privacy policy',signedAs:'Signed in as',saved:'Saved ✓',saving:'Saving…',
+  google:'Continue with Google',facebook:'Continue with Facebook',privacy:'Privacy policy',signedAs:'Signed in as',saved:'Saved ✓',saving:'Saving…',
   offline:"No internet — we'll save later",signOut:'Sign out',signOutNote:'You can keep playing on this phone after signing out. Sign in again to get your account progress back.',
   close:'Close',later:'Later',conflictT:'Which progress should we keep?',conflictD:'You have {game} progress on this phone and in your account. Which one should we keep?',
   useCloud:'From my account',useLocal:'From this phone',conflictN:'The other one will be replaced.',
@@ -141,6 +141,10 @@ function ensureDlg(){
 }
 const BTN='display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:48px;border-radius:12px;font:inherit;font-weight:700;cursor:pointer;';
 const GBTN=BTN+'background:#fff;color:#1f1f1f;border:1px solid #747775;';
+const FBTN=BTN+'background:#1877F2;color:#fff;border:0;';
+const FLOGO='<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="#fff" d="M24 12.07C24 5.41 18.63 0 12 0S0 5.4 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.04V9.41c0-3.02 1.8-4.7 4.54-4.7 1.31 0 2.68.24 2.68.24v2.97h-1.5c-1.5 0-1.96.93-1.96 1.89v2.26h3.32l-.53 3.5h-2.8V24C19.62 23.1 24 18.1 24 12.07z"/></svg>';
+const LOGIN_BTNS=()=>`<button type="button" id="ttlF" style="${FBTN}">${FLOGO}${esc(t('facebook'))}</button><button type="button" id="ttlG" style="${GBTN}">${GLOGO}${esc(t('google'))}</button>`;
+function wireLogin(){ dlg.querySelector('#ttlG').onclick=()=>signIn('google'); dlg.querySelector('#ttlF').onclick=()=>signIn('facebook'); }
 const SEC=BTN+'background:transparent;color:var(--ink,#1f2937);border:1px solid var(--line,#d9dde3);';
 const PRI=BTN+'background:var(--blue,#2563eb);color:#fff;border:0;';
 function show(html,sticky){ const d=ensureDlg(); d.innerHTML='<div style="padding:18px;display:flex;flex-direction:column;gap:12px;font-family:inherit;line-height:1.6">'+html+'</div>'; d.dataset.sticky=sticky?'1':''; if(!d.open) d.showModal(); return d; }
@@ -149,10 +153,10 @@ function open(){
   const u=user();
   if(!u){
     show(`<h2 style="margin:0;font-size:1.3rem">${esc(t('title'))}</h2><p style="margin:0">${esc(t('pitch'))}</p>
-      <button type="button" id="ttlG" style="${GBTN}">${GLOGO}${esc(t('google'))}</button>
+      ${LOGIN_BTNS()}
       <a href="/privacy/" style="font-size:.85rem;color:var(--muted,#6b7280)">${esc(t('privacy'))}</a>
       <button type="button" id="ttlX" style="${SEC}">${esc(t('close'))}</button>`);
-    dlg.querySelector('#ttlG').onclick=()=>signIn('google'); dlg.querySelector('#ttlX').onclick=close; return;
+    wireLogin(); dlg.querySelector('#ttlX').onclick=close; return;
   }
   const names=Object.keys(GAMES).filter(k=>{ const s=localStorage.getItem(GAMES[k].ls); return s && !GAMES[k].empty(safe(s)); }).map(k=>GAMES[k][L()]);
   show(`<h2 style="margin:0;font-size:1.3rem">${esc(t('title'))}</h2>
@@ -195,9 +199,9 @@ async function signOut(){
 function invite(message){
   if(user()) return;
   show(`<p style="margin:0;font-size:1.05rem;font-weight:700">${esc(message)}</p><p style="margin:0;font-size:.9rem">${esc(t('pitch'))}</p>
-    <button type="button" id="ttlG" style="${GBTN}">${GLOGO}${esc(t('google'))}</button>
+    ${LOGIN_BTNS()}
     <button type="button" id="ttlX" style="${SEC}">${esc(t('later'))}</button>`);
-  dlg.querySelector('#ttlG').onclick=()=>signIn('google'); dlg.querySelector('#ttlX').onclick=close;
+  wireLogin(); dlg.querySelector('#ttlX').onclick=close;
 }
 
 /* ---------- start ---------- */
