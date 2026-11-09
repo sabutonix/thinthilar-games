@@ -75,6 +75,7 @@ footer a{color:inherit}
 <div class="wrap">
   <header>
     <div class="brand"><h1 id="h1"></h1><small id="tag"></small></div>
+    <button class="iconbtn" id="acct" aria-label="Account">👤</button>
     <button class="iconbtn" id="lang" aria-label="Language">EN</button>
   </header>
   <h2 id="hLive"></h2>
@@ -95,6 +96,7 @@ footer a{color:inherit}
   </section>
   <footer><span id="foot"></span> · <a href="https://thinthilar.com">thinthilar.com</a> · <a href="privacy/">Privacy</a></footer>
 </div>
+<script src="/shared/account.js"></script>
 <script>
 const EPOCH = Date.UTC(2026,10,7,17,30); // must match pahaeli/
 const todayIdx = Math.max(0, Math.floor((Date.now()-EPOCH)/864e5));
@@ -132,6 +134,7 @@ function render(){
 }
 document.getElementById('lang').onclick=()=>{ lang= lang==='my'?'en':'my'; try{localStorage.setItem('tg.lang',lang);}catch(e){} render(); };
 render();
+TTLAccount.mount('#acct',['egg','pahaeli']);
 </script>
 </body>
 </html>

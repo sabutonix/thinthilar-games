@@ -140,3 +140,45 @@ revoke all on function public.submit_result, public.day_stats, public.create_gro
 grant execute on function public.submit_result(uuid,int,text,int,boolean), public.day_stats(int,text),
   public.create_group(text,uuid,text), public.join_group(text,uuid,text), public.leave_group(text,uuid),
   public.group_board(text,int,int,uuid), public.group_name(text) to anon, authenticated;
+
+-- ============================================================
+-- Accounts (added 9 Nov 2026): one save per player per game.
+-- Players sign in with Google (later Facebook). The browser calls
+-- my_saves() / put_save() with the player's own login token;
+-- auth.uid() makes sure each player only ever touches their own saves.
+-- ============================================================
+create table if not exists public.saves (
+  user_id    uuid        not null references auth.users(id) on delete cascade,
+  game       text        not null check (game ~ '^[a-z0-9_]{1,20}$'),
+  data       jsonb       not null,
+  updated_at timestamptz not null default now(),
+  primary key (user_id, game)
+);
+alter table public.saves enable row level security;
+revoke all on public.saves from anon, authenticated;   -- only through the functions below
+
+create or replace function public.my_saves()
+returns table(game text, data jsonb, updated_at timestamptz)
+language sql stable security definer set search_path = public as $$
+  select s.game, s.data, s.updated_at from saves s where s.user_id = auth.uid()
+$$;
+
+create or replace function public.put_save(p_game text, p_data jsonb)
+returns timestamptz language plpgsql security definer set search_path = public as $$
+declare v_at timestamptz := now();
+begin
+  if auth.uid() is null then raise exception 'not signed in'; end if;
+  if p_game !~ '^[a-z0-9_]{1,20}$' then raise exception 'bad game'; end if;
+  if length(p_data::text) > 300000 then raise exception 'save too large'; end if;
+  insert into saves(user_id, game, data, updated_at) values (auth.uid(), p_game, p_data, v_at)
+  on conflict (user_id, game) do update set data = excluded.data, updated_at = v_at;
+  return v_at;
+end $$;
+
+create or replace function public.delete_my_saves()
+returns void language sql security definer set search_path = public as $$
+  delete from saves where user_id = auth.uid()
+$$;
+
+revoke all on function public.my_saves(), public.put_save(text, jsonb), public.delete_my_saves() from public, anon;
+grant execute on function public.my_saves(), public.put_save(text, jsonb), public.delete_my_saves() to authenticated;

@@ -118,6 +118,7 @@ textarea{min-height:84px;font-family:ui-monospace,monospace;font-size:.8rem;word
   <header>
     <a class="iconbtn" href="../" id="bBack" aria-label="Games">←</a>
     <div class="brand"><h1 id="h1">ဥလေး</h1><small id="tag"></small></div>
+    <button class="iconbtn" id="bAcct" aria-label="Account">👤</button>
     <button class="iconbtn" id="bHelp" aria-label="How to play">?</button>
     <button class="iconbtn" id="bDex" aria-label="Collection">📖</button>
     <button class="iconbtn" id="bLang">EN</button>
@@ -135,6 +136,7 @@ textarea{min-height:84px;font-family:ui-monospace,monospace;font-size:.8rem;word
 <dialog id="dlg"><div class="dlg" id="dlgBody"></div></dialog>
 <div id="toast" role="status"></div>
 <canvas id="fx"></canvas>
+<script src="/shared/account.js"></script>
 <script src="sprites.js"></script>
 <script>
 "use strict";
@@ -194,7 +196,7 @@ my:{tag:'ဥလေးတစ်လုံး မွေးကြည့်ရအေ�
  awayNote:'“ဗိုက်ဆာလို့ အပြင်ထွက်သွားပြီ… ငါ့ကို လွမ်းရင် ထမင်းလေး ချထားခဲ့နော်။” — {name}',
  awayS:'{name} ထွက်သွားပြီ… ',leaveFood:'🍚 ထမင်း ချထားမယ်',leftToday:'ဒီနေ့ ထမင်းချထားပြီးပြီ — မနက်ဖြန် ထပ်ချပေးပါ',
  awayDays:'ထမင်းချထားတာ {n}/၃ ရက်',back:'{name} ပြန်လာပြီ! 🎉',hatchedToast:'{name} ကို ကြိုဆိုပါတယ်!',
- lucky:'ကံကောင်းခြင်း အာမခံ — ဒီတစ်ခါ သာမန်ထက် ပိုကောင်းမယ်!',unknown:'???',
+ lucky:'ကံကောင်းခြင်း အာမခံ — ဒီတစ်ခါ သာမန်ထက် ပိုကောင်းမယ်!',unknown:'???',saveInvite:'💾 {name} ကို ဘယ်တော့မှ မပျောက်အောင် သိမ်းထားမလား?',
  newSlot:'ဥအသစ်',lockSlot:'နေရာလွတ်',needAdult:'အကောင်လေး တစ်ကောင် အရွယ်ရောက် (၇ ရက်) မှ ဥအသစ် ရမယ်',
  getNow:'အခုယူမယ်',later:'နောက်မှ',eggLabel:'ဥလေး',ready:'ပေါက်ပြီ!',cancel:'မလုပ်တော့ဘူး',
  full3:'အိမ် ၃ လုံး ပြည့်နေပြီ',full3D:'ဥအသစ်အတွက် နေရာလွတ်ဖို့ တောထဲ ပြန်လွှတ်ပေးမယ့် အကောင်လေး တစ်ကောင် ရွေးပါ။',
@@ -245,7 +247,7 @@ en:{tag:"Let's raise a little egg",foot:'Free to play',
  awayNote:'“I got hungry so I went out… if you miss me, leave some rice for me.” — {name}',
  awayS:'{name} ran away… ',leaveFood:'🍚 Leave some rice',leftToday:'You left rice today — leave more tomorrow',
  awayDays:'Rice left on {n}/3 days',back:'{name} came back! 🎉',hatchedToast:'Welcome, {name}!',
- lucky:'Lucky bonus — this egg is better than common!',unknown:'???',
+ lucky:'Lucky bonus — this egg is better than common!',unknown:'???',saveInvite:'💾 Keep {name} safe forever?',
  newSlot:'New egg',lockSlot:'Empty home',needAdult:'You get a new egg each time one of your pets grows up (day 7)',
  getNow:'Get it now',later:'Later',eggLabel:'Egg',ready:'Ready!',cancel:'Cancel',
  full3:'All 3 homes are full',full3D:'To make room for the new egg, choose a pet to free to the wild.',
@@ -507,7 +509,8 @@ function reveal(p){
     <div class="btns"><button class="btn" id="nmOk">${esc(t('ok'))}</button><button class="btn sec" id="nmShare">${esc(t('share'))}</button></div>`, true);
   $('#rvArt').appendChild(petCanvas(p.sp,null,160));
   const take=()=>{ p.name=($('#nm').value.trim()||sug).slice(0,12); save(); refresh(); };
-  $('#nmOk').onclick=()=>{ take(); closeDlg(); toast(t('hatchedToast',{name:p.name})); pop('💛'); };
+  $('#nmOk').onclick=()=>{ take(); closeDlg(); toast(t('hatchedToast',{name:p.name})); pop('💛');
+    if(!TTLAccount.user() && !S.invited){ S.invited=1; save(); setTimeout(()=>{ if(!dlg.open) TTLAccount.invite(t('saveInvite',{name:p.name})); },1600); } };
   $('#nmShare').onclick=()=>{ take(); shareCard(p); };
   if(p.rar>=1) confetti(p.rar>=3?3:p.rar);
 }
@@ -667,6 +670,7 @@ function applyLang(){
 $('#bLang').onclick=()=>{ lang= lang==='my'?'en':'my'; try{ localStorage.setItem('tg.lang',lang); }catch(e){} applyLang(); };
 $('#bDex').onclick=showDex;
 $('#bHelp').onclick=showHelp;
+TTLAccount.mount('#bAcct',['egg']);
 if(DEV){
   const d=$('#dev'), add=(l,fn)=>{ const b=document.createElement('button'); b.textContent=l; b.onclick=()=>{ fn(); try{ localStorage.setItem('littleegg.dev',off); }catch(e){} refresh(); tick(); }; d.appendChild(b); };
   add('+1h',()=>off+=HOUR); add('+6h',()=>off+=6*HOUR); add('+1d',()=>off+=DAY); add('hatch now',()=>{ const p=cur(); if(p&&!p.hatched) p.hatchAt=now(); });
