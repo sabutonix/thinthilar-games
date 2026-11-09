@@ -26,13 +26,13 @@ const T={
   offline:'အင်တာနက် မရ — နောက်မှ ထပ်သိမ်းမယ်',signOut:'အကောင့်မှ ထွက်မယ်',signOutNote:'ထွက်ပြီးရင်လည်း ဒီဖုန်းမှာ ဆက်ကစားလို့ရတယ်။ ပြန်ဝင်ရင် အကောင့်ထဲက တိုးတက်မှု ပြန်ရမယ်။',
   close:'ပိတ်မယ်',later:'နောက်မှ',conflictT:'ဘယ်ဟာကို ထားမလဲ?',conflictD:'{game} အတွက် ဒီဖုန်းမှာရော အကောင့်ထဲမှာပါ တိုးတက်မှု ရှိနေတယ်။ ဘယ်ဟာကို ထားမလဲ?',
   useCloud:'အကောင့်ထဲကဟာ',useLocal:'ဒီဖုန်းထဲကဟာ',conflictN:'မရွေးတဲ့ဘက်ကဟာကို အစားထိုးလိုက်မယ်။',
-  hi:'မင်္ဂလာပါ {name}! တိုးတက်မှု သိမ်းထားပြီ',err:'အကောင့်ဝင်လို့ မရပါ — ထပ်ကြိုးစားကြည့်ပါ',out:'အကောင့်မှ ထွက်ပြီးပြီ',games:'သိမ်းထားသော ဂိမ်းများ'},
+  hi:'မင်္ဂလာပါ {name}! တိုးတက်မှု သိမ်းထားပြီ',linkT:'ချိတ်ထားသော အကောင့်များ',linkAdd:'{p} ကိုပါ ချိတ်မယ်',linkNote:'နှစ်ခုလုံး ချိတ်ထားရင် ဘယ်ဟာနဲ့ဝင်ဝင် တိုးတက်မှု အတူတူပဲ။',linkErr:'အဲဒီ အကောင့်က တခြား ကစားသူအကောင့်နဲ့ ချိတ်ပြီးသားပါ',err:'အကောင့်ဝင်လို့ မရပါ — ထပ်ကြိုးစားကြည့်ပါ',out:'အကောင့်မှ ထွက်ပြီးပြီ',games:'သိမ်းထားသော ဂိမ်းများ'},
  en:{title:'Account',pitch:'Sign in to save your progress in every game and continue on any phone.',
   google:'Continue with Google',facebook:'Continue with Facebook',privacy:'Privacy policy',signedAs:'Signed in as',saved:'Saved ✓',saving:'Saving…',
   offline:"No internet — we'll save later",signOut:'Sign out',signOutNote:'You can keep playing on this phone after signing out. Sign in again to get your account progress back.',
   close:'Close',later:'Later',conflictT:'Which progress should we keep?',conflictD:'You have {game} progress on this phone and in your account. Which one should we keep?',
   useCloud:'From my account',useLocal:'From this phone',conflictN:'The other one will be replaced.',
-  hi:'Hi {name}! Your progress is saved.',err:"Couldn't sign in — please try again",out:'Signed out',games:'Saved games'}
+  hi:'Hi {name}! Your progress is saved.',linkT:'Connected logins',linkAdd:'Also connect {p}',linkNote:'Connect both, and either one opens the same progress.',linkErr:'That login is already used by another player account',err:"Couldn't sign in — please try again",out:'Signed out',games:'Saved games'}
 };
 const L=()=>{ try{ return localStorage.getItem('tg.lang')==='en'?'en':'my'; }catch(e){ return 'my'; } };
 const t=(k,v)=>{ let s=T[L()][k]; if(v) for(const x in v) s=s.split('{'+x+'}').join(v[x]); return s; };
@@ -62,10 +62,10 @@ async function token(){
   const j=await r.json(); auth={at:j.access_token,rt:j.refresh_token,exp:Math.floor(Date.now()/1000)+(j.expires_in||3600),user:userOf(j.user)||auth.user}; put(AK,auth);
   return auth.at;
 }
-function userOf(u){ if(!u) return null; const m=u.user_metadata||{}; return {id:u.id,email:u.email||m.email||'',name:m.full_name||m.name||(u.email||'').split('@')[0],pic:m.avatar_url||m.picture||''}; }
-async function loadUser(){
+function userOf(u){ if(!u) return null; const m=u.user_metadata||{}; return {id:u.id,email:u.email||m.email||'',name:m.full_name||m.name||(u.email||'').split('@')[0]||'Player',pic:m.avatar_url||m.picture||'',prov:(u.identities||[]).map(i=>i.provider).concat((u.app_metadata&&u.app_metadata.providers)||[]).filter((v,i,a)=>v&&a.indexOf(v)===i)}; }
+async function loadUser(fresh){
   const tk=await token(); if(!tk) return null;
-  if(auth.user) return auth.user;
+  if(auth.user && !fresh) return auth.user;
   const r=await fetch(SB_URL+'/auth/v1/user',{headers:{apikey:SB_KEY,Authorization:'Bearer '+tk}});
   if(!r.ok) throw new Error('user');
   auth.user=userOf(await r.json()); put(AK,auth); return auth.user;
@@ -164,11 +164,21 @@ function open(){
       <div><div style="font-size:.8rem;color:var(--muted,#6b7280)">${esc(t('signedAs'))}</div><b>${esc(u.name)}</b><div style="font-size:.85rem;color:var(--muted,#6b7280)">${esc(u.email)}</div></div></div>
     ${names.length?`<p style="margin:0;font-size:.9rem">${esc(t('games'))}: ${esc(names.join(', '))}</p>`:''}
     <p id="ttlAccStatus" style="margin:0;font-weight:700;color:var(--blue,#2563eb)">${status?esc(t(status)):''}</p>
+    <div id="ttlLinks"></div>
     <button type="button" id="ttlOut" style="${SEC}">${esc(t('signOut'))}</button>
     <p style="margin:0;font-size:.8rem;color:var(--muted,#6b7280)">${esc(t('signOutNote'))}</p>
     <button type="button" id="ttlX" style="${PRI}">${esc(t('close'))}</button>`);
   dlg.querySelector('#ttlOut').onclick=signOut; dlg.querySelector('#ttlX').onclick=close;
+  paintLinks(u); loadUser(true).then(v=>{ if(v) paintLinks(v); }).catch(()=>{});
   sync(true);
+}
+function paintLinks(u){
+  const box=dlg&&dlg.querySelector('#ttlLinks'); if(!box) return; const have=u.prov||[];
+  const P={google:{n:'Google',st:GBTN,logo:GLOGO},facebook:{n:'Facebook',st:FBTN,logo:FLOGO}};
+  const on=Object.keys(P).filter(k=>have.includes(k)), off=Object.keys(P).filter(k=>!have.includes(k));
+  box.innerHTML=`<div style="font-size:.85rem;color:var(--muted,#6b7280)">${esc(t('linkT'))}: <b style="color:var(--ink,#1f2937)">${on.map(k=>P[k].n+' ✓').join(' · ')||'—'}</b></div>`+
+    (off.length?off.map(k=>`<button type="button" data-link="${k}" style="${P[k].st}margin-top:8px">${P[k].logo}${esc(t('linkAdd',{p:P[k].n}))}</button>`).join('')+`<p style="margin:6px 0 0;font-size:.8rem;color:var(--muted,#6b7280)">${esc(t('linkNote'))}</p>`:'');
+  box.querySelectorAll('[data-link]').forEach(b=>b.onclick=()=>link(b.dataset.link));
 }
 function ask(key,local,cloud){
   return new Promise(res=>{
@@ -191,6 +201,16 @@ function signIn(provider){
   const back=location.origin+location.pathname+location.search;
   location.href=SB_URL+'/auth/v1/authorize?provider='+encodeURIComponent(provider||'google')+'&redirect_to='+encodeURIComponent(back);
 }
+async function link(provider){
+  try{
+    const tk=await token(); if(!tk) return;
+    try{ sessionStorage.setItem('tg.ret',location.hash||''); }catch(e){}
+    const back=location.origin+location.pathname+location.search;
+    const r=await fetch(SB_URL+'/auth/v1/user/identities/authorize?provider='+encodeURIComponent(provider)+'&redirect_to='+encodeURIComponent(back)+'&skip_http_redirect=true',{headers:{apikey:SB_KEY,Authorization:'Bearer '+tk}});
+    const j=await r.json(); if(j && j.url){ location.href=j.url; return; }
+    toast(t('err'));
+  }catch(e){ toast(t('err')); }
+}
 async function signOut(){
   const tk=auth&&auth.at; auth=null; put(AK,null); put(SK,null); close(); fire(); toast(t('out'));
   if(tk) fetch(SB_URL+'/auth/v1/logout',{method:'POST',headers:{apikey:SB_KEY,Authorization:'Bearer '+tk}}).catch(()=>{});
@@ -208,9 +228,9 @@ function invite(message){
 function mount(el,games){
   btn= typeof el==='string' ? document.querySelector(el) : el; pageGames=games||[];
   if(btn){ btn.onclick=open; paintBtn(); }
-  if(signErr){ setTimeout(()=>toast(t('err')),300); }
+  if(signErr){ setTimeout(()=>toast(/already|linked/i.test(signErr)?t('linkErr'):t('err')),300); }
   if(auth){
-    loadUser().then(u=>{ fire(); if(justIn && u) toast(t('hi',{name:u.name})); return sync(true); }).catch(()=>{ fire(); });
+    loadUser(justIn).then(u=>{ fire(); if(justIn && u) toast(t('hi',{name:u.name})); return sync(true); }).catch(()=>{ fire(); });
     setInterval(()=>{ if(auth && !document.hidden) sync(Date.now()-lastPull>120000); }, 15000);
     document.addEventListener('visibilitychange',()=>{ if(!auth) return; if(document.hidden) sync(false); else if(Date.now()-lastPull>60000) sync(true); });
   }
