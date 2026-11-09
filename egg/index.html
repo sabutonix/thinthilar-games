@@ -87,6 +87,14 @@ textarea{min-height:84px;font-family:ui-monospace,monospace;font-size:.8rem;word
 .dex{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .dex div{border:2px solid var(--line);border-radius:12px;padding:6px 2px;text-align:center;font-size:.7rem;line-height:1.3}
 .dex canvas{width:56px;height:56px;image-rendering:pixelated;display:block;margin:0 auto 2px}
+.help h3{margin:6px 0 0;font-size:1.02rem}
+.help p,.help li{font-size:.92rem;line-height:1.65}
+.help ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px}
+.rtab{display:flex;flex-direction:column;gap:6px}
+.rrow{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;align-items:start;border:1px solid var(--line);border-radius:12px;padding:8px 10px}
+.rrow .pill{justify-self:start}
+.rrow b{font-size:1.05rem;text-align:right}
+.rrow small{grid-column:1/-1;color:var(--muted);font-size:.84rem;line-height:1.5}
 .past{display:flex;flex-direction:column;gap:4px;font-size:.88rem}
 .note{background:#fffbea;color:#3d3420;border-radius:12px;padding:12px 14px;font-size:.98rem;box-shadow:0 2px 6px rgba(0,0,0,.12);transform:rotate(-1deg)}
 #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1f2937;color:#fff;padding:10px 16px;border-radius:12px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .25s;z-index:20;max-width:90vw;text-align:center}
@@ -102,6 +110,7 @@ textarea{min-height:84px;font-family:ui-monospace,monospace;font-size:.8rem;word
   <header>
     <a class="iconbtn" href="../" id="bBack" aria-label="Games">←</a>
     <div class="brand"><h1 id="h1">ဥလေး</h1><small id="tag"></small></div>
+    <button class="iconbtn" id="bHelp" aria-label="How to play">?</button>
     <button class="iconbtn" id="bDex" aria-label="Collection">📖</button>
     <button class="iconbtn" id="bLang">EN</button>
   </header>
@@ -167,7 +176,25 @@ my:{tag:'ဥလေးတစ်လုံး မွေးကြည့်ရအေ�
  awayNote:'“ဗိုက်ဆာလို့ အပြင်ထွက်သွားပြီ… ငါ့ကို လွမ်းရင် ထမင်းလေး ချထားခဲ့နော်။” — {name}',
  awayS:'{name} ထွက်သွားပြီ… ',leaveFood:'🍚 ထမင်း ချထားမယ်',leftToday:'ဒီနေ့ ထမင်းချထားပြီးပြီ — မနက်ဖြန် ထပ်ချပေးပါ',
  awayDays:'ထမင်းချထားတာ {n}/၃ ရက်',back:'{name} ပြန်လာပြီ! 🎉',hatchedToast:'{name} ကို ကြိုဆိုပါတယ်!',
- lucky:'ကံကောင်းခြင်း အာမခံ — ဒီတစ်ခါ သာမန်ထက် ပိုကောင်းမယ်!',unknown:'???'},
+ lucky:'ကံကောင်းခြင်း အာမခံ — ဒီတစ်ခါ သာမန်ထက် ပိုကောင်းမယ်!',unknown:'???',
+ help:'ကစားနည်း',howBtn:'ကစားနည်း',
+ hEggT:'🥚 ဥလေး ယူခြင်း',hEgg:'“ဥလေး ယူမယ်” ကို နှိပ်ပါ။ ဥက ၃ မိနစ်နေရင် ပေါက်မယ်။ ဥကို နှိပ်ပြီး နွေးပေးရင် ပိုမြန်မြန် ပေါက်မယ်။ မပေါက်ခင်လေးမှာ ဥက ရှားပါးမှုအရောင်နဲ့ လင်းလာမယ် — ရွှေရောင်ဆိုရင် အလွန်ရှားပါးပဲ!',
+ hRarT:'⭐ ဥထဲက ဘာထွက်မလဲ — ရှားပါးမှု',hRar:'ဥတိုင်းမှာ ဘာ တိရစ္ဆာန်ထွက်မလဲဆိုတာ ကံပေါ်မှာ မူတည်တယ်။',
+ hChance:'{p}% ',hKinds:'{n} မျိုး',hFoundL:'တွေ့ပြီး: ',hNoneYet:'မတွေ့ရသေး — ??? ',
+ hLucky:'🍀 ကံကောင်းခြင်း အာမခံ — သာမန် ၅ ကောင် ဆက်တိုက်ထွက်ရင် နောက်ဥက အနည်းဆုံး “ထူးခြား” ဖြစ်မယ်။',
+ hCareT:'🍚 နေ့စဉ် ပြုစုခြင်း',
+ hCare:['<b>ကျွေး</b> — ထမင်းက ဗိုက်ဝစေတယ်။ မုန့်က ပျော်စေပေမယ့် ဗိုက်မဝဘူး။',
+  '<b>ကစား</b> — အကောင်လေး ဘယ်ဘက်လှည့်မလဲ ခန့်မှန်းပါ (၅ ကြိမ်)။ မှန်လေ ပျော်လေ။ အားကုန်တယ်။',
+  '<b>သန့်ရှင်း</b> — နာရီအနည်းငယ်တိုင်း 💩 ထွက်တယ်။ မရှင်းရင် ညစ်ပတ်ပြီး နေမကောင်းဖြစ်နိုင်တယ်။',
+  '<b>အိပ်</b> — နေ့ခင်းမှာ ၁ နာရီ အိပ်ခိုင်းလို့ရတယ်။ ည ၁၀ နာရီကနေ မနက် ၇ နာရီထိ အလိုလို အိပ်တယ်။',
+  '<b>ဆေး</b> — နေမကောင်းမှ (🤒) တိုက်ပါ။ ဗိုက်ဆာတာ ဒါမှမဟုတ် ညစ်ပတ်တာ ကြာရင် နေမကောင်းဖြစ်တယ်။',
+  '<b>အခြေအနေ</b> — ဗိုက်၊ ပျော်၊ သန့်၊ အား နဲ့ ပြုစုမှု အမှတ်ကို ကြည့်ပါ။'],
+ hTip:'💡 တစ်နေ့ ၂–၃ ခါ ဝင်ကြည့်ပေးရင် လုံလောက်ပါတယ်။',
+ hGrowT:'🌱 ကြီးပြင်းခြင်း',hGrow:'မွေးကင်းစ (ရက် ၀–၁) → ကလေး (ရက် ၁–၃) → ဆယ်ကျော်သက် (ရက် ၃–၇) → ၇ ရက်မြောက်မှာ အရွယ်ရောက်မယ်။ ကောင်းကောင်း ပြုစုရင် “အရမ်းချစ်စရာ ✨” ဖြစ်မယ်၊ လျစ်လျူရှုရင် “ဖရိုဖရဲလေး” ဖြစ်မယ်။',
+ hAwayT:'😢 ထွက်ပြေးသွားရင်',hAway:'၂ ရက်လုံး လုံးဝ မပြုစုရင် အကောင်လေးက စာလေး ချန်ပြီး ထွက်သွားမယ် (မသေပါဘူး)။ တစ်နေ့ တစ်ခါ ထမင်းချထားပေးပါ — ၃ ရက် ချထားရင် ပြန်လာမယ်။ ဒါပေမယ့် ဖရိုဖရဲလေး ဖြစ်သွားနိုင်တယ်။',
+ hBookT:'📖 စုဆောင်းမှု စာအုပ်',hBook:'ထွက်ခဲ့တဲ့ တိရစ္ဆာန်တွေ စာအုပ်ထဲ ရောက်မယ်။ မတွေ့ရသေးတာတွေက အရိပ်ပဲ မြင်ရမယ်။ အရွယ်ရောက်ရင် ဥအသစ် ယူလို့ရပြီ — အရင်အကောင်ကို စာအုပ်ထဲ သိမ်းထားမယ်။',
+ hSaveT:'💾 သိမ်းဆည်းခြင်း',hSave:'အကောင်လေးကို ဒီဖုန်း browser ထဲမှာ သိမ်းထားတာပါ။ browser data ဖျက်ရင် ပျောက်နိုင်လို့ “အခြေအနေ → အရန်ကုဒ်” ကို ကူးသိမ်းထားပါ။ အကောင့်နဲ့ ဝင်ပြီး သိမ်းနိုင်တာ မကြာခင် လာမယ်။',
+ hShareT:'📷 မျှဝေခြင်း',hShare:'ဥပေါက်တဲ့အခါ၊ အခြေအနေ စာမျက်နှာ၊ အရွယ်ရောက်တဲ့အခါ — “ပုံ မျှဝေမယ်” နဲ့ Facebook မှာ ကြွားလို့ရတယ်!'},
 en:{tag:"Let's raise a little egg",foot:'Free to play',
  intro:"What's inside the egg? A cat, a dog… or, if you're lucky, a rare animal.",
  intro2:'Feed it, play with it, keep it clean, and help it grow up.',getEgg:'Get my egg',
@@ -194,7 +221,25 @@ en:{tag:"Let's raise a little egg",foot:'Free to play',
  awayNote:'“I got hungry so I went out… if you miss me, leave some rice for me.” — {name}',
  awayS:'{name} ran away… ',leaveFood:'🍚 Leave some rice',leftToday:'You left rice today — leave more tomorrow',
  awayDays:'Rice left on {n}/3 days',back:'{name} came back! 🎉',hatchedToast:'Welcome, {name}!',
- lucky:'Lucky bonus — this egg is better than common!',unknown:'???'}
+ lucky:'Lucky bonus — this egg is better than common!',unknown:'???',
+ help:'How to play',howBtn:'How to play',
+ hEggT:'🥚 Getting your egg',hEgg:'Tap “Get my egg”. It hatches in 3 minutes, and tapping the egg keeps it warm so it hatches faster. Just before hatching it glows in its rarity colour — gold means super rare!',
+ hRarT:"⭐ What's inside — rarity",hRar:'Which animal comes out of each egg is down to luck.',
+ hChance:'{p}% ',hKinds:'{n} kinds',hFoundL:'Found: ',hNoneYet:'None found yet — ??? ',
+ hLucky:'🍀 Lucky bonus — after 5 commons in a row, your next egg is at least Uncommon.',
+ hCareT:'🍚 Daily care',
+ hCare:['<b>Feed</b> — rice fills the tummy. A snack makes it happy but isn\'t filling.',
+  '<b>Play</b> — guess which way your pet will turn (5 rounds). More right guesses = happier pet. Uses energy.',
+  '<b>Clean</b> — 💩 appears every few hours. If you leave it, your pet gets dirty and can get sick.',
+  '<b>Sleep</b> — send it for a 1-hour nap in the day. It sleeps by itself from 10 pm to 7 am.',
+  "<b>Medicine</b> — only when it's sick (🤒). Being hungry or dirty for too long makes it sick.",
+  '<b>Status</b> — see tummy, happy, clean, energy and your care score.'],
+ hTip:'💡 Checking in 2–3 times a day is enough.',
+ hGrowT:'🌱 Growing up',hGrow:'Baby (day 0–1) → Child (day 1–3) → Teen (day 3–7) → Adult on day 7. Good care makes it “Extra lovely ✨”; neglect makes it “A bit scruffy”.',
+ hAwayT:'😢 If it runs away',hAway:"If you don't care for it at all for 2 days, your pet leaves a note and goes out (it never dies). Leave rice once a day — after 3 days it comes back, but it may grow up a bit scruffy.",
+ hBookT:'📖 Collection book',hBook:"Every animal you hatch goes in your book. The ones you haven't found show only as shadows. When your pet grows up you can get a new egg — your old pet is kept in the book.",
+ hSaveT:'💾 Saving',hSave:'Your pet is saved in this phone\'s browser. Clearing browser data can delete it, so copy your code from “Status → Backup code”. Saving to an account is coming soon.',
+ hShareT:'📷 Sharing',hShare:'When it hatches, on the Status screen, or when it grows up — tap “Share picture” to show it off on Facebook!'}
 };
 function t(k,v){ let s=T[lang][k]; if(s===undefined) s=T.en[k]; if(s===undefined) s=k; if(v&&typeof s==='string') for(const x in v) s=s.split('{'+x+'}').join(v[x]); return s; }
 const spName=s=> lang==='my'? s.my : s.en;
@@ -323,7 +368,7 @@ let lastUI='';
 function refresh(){ lastUI=''; ui(); }
 function ui(){
   const p=S.pet, n=now(); let st='', sub='', acts=[], cls='';
-  if(!p){ st=t('intro'); sub=t('intro2'); acts=[['🥚',t('getEgg'),startEgg,'gold']]; cls='one'; }
+  if(!p){ st=t('intro'); sub=t('intro2'); acts=[['🥚',t('getEgg'),startEgg,'gold'],['❓',t('howBtn'),showHelp]]; cls='two'; }
   else if(!p.hatched){ const left=p.hatchAt-n; st= left>0 ? t('hatchIn',{t:fmt(left)}) : t('hatching'); sub= left>0 ? t('warm') : ''; if(p.lucky) sub=t('lucky'); }
   else if(p.away){ st=t('awayS',{name:p.name}); sub=t('awayDays',{n:num(p.away.days.length)});
     const done=p.away.days.includes(dayKey(n)); acts=[['',done?t('leftToday'):t('leaveFood'),leaveFood,'gold',done]]; cls='one'; }
@@ -445,6 +490,24 @@ function grownUp(){
   $('#gShare').onclick=()=>shareCard(p); $('#gNew').onclick=askNewEgg;
   if(p.form==='shiny') confetti(3);
 }
+function showHelp(){
+  const found=id=>S.dex&&S.dex[id];
+  const rows=RAR.map((r,i)=>{ const all=SP.filter(s=>s.r===i), got=all.filter(s=>found(s.id));
+    const names= got.length ? t('hFoundL')+got.map(spName).join(lang==='my'?'၊ ':', ')+(got.length<all.length?' · ???':'') : t('hNoneYet');
+    return `<div class="rrow"><span class="pill" style="background:${r.col}">${esc(rarName(i))}</span><b>${num(r.w)}%</b><small>${esc(t('hKinds',{n:num(all.length)}))} · ${esc(names)}</small></div>`; }).join('');
+  const sec=(k,body)=>`<h3>${esc(t(k))}</h3>${body}`;
+  openDlg(`<div class="help"><h2>❓ ${esc(t('help'))}</h2>
+    ${sec('hEggT',`<p>${esc(t('hEgg'))}</p>`)}
+    ${sec('hRarT',`<p>${esc(t('hRar'))}</p><div class="rtab">${rows}</div><p>${esc(t('hLucky'))}</p>`)}
+    ${sec('hCareT',`<ul>${T[lang].hCare.map(x=>'<li>'+x+'</li>').join('')}</ul><p>${esc(t('hTip'))}</p>`)}
+    ${sec('hGrowT',`<p>${esc(t('hGrow'))}</p>`)}
+    ${sec('hAwayT',`<p>${esc(t('hAway'))}</p>`)}
+    ${sec('hBookT',`<p>${esc(t('hBook'))}</p>`)}
+    ${sec('hSaveT',`<p>${esc(t('hSave'))}</p>`)}
+    ${sec('hShareT',`<p>${esc(t('hShare'))}</p>`)}
+    </div><button class="btn" id="dClose">${esc(t('close'))}</button>`);
+  S.seenHelp=1; save();
+}
 function showDex(){
   const found=SP.filter(s=>S.dex[s.id]).length;
   let cells=SP.map(s=>`<div style="border-color:${S.dex[s.id]?RAR[s.r].col:'var(--line)'}" data-sp="${s.id}"><span></span>${S.dex[s.id]?esc(spName(s)):esc(t('unknown'))}</div>`).join('');
@@ -524,6 +587,7 @@ function applyLang(){
 }
 $('#bLang').onclick=()=>{ lang= lang==='my'?'en':'my'; try{ localStorage.setItem('tg.lang',lang); }catch(e){} applyLang(); };
 $('#bDex').onclick=showDex;
+$('#bHelp').onclick=showHelp;
 if(DEV){
   const d=$('#dev'), add=(l,fn)=>{ const b=document.createElement('button'); b.textContent=l; b.onclick=()=>{ fn(); try{ localStorage.setItem('littleegg.dev',off); }catch(e){} refresh(); tick(); }; d.appendChild(b); };
   add('+1h',()=>off+=HOUR); add('+6h',()=>off+=6*HOUR); add('+1d',()=>off+=DAY); add('hatch now',()=>{ if(S.pet&&!S.pet.hatched) S.pet.hatchAt=now(); });
