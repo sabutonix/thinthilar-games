@@ -408,27 +408,31 @@ function drawAway(p,n){
   if(p.away.days.includes(dayKey(n))){ ctx.fillStyle='#ffffff'; ctx.fillRect(56,192,44,18); ctx.fillStyle='#2b2f36'; ctx.fillRect(56,206,44,4); emo('🍚',78,186,26); }
 }
 const DIRT=[[4,9],[11,11],[9,6],[6,13]];
+const DIRT_A=[[17,31],[22,34],[20,28],[15,36]];
 function drawPet(p,n){
   const night=isNight(n), asleep=sleeping(p,n), st=stage(p,n), s=spById(p.sp);
   bg(night);
-  const body= st===1 ? 'blob' : s.body, pxs=[0,6,7,9,11][st], size=16*pxs;
+  const art=A.hasArt(s.id), body= st===1 ? 'blob' : s.body, pxs= art ? 5 : [0,6,7,9,11][st], size=(art?40:16)*pxs;
   const maxX=160-size/2-8;
   if(G){ px0 = G.phase==='show' ? G.turn*Math.min(90,maxX) : 0; }
   else if(!RM && !asleep && frame%4===0){ if(Math.random()<.3) dir=-dir; px0=Math.max(-maxX,Math.min(maxX,px0+dir*10)); }
   const bob=(!RM && !asleep && frame%2) ? -Math.round(pxs/2) : 0;
-  const x=Math.round(160-size/2+px0), y=214-size+bob+(st===1?pxs*2:0);
-  A.draw(ctx,body,s.pal,x,y,pxs,{flip:dir<0});
-  if(p.form==='scruffy'){ ctx.fillStyle='rgba(90,70,50,.75)'; DIRT.forEach(([c,r])=>ctx.fillRect(x+c*pxs,y+r*pxs,pxs,pxs)); }
-  if(p.form==='shiny' && !asleep){ emo('✨',x+size+4,y+10+(frame%4<2?0:4),20); emo('✨',x-6,y+size*0.55,16); }
+  const x=Math.round(160-size/2+px0), y=214-size+bob+(!art&&st===1?pxs*2:0);
+  if(art) A.drawArt(ctx,s.id,st-1,x,y,pxs,{flip:dir<0}); else A.draw(ctx,body,s.pal,x,y,pxs,{flip:dir<0});
+  if(p.form==='scruffy'){ ctx.fillStyle='rgba(90,70,50,.75)'; (art?DIRT_A:DIRT).forEach(([c,r])=>ctx.fillRect(x+c*pxs,y+r*pxs,pxs,pxs)); }
+  /* where the animal actually is inside its box, for bubbles and sparkles */
+  const topY= art ? y+A.artTop(s.id,st-1)*pxs : y, rightX= art ? x+size*0.72 : x+size;
+  if(p.form==='shiny' && !asleep){ emo('✨',rightX+6,topY+10+(frame%4<2?0:4),20); emo('✨',x+size*(art?0.22:0)-6,topY+(214-topY)*0.5,16); }
   for(let i=0;i<p.poop;i++) emo('💩',300-i*28,200,24);
-  if(asleep){ ctx.fillStyle='rgba(15,20,40,.45)'; ctx.fillRect(0,0,320,240); emo('💤',x+size,y-6+(frame%6<3?0:-6),26); }
-  else if(G){ if(G.phase==='ask') bubble('❓',x+size,y); else bubble(G.ok?'⭕':'❌',x+size,y); }
-  else if(p.sick) bubble('🤒',x+size,y);
-  else if(p.h<25) bubble('🍚',x+size,y);
-  else if(p.c<30 && p.poop) bubble('🫧',x+size,y);
-  else if(p.j<25) bubble('💧',x+size,y);
+  const by=Math.max(22,topY);
+  if(asleep){ ctx.fillStyle='rgba(15,20,40,.45)'; ctx.fillRect(0,0,320,240); emo('💤',rightX,by-6+(frame%6<3?0:-6),26); }
+  else if(G){ if(G.phase==='ask') bubble('❓',rightX,by); else bubble(G.ok?'⭕':'❌',rightX,by); }
+  else if(p.sick) bubble('🤒',rightX,by);
+  else if(p.h<25) bubble('🍚',rightX,by);
+  else if(p.c<30 && p.poop) bubble('🫧',rightX,by);
+  else if(p.j<25) bubble('💧',rightX,by);
   const tn=performance.now(); fxs=fxs.filter(f=>f.until>tn);
-  fxs.forEach(f=>{ const k=1-(f.until-tn)/1500; emo(f.e,x+size/2+f.dx,y-10-k*30,26); });
+  fxs.forEach(f=>{ const k=1-(f.until-tn)/1500; emo(f.e,x+size/2+f.dx,topY-10-k*30,26); });
 }
 function render(){
   frame++; const p=cur(), n=now();
@@ -535,9 +539,12 @@ function checkHatch(){
   if(now()>=p.hatchAt){ hatchAnim=performance.now(); refresh(); TTLSound.play('rumble');
     setTimeout(()=>{ hatchAnim=0; hatch(p); refresh(); reveal(p); }, RM?400:2200); }
 }
-function petCanvas(sp,form,size){
+function petCanvas(sp,form,size,stg){
   const c=document.createElement('canvas'); c.width=c.height=size; const x=c.getContext('2d'); x.imageSmoothingEnabled=false;
-  const s=spById(sp), pxs=Math.floor(size/18), o=Math.floor((size-16*pxs)/2);
+  const s=spById(sp), f=(stg||4)-1;
+  if(A.hasArt(s.id)){ const px=Math.floor(size/40), o=Math.floor((size-40*px)/2); A.drawArt(x,s.id,f,o,o,px);
+    if(form==='scruffy'){ x.fillStyle='rgba(90,70,50,.75)'; DIRT_A.forEach(([c2,r])=>x.fillRect(o+c2*px,o+r*px,px,px)); } return c; }
+  const pxs=Math.floor(size/18), o=Math.floor((size-16*pxs)/2);
   A.draw(x,s.body,s.pal,o,o,pxs);
   if(form==='scruffy'){ x.fillStyle='rgba(90,70,50,.75)'; DIRT.forEach(([c2,r])=>x.fillRect(o+c2*pxs,o+r*pxs,pxs,pxs)); }
   return c;
@@ -574,7 +581,7 @@ function showInfo(){
     <div class="btns"><button class="btn" id="iShare">${esc(t('share'))}</button>${S.tok>0?`<button class="btn gold" id="iNew">🥚 ${esc(t('newEgg'))}</button>`:''}</div>
     <div class="btns"><button class="btn sec" id="iFree">${esc(t('free'))}</button><button class="btn sec" id="iBk">${esc(t('backup'))}</button></div>
     <button class="btn sec" id="dClose">${esc(t('close'))}</button>`);
-  $('#inArt').appendChild(petCanvas(p.sp,p.form,160));
+  $('#inArt').appendChild(petCanvas(p.sp,p.form,160,stage(p,now())));
   $('#iShare').onclick=()=>shareCard(p);
   $('#iBk').onclick=showBackup;
   const nb=$('#iNew'); if(nb) nb.onclick=getEggFlow;
@@ -612,7 +619,7 @@ function miniCanvas(p,size){
   const c=document.createElement('canvas'); c.width=c.height=size; const x=c.getContext('2d'); x.imageSmoothingEnabled=false;
   const px=Math.floor(size/16), o=Math.floor((size-16*px)/2);
   if(!p.hatched) A.draw(x,'egg',A.EGG_PAL,o,o,px);
-  else { const s=spById(p.sp), st=stage(p,now()); A.draw(x, st===1?'blob':s.body, s.pal, o, o, px); }
+  else { const s=spById(p.sp), st=stage(p,now()); if(A.hasArt(s.id)){ const q=Math.max(1,Math.floor(size/40)); A.drawArt(x,s.id,st-1,Math.floor((size-40*q)/2),size-40*q,q); } else A.draw(x, st===1?'blob':s.body, s.pal, o, o, px); }
   c.style.width=c.style.height=Math.min(size,48)+'px'; c.style.imageRendering='pixelated'; return c;
 }
 function showHelp(){
@@ -644,7 +651,7 @@ function showDex(){
     <button class="btn sec" id="dClose">${esc(t('close'))}</button>`);
   document.querySelectorAll('#dexGrid div').forEach(el=>{
     const id=el.dataset.sp, c=document.createElement('canvas'); c.width=c.height=64; const x=c.getContext('2d');
-    if(id){ const s=spById(id); A.draw(x,s.body,s.pal,0,0,4,S.dex[id]?{}:{sil:'#b7bfca'}); }
+    if(id){ const s=spById(id); if(A.hasArt(id)) A.drawArt(x,id,3,-8,-14,2,S.dex[id]?{}:{sil:'#b7bfca'}); else A.draw(x,s.body,s.pal,0,0,4,S.dex[id]?{}:{sil:'#b7bfca'}); }
     else { A.draw(x,'egg',A.EGG_PAL,0,0,4,{sil:'#d3d9e1'}); }
     el.querySelector('span').replaceWith(c);
   });
@@ -680,9 +687,12 @@ async function shareCard(p){
   x.fillStyle='#1b2333'; x.beginPath(); x.roundRect(140,170,800,600,40); x.fill();
   x.fillStyle='#e8eef6'; x.beginPath(); x.roundRect(160,190,760,560,28); x.fill();
   x.fillStyle='#d6dfeb'; x.fillRect(160,690,760,60);
-  const stg=stage(p,now()), body= stg===1?'blob':s.body, px= stg===1?30:28;
+  const stg=stage(p,now());
+  if(A.hasArt(s.id)){ const px=13; A.drawArt(x,s.id,stg-1,540-20*px,715-40*px,px);
+    if(p.form==='scruffy'){ x.fillStyle='rgba(90,70,50,.75)'; DIRT_A.forEach(([c2,r2])=>x.fillRect(540-20*px+c2*px,715-40*px+r2*px,px,px)); } }
+  else { const body= stg===1?'blob':s.body, px= stg===1?30:28;
   A.draw(x,body,s.pal,540-8*px,700-16*px+(stg===1?px*2:0),px);
-  if(p.form==='scruffy'){ x.fillStyle='rgba(90,70,50,.75)'; DIRT.forEach(([c2,r2])=>x.fillRect(540-8*px+c2*px,700-16*px+r2*px,px,px)); }
+  if(p.form==='scruffy'){ x.fillStyle='rgba(90,70,50,.75)'; DIRT.forEach(([c2,r2])=>x.fillRect(540-8*px+c2*px,700-16*px+r2*px,px,px)); } }
   x.fillStyle=r.col; x.beginPath(); x.roundRect(390,100,300,56,28); x.fill();
   x.fillStyle='#fff'; x.textAlign='center'; x.textBaseline='middle'; x.font='700 32px "Noto Sans Myanmar",sans-serif'; x.fillText(rarName(p.rar),540,129);
   x.fillStyle='#1f2937'; x.font='700 64px "Noto Sans Myanmar",sans-serif'; x.fillText(p.name,540,900);

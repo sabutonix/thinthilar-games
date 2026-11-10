@@ -26,6 +26,7 @@ Free, phone-first Burmese games. Static files only, hosted on GitHub Pages.
 ## Little Egg (`egg/`)
 - Player's pets (up to 3) are saved in the browser under `littleegg.v1` (keep that key name; data inside is version 2, and old one-pet saves are upgraded automatically). Players can move it to another phone with the backup code (starts with `LE1-`; don't change the encoding key in `BK`).
 - Add new animals only at the **end** of `SPECIES` in `egg/sprites.js`; rarity chances are the `w` values in `RARITY`.
+- Drawn animal art: generate in Gemini (4 growth stages in one row, magenta background), then run `python3 tools/art/slice_sprites.py <image> <species_id> --preview check.png` to make `egg/art/<species_id>.png` (4 frames of 40×40), and add the id to `ART` in `egg/sprites.js`. Animals without art keep the 16×16 code sprites.
 - Test mode: open `/egg/?dev=1` for time-travel buttons (+1h, +6h, +1d, hatch now, wipe).
 - Burmese animal names to check: ပိုမရေနီယန် ခွေး (Pomeranian), ဖြူကလေး (hedgehog), ပုတ်သင်ညို (chameleon), ရွှေဝါ ခွေး (Golden retriever).
 

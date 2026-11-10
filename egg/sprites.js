@@ -201,5 +201,26 @@ function draw(ctx, name, pal, x, y, px, opts){
       ctx.fillStyle = opts.sil || P[ch] || '#f0f';
       ctx.fillRect(Math.round(x+c*px), Math.round(y+r*px), Math.ceil(px), Math.ceil(px)); } }
 }
-window.PETART = {BODY, SPECIES, RARITY, EGG_PAL, draw, grid};
+/* Drawn art (made in Gemini, cleaned by tools/art/slice_sprites.py): egg/art/<id>.png = 4 frames of 40x40
+   (baby, child, teen, adult). Animals listed here use the art; the rest keep the 16x16 code sprites above. */
+const ART=['cat_orange'];
+const IMG={}, TOPS={};
+ART.forEach(id=>{ const im=new Image(); im.onload=()=>{ IMG[id]=im; try{
+    const c=document.createElement('canvas'); c.width=im.width; c.height=im.height; const x=c.getContext('2d'); x.drawImage(im,0,0);
+    const d=x.getImageData(0,0,c.width,c.height).data, t=[];
+    for(let f=0;f<4;f++){ let top=40; outer: for(let y=0;y<40;y++) for(let xx=0;xx<40;xx++) if(d[(y*c.width+f*40+xx)*4+3]>0){ top=y; break outer; } t.push(top); }
+    TOPS[id]=t; }catch(e){ TOPS[id]=[20,12,6,2]; } };
+  im.src='art/'+id+'.png'; });
+const hasArt=id=>!!IMG[id];
+const artTop=(id,f)=>(TOPS[id]||[20,12,6,2])[f];
+/* draw frame f (0-3) of an animal's art at x,y with pixel size px; opts {flip, sil} */
+function drawArt(ctx,id,f,x,y,px,opts){
+  opts=opts||{}; const im=IMG[id]; if(!im) return; ctx.save(); ctx.imageSmoothingEnabled=false;
+  let srcEl=im, sx=f*40;
+  if(opts.sil){ const c=document.createElement('canvas'); c.width=c.height=40; const k=c.getContext('2d'); k.drawImage(im,f*40,0,40,40,0,0,40,40); k.globalCompositeOperation='source-in'; k.fillStyle=opts.sil; k.fillRect(0,0,40,40); srcEl=c; sx=0; }
+  if(opts.flip){ ctx.translate(Math.round(x+40*px),Math.round(y)); ctx.scale(-1,1); ctx.drawImage(srcEl,sx,0,40,40,0,0,40*px,40*px); }
+  else ctx.drawImage(srcEl,sx,0,40,40,Math.round(x),Math.round(y),40*px,40*px);
+  ctx.restore();
+}
+window.PETART = {BODY, SPECIES, RARITY, EGG_PAL, draw, grid, hasArt, artTop, drawArt};
 })();
