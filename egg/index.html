@@ -178,15 +178,16 @@ textarea{min-height:84px;font-family:ui-monospace,monospace;font-size:.8rem;word
 <dialog id="dlg"><div class="dlg" id="dlgBody"></div></dialog>
 <div id="toast" role="status"></div>
 <canvas id="fx"></canvas>
-<script src="/shared/account.js"></script>
-<script src="/shared/sound.js"></script>
-<script src="sprites.js"></script>
+<script src="/shared/account.js?v=20261110b"></script>
+<script src="/shared/sound.js?v=20261110b"></script>
+<script src="sprites.js?v=20261110b"></script>
 <script>
 "use strict";
 /* ---------- setup ---------- */
 const KEY='littleegg.v1';                 // player's pet lives here — keep this key name
 const A=PETART, SP=A.SPECIES, RAR=A.RARITY;
 const spById=id=>SP.find(s=>s.id===id);
+const artOk=id=>!!(A.hasArt && A.hasArt(id));   // false if an old cached sprites.js is loaded
 const $=s=>document.querySelector(s);
 const DEV=new URLSearchParams(location.search).has('dev');
 let off=0; if(DEV){ try{ off=+localStorage.getItem('littleegg.dev')||0; }catch(e){} }
@@ -412,7 +413,7 @@ const DIRT_A=[[17,31],[22,34],[20,28],[15,36]];
 function drawPet(p,n){
   const night=isNight(n), asleep=sleeping(p,n), st=stage(p,n), s=spById(p.sp);
   bg(night);
-  const art=A.hasArt(s.id), body= st===1 ? 'blob' : s.body, pxs= art ? 5 : [0,6,7,9,11][st], size=(art?40:16)*pxs;
+  const art=artOk(s.id), body= st===1 ? 'blob' : s.body, pxs= art ? 5 : [0,6,7,9,11][st], size=(art?40:16)*pxs;
   const maxX=160-size/2-8;
   if(G){ px0 = G.phase==='show' ? G.turn*Math.min(90,maxX) : 0; }
   else if(!RM && !asleep && frame%4===0){ if(Math.random()<.3) dir=-dir; px0=Math.max(-maxX,Math.min(maxX,px0+dir*10)); }
@@ -542,7 +543,7 @@ function checkHatch(){
 function petCanvas(sp,form,size,stg){
   const c=document.createElement('canvas'); c.width=c.height=size; const x=c.getContext('2d'); x.imageSmoothingEnabled=false;
   const s=spById(sp), f=(stg||4)-1;
-  if(A.hasArt(s.id)){ const px=Math.floor(size/40), o=Math.floor((size-40*px)/2); A.drawArt(x,s.id,f,o,o,px);
+  if(artOk(s.id)){ const px=Math.floor(size/40), o=Math.floor((size-40*px)/2); A.drawArt(x,s.id,f,o,o,px);
     if(form==='scruffy'){ x.fillStyle='rgba(90,70,50,.75)'; DIRT_A.forEach(([c2,r])=>x.fillRect(o+c2*px,o+r*px,px,px)); } return c; }
   const pxs=Math.floor(size/18), o=Math.floor((size-16*pxs)/2);
   A.draw(x,s.body,s.pal,o,o,pxs);
@@ -619,7 +620,7 @@ function miniCanvas(p,size){
   const c=document.createElement('canvas'); c.width=c.height=size; const x=c.getContext('2d'); x.imageSmoothingEnabled=false;
   const px=Math.floor(size/16), o=Math.floor((size-16*px)/2);
   if(!p.hatched) A.draw(x,'egg',A.EGG_PAL,o,o,px);
-  else { const s=spById(p.sp), st=stage(p,now()); if(A.hasArt(s.id)){ const q=Math.max(1,Math.floor(size/40)); A.drawArt(x,s.id,st-1,Math.floor((size-40*q)/2),size-40*q,q); } else A.draw(x, st===1?'blob':s.body, s.pal, o, o, px); }
+  else { const s=spById(p.sp), st=stage(p,now()); if(artOk(s.id)){ const q=Math.max(1,Math.floor(size/40)); A.drawArt(x,s.id,st-1,Math.floor((size-40*q)/2),size-40*q,q); } else A.draw(x, st===1?'blob':s.body, s.pal, o, o, px); }
   c.style.width=c.style.height=Math.min(size,48)+'px'; c.style.imageRendering='pixelated'; return c;
 }
 function showHelp(){
@@ -651,7 +652,7 @@ function showDex(){
     <button class="btn sec" id="dClose">${esc(t('close'))}</button>`);
   document.querySelectorAll('#dexGrid div').forEach(el=>{
     const id=el.dataset.sp, c=document.createElement('canvas'); c.width=c.height=64; const x=c.getContext('2d');
-    if(id){ const s=spById(id); if(A.hasArt(id)) A.drawArt(x,id,3,-8,-14,2,S.dex[id]?{}:{sil:'#b7bfca'}); else A.draw(x,s.body,s.pal,0,0,4,S.dex[id]?{}:{sil:'#b7bfca'}); }
+    if(id){ const s=spById(id); if(artOk(id)) A.drawArt(x,id,3,-8,-14,2,S.dex[id]?{}:{sil:'#b7bfca'}); else A.draw(x,s.body,s.pal,0,0,4,S.dex[id]?{}:{sil:'#b7bfca'}); }
     else { A.draw(x,'egg',A.EGG_PAL,0,0,4,{sil:'#d3d9e1'}); }
     el.querySelector('span').replaceWith(c);
   });
@@ -688,7 +689,7 @@ async function shareCard(p){
   x.fillStyle='#e8eef6'; x.beginPath(); x.roundRect(160,190,760,560,28); x.fill();
   x.fillStyle='#d6dfeb'; x.fillRect(160,690,760,60);
   const stg=stage(p,now());
-  if(A.hasArt(s.id)){ const px=13; A.drawArt(x,s.id,stg-1,540-20*px,715-40*px,px);
+  if(artOk(s.id)){ const px=13; A.drawArt(x,s.id,stg-1,540-20*px,715-40*px,px);
     if(p.form==='scruffy'){ x.fillStyle='rgba(90,70,50,.75)'; DIRT_A.forEach(([c2,r2])=>x.fillRect(540-20*px+c2*px,715-40*px+r2*px,px,px)); } }
   else { const body= stg===1?'blob':s.body, px= stg===1?30:28;
   A.draw(x,body,s.pal,540-8*px,700-16*px+(stg===1?px*2:0),px);
@@ -755,8 +756,8 @@ function tick(){
   ui();
 }
 applyLang(); tick(); render();
-setInterval(()=>{ render(); }, RM?1000:250);
-setInterval(tick, 1000);
+setInterval(()=>{ try{ render(); }catch(e){ console.error(e); } }, RM?1000:250);
+setInterval(()=>{ try{ tick(); }catch(e){ console.error(e); } }, 1000);
 document.addEventListener('visibilitychange',()=>{ if(!document.hidden) tick(); });
 </script>
 </body>
