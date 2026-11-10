@@ -60,6 +60,7 @@ header{display:flex;align-items:center;gap:8px}
 .act.gold{background:var(--gold-soft);color:#7a5a12}
 .act[disabled]{opacity:.5}
 .knobs{display:flex;justify-content:center;gap:18px;margin-top:16px}
+.sndbtn{width:40px;height:40px;margin-top:-12px;border-radius:50%;border:0;background:#f5d27a;box-shadow:inset 0 -3px 0 rgba(0,0,0,.2);font-size:1.05rem;line-height:1}
 .knobs i{width:16px;height:16px;border-radius:50%;background:#f5d27a;box-shadow:inset 0 -3px 0 rgba(0,0,0,.2)}
 footer{font-size:.78rem;color:var(--muted);text-align:center}
 footer a{color:inherit}
@@ -128,7 +129,7 @@ textarea{min-height:84px;font-family:ui-monospace,monospace;font-size:.8rem;word
     <div class="bezel"><canvas id="cv" width="320" height="240" aria-label="pet screen"></canvas></div>
     <div class="status" id="status" aria-live="polite"></div>
     <div class="actions" id="actions"></div>
-    <div class="knobs" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="knobs"><i aria-hidden="true"></i><button type="button" class="sndbtn" id="bSnd">🔊</button><i aria-hidden="true"></i></div>
   </div>
   <div id="dev"></div>
   <footer><span id="foot"></span> · <a href="../">game.thinthilar.com</a></footer>
@@ -137,6 +138,7 @@ textarea{min-height:84px;font-family:ui-monospace,monospace;font-size:.8rem;word
 <div id="toast" role="status"></div>
 <canvas id="fx"></canvas>
 <script src="/shared/account.js"></script>
+<script src="/shared/sound.js"></script>
 <script src="sprites.js"></script>
 <script>
 "use strict";
@@ -446,50 +448,50 @@ function toast(msg){ const el=$('#toast'); el.textContent=msg; el.classList.add(
 function getEggFlow(){
   if(!canEgg()){ toast(t('needAdult')); return; }
   if(S.pets.length>=MAXP){ chooseRelease(); return; }
-  newEgg(); closeDlg(); refresh();
+  newEgg(); closeDlg(); refresh(); TTLSound.play('newEgg');
 }
-function awakeOr(){ const p=cur(),n=now(); if(sleeping(p,n)){ toast(isNight(n)?t('nightNoWake'):t('asleep')); return false; } return true; }
+function awakeOr(){ const p=cur(),n=now(); if(sleeping(p,n)){ TTLSound.play('nope'); toast(isNight(n)?t('nightNoWake'):t('asleep')); return false; } return true; }
 function feedMenu(){
   if(!awakeOr()) return;
   openDlg(`<h2>${esc(t('feedQ'))}</h2>
    <div class="btns"><button class="btn" id="fMeal">🍚 ${esc(t('meal'))}<br><small>${esc(t('mealD'))}</small></button>
    <button class="btn" id="fSnack">🍡 ${esc(t('snack'))}<br><small>${esc(t('snackD'))}</small></button></div>
    <button class="btn sec" id="dClose">${esc(t('close'))}</button>`);
-  $('#fMeal').onclick=()=>{ closeDlg(); const p=cur(); if(p.h>=95){ toast(t('full')); return; } p.h=clamp(p.h+35); p.j=clamp(p.j+3); cared(); save(); pop('🍚'); toast(t('yum')); refresh(); };
-  $('#fSnack').onclick=()=>{ closeDlg(); const p=cur(); p.h=clamp(p.h+8); p.j=clamp(p.j+15); cared(); save(); pop('🍡'); pop('💛'); toast(t('yum')); refresh(); };
+  $('#fMeal').onclick=()=>{ closeDlg(); const p=cur(); if(p.h>=95){ TTLSound.play('nope'); toast(t('full')); return; } TTLSound.play('eat'); p.h=clamp(p.h+35); p.j=clamp(p.j+3); cared(); save(); pop('🍚'); toast(t('yum')); refresh(); };
+  $('#fSnack').onclick=()=>{ closeDlg(); const p=cur(); TTLSound.play('snack'); p.h=clamp(p.h+8); p.j=clamp(p.j+15); cared(); save(); pop('🍡'); pop('💛'); toast(t('yum')); refresh(); };
 }
-function doClean(){ if(!awakeOr()) return; const p=cur(); p.poop=0; p.poopT=0; p.c=100; cared(); save(); pop('🫧'); pop('✨'); toast(t('cleaned')); refresh(); }
+function doClean(){ if(!awakeOr()) return; const p=cur(); p.poop=0; p.poopT=0; p.c=100; cared(); save(); TTLSound.play('clean'); pop('🫧'); pop('✨'); toast(t('cleaned')); refresh(); }
 function doSleep(){
   const p=cur(),n=now();
-  if(isNight(n)){ toast(t('nightNoWake')); return; }
-  if(napping(p,n)){ p.napUntil=0; toast(t('woke')); } else { p.napUntil=n+HOUR; toast(t('napStart')); }
+  if(isNight(n)){ TTLSound.play('nope'); toast(t('nightNoWake')); return; }
+  if(napping(p,n)){ p.napUntil=0; TTLSound.play('wake'); toast(t('woke')); } else { p.napUntil=n+HOUR; TTLSound.play('sleep'); toast(t('napStart')); }
   save(); refresh();
 }
-function doMed(){ if(!awakeOr()) return; const p=cur(); if(!p.sick){ toast(t('medNo')); return; } p.sick=0; p.badM=0; p.j=clamp(p.j-5); cared(); save(); pop('💊'); toast(t('medOk')); refresh(); }
-function startGame(){ if(!awakeOr()) return; const p=cur(); if(p.e<15){ toast(t('tooTired')); return; } G={round:1,score:0,phase:'ask'}; refresh(); }
+function doMed(){ if(!awakeOr()) return; const p=cur(); if(!p.sick){ TTLSound.play('nope'); toast(t('medNo')); return; } TTLSound.play('med'); p.sick=0; p.badM=0; p.j=clamp(p.j-5); cared(); save(); pop('💊'); toast(t('medOk')); refresh(); }
+function startGame(){ if(!awakeOr()) return; const p=cur(); if(p.e<15){ TTLSound.play('nope'); toast(t('tooTired')); return; } TTLSound.play('wake'); G={round:1,score:0,phase:'ask'}; refresh(); }
 function guess(side){
   if(!G||G.phase!=='ask') return;
-  G.turn= Math.random()<.5 ? -1 : 1; G.ok= G.turn===side; if(G.ok) G.score++; G.phase='show'; refresh();
+  G.turn= Math.random()<.5 ? -1 : 1; G.ok= G.turn===side; if(G.ok) G.score++; TTLSound.play(G.ok?'right':'wrong'); G.phase='show'; refresh();
   setTimeout(()=>{
-    if(G.round>=5){ const p=cur(), sc=G.score; p.j=clamp(p.j+5+sc*6); p.e=clamp(p.e-10); p.h=clamp(p.h-3); cared(); save(); G=null; toast(t('gameEnd',{n:num(sc)})); pop(sc>=3?'💛':'🙂'); if(sc>=4) confetti(); refresh(); return; }
+    if(G.round>=5){ const p=cur(), sc=G.score; p.j=clamp(p.j+5+sc*6); p.e=clamp(p.e-10); p.h=clamp(p.h-3); cared(); save(); G=null; toast(t('gameEnd',{n:num(sc)})); setTimeout(()=>TTLSound.play(sc>=3?'win':'done'),150); pop(sc>=3?'💛':'🙂'); if(sc>=4) confetti(); refresh(); return; }
     G.round++; G.phase='ask'; refresh();
   },1100);
 }
 function leaveFood(){
   const p=cur(),n=now(),k=dayKey(n); if(p.away.days.includes(k)) return;
-  p.away.days.push(k);
+  p.away.days.push(k); TTLSound.play('eat');
   if(p.away.days.length>=3){
     p.awayTotal=(p.awayTotal||0)+(n-p.away.since); p.away=null; p.scruffy=1; p.h=60; p.j=60; p.c=70; p.e=80; p.poop=0; p.sick=0; p.badM=0; p.last=n; p.lastCare=n;
-    save(); toast(t('back',{name:p.name})); confetti();
+    save(); TTLSound.play('back'); toast(t('back',{name:p.name})); confetti();
   } else save();
   refresh();
 }
-cv.addEventListener('click',()=>{ const p=cur(); if(p && !p.hatched && !hatchAnim){ const left=p.hatchAt-now(); if(left>2000){ p.hatchAt-=4000; save(); refresh(); } } });
+cv.addEventListener('click',()=>{ const p=cur(); if(p && !p.hatched && !hatchAnim){ const left=p.hatchAt-now(); if(left>2000){ p.hatchAt-=4000; save(); refresh(); TTLSound.play('warm'); } } });
 
 /* ---------- hatching ---------- */
 function checkHatch(){
   const p=cur(); if(!p||p.hatched||hatchAnim) return;
-  if(now()>=p.hatchAt){ hatchAnim=performance.now(); refresh();
+  if(now()>=p.hatchAt){ hatchAnim=performance.now(); refresh(); TTLSound.play('rumble');
     setTimeout(()=>{ hatchAnim=0; hatch(p); refresh(); reveal(p); }, RM?400:2200); }
 }
 function petCanvas(sp,form,size){
@@ -512,6 +514,7 @@ function reveal(p){
   $('#nmOk').onclick=()=>{ take(); closeDlg(); toast(t('hatchedToast',{name:p.name})); pop('💛');
     if(!TTLAccount.user() && !S.invited){ S.invited=1; save(); setTimeout(()=>{ if(!dlg.open) TTLAccount.invite(t('saveInvite',{name:p.name})); },1600); } };
   $('#nmShare').onclick=()=>{ take(); shareCard(p); };
+  TTLSound.play('hatch',p.rar);
   if(p.rar>=1) confetti(p.rar>=3?3:p.rar);
 }
 
@@ -537,6 +540,7 @@ function showInfo(){
   $('#iFree').onclick=()=>askRelease(S.cur);
 }
 function grownUp(p){
+  TTLSound.play('grow');
   openDlg(`<div class="reveal"><div id="gArt"></div><h2>${esc(t('grown',{name:p.name}))}</h2><p class="muted">${esc(T[lang].forms[p.form])}</p><p>${esc(t('grownD',{name:p.name}))}</p></div>
    <div class="btns"><button class="btn" id="gShare">${esc(t('share'))}</button><button class="btn gold" id="gNew">🥚 ${esc(t('getNow'))}</button></div>
    <button class="btn sec" id="dClose">${esc(t('later'))}</button>`);
@@ -560,7 +564,7 @@ function askRelease(i,thenEgg){
     if(p.hatched){ S.past=S.past||[]; S.past.push({sp:p.sp,rar:p.rar,name:p.name,form:p.form,hatched:p.hatched,freed:now()}); }
     S.pets.splice(i,1); S.cur=Math.max(0,Math.min(S.cur>=i&&S.cur>0?S.cur-1:S.cur,S.pets.length-1)); G=null; save();
     if(thenEgg && canEgg() && S.pets.length<MAXP){ newEgg(); }
-    closeDlg(); toast(t('freed',{name:nm})); refresh();
+    closeDlg(); TTLSound.play('free'); toast(t('freed',{name:nm})); refresh();
   };
 }
 function miniCanvas(p,size){
@@ -671,6 +675,8 @@ $('#bLang').onclick=()=>{ lang= lang==='my'?'en':'my'; try{ localStorage.setItem
 $('#bDex').onclick=showDex;
 $('#bHelp').onclick=showHelp;
 TTLAccount.mount('#bAcct',['egg']);
+TTLSound.bind($('#bSnd'));
+document.addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b || b.id==='bSnd') return; TTLSound.play(b.closest('#actions')||b.closest('.slots')?'tap':'click'); });
 if(DEV){
   const d=$('#dev'), add=(l,fn)=>{ const b=document.createElement('button'); b.textContent=l; b.onclick=()=>{ fn(); try{ localStorage.setItem('littleegg.dev',off); }catch(e){} refresh(); tick(); }; d.appendChild(b); };
   add('+1h',()=>off+=HOUR); add('+6h',()=>off+=6*HOUR); add('+1d',()=>off+=DAY); add('hatch now',()=>{ const p=cur(); if(p&&!p.hatched) p.hatchAt=now(); });

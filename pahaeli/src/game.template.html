@@ -181,6 +181,7 @@ footer{font-size:.75rem;color:var(--muted);text-align:center}
     <button class="iconbtn" id="btnStats" aria-label="Stats">📊</button>
     <button class="iconbtn" id="btnHelp" aria-label="Help">?</button>
     <button class="iconbtn" id="btnAcct" aria-label="Account">👤</button>
+    <button class="iconbtn" id="btnSnd" aria-label="Sound">🔊</button>
   </header>
   <nav class="tabs" role="tablist">
     <button class="tab" role="tab" id="tab-A" data-m="A"><span class="nm"></span><span class="st"></span></button>
@@ -197,6 +198,7 @@ footer{font-size:.75rem;color:var(--muted);text-align:center}
 
 <script id="puzzles" type="application/json">/*PUZZLES*/</script>
 <script src="/shared/account.js"></script>
+<script src="/shared/sound.js"></script>
 <script>
 // ---------- Settings you can change ----------
 const HOME_URL = "https://game.thinthilar.com/pahaeli/"; // used in share links when the page runs somewhere else (e.g. a preview)
@@ -380,7 +382,7 @@ $('#btnStats').onclick=()=>{
 };
 
 function finish(m, won){
-  const g=G(m); g.done=true; if(m!=='B') g.won=won; if(won) FX.win=true;
+  const g=G(m); g.done=true; if(m!=='B') g.won=won; if(won) FX.win=true; else setTimeout(()=>TTLSound.play('lose'), m==='A'||m==='U'?1250:300);
   if(m!=='U' && day===todayIdx && !g.counted){
     g.counted=true; const s=S.stats[m]||(S.stats[m]={played:0,won:0,streak:0,max:0,last:-9});
     s.played++; if(won){ s.won++; s.streak = (s.last===day-1)? s.streak+1 : 1; s.max=Math.max(s.max,s.streak); s.last=day; } else { s.streak=0; s.last=day; }
@@ -430,7 +432,7 @@ function renderA(){
     render();
   };
 }
-function shake(){ const b=$('#board .row:nth-child('+(G().guesses.length+1)+')'); if(b){ b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake'); } }
+function shake(){ TTLSound.play('nope'); const b=$('#board .row:nth-child('+(G().guesses.length+1)+')'); if(b){ b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake'); } }
 
 // ---------- PROVERB (B) ----------
 function renderB(){
@@ -454,6 +456,7 @@ function renderB(){
     const other=g.slots.indexOf(i); if(other>=0) g.slots[other]=null; g.slots[i]=i; g.locked[i]=true; g.hints++; save(); renderB(); };
   $('#bGo').onclick=()=>{
     const row=[]; FX.locks=[]; for(let i=0;i<n;i++){ const ok=g.slots[i]===i; row.push(ok?'🟩':'⬜'); if(ok&&!g.locked[i]) FX.locks.push(i); if(ok) g.locked[i]=true; else g.slots[i]=null; }
+    if(!FX.locks.length) TTLSound.play('nope');
     g.rows.push(row.join('')); if(g.locked.filter(Boolean).length===n && [...Array(n).keys()].every(i=>g.locked[i])) finish('B',true); else save();
     render();
   };
@@ -489,7 +492,7 @@ function renderC(){
     g.guesses.push(g.sel.slice());
     const hit=groups.findIndex(x=>g.sel.every(w=>x.w.includes(w)));
     if(hit>=0){ g.found.push(hit); g.sel=[]; FX.group=hit; if(g.found.length===4) finish('C',true); else save(); }
-    else { const close=groups.some(x=>g.sel.filter(w=>x.w.includes(w)).length===3); g.mistakes++; toast(close?t('oneAway'):'✗');
+    else { const close=groups.some(x=>g.sel.filter(w=>x.w.includes(w)).length===3); g.mistakes++; toast(close?t('oneAway'):'✗'); TTLSound.play('nope');
       if(g.mistakes>=4) finish('C',false); else save(); }
     render();
   };
@@ -672,9 +675,18 @@ function confetti(){
 }
 function render(){ $('#result').hidden=true; if(mode==='U'&&!CUP) mode='MENU'; renderChrome(); ({MENU:renderMenu,A:renderA,B:renderB,C:renderC,U:renderA,MAKE:renderMake,F:renderFriends})[mode](); renderChrome();
   if(FX.win) setTimeout(confetti, mode==='A'||mode==='U'?650:150);
+  if(FX.row>=0) TTLSound.play('flip');
+  if(FX.locks.length) TTLSound.play('lock',FX.locks.length);
+  if(FX.group>=0) TTLSound.play('match');
+  if(FX.win) setTimeout(()=>TTLSound.play('win'), mode==='A'||mode==='U'?1150:(FX.group>=0?450:250));
   FX.row=-1; FX.locks=[]; FX.group=-1; FX.win=false; }
 render();
 TTLAccount.mount('#btnAcct',['pahaeli']);
+TTLSound.bind($('#btnSnd'));
+document.addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b || b.disabled || /^(aGo|bGo|cGo|btnSnd)$/.test(b.id)) return;
+  if(b.id==='aDel') return TTLSound.play('del');
+  if(/Hint$/.test(b.id)) return TTLSound.play('hint');
+  TTLSound.play(b.matches('.key,.piece,.word')?'tap':'click'); });
 </script>
 </body>
 </html>
