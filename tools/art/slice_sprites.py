@@ -73,15 +73,19 @@ def main():
     if tint.any() and (~tint).any():
         ok = np.where(~tint)[0]; dark = ok[C[ok].sum(1).argmin()]
         C[tint] = C[dark]
+    sizes = []
+    for a, c in runs:
+        rr = np.where((~m[:, a:c + 1]).any(1))[0]; sizes.append((c - a + 1, rr.max() - rr.min() + 1))
+    print('stage sizes (w x h):', sizes, f'(frame is {FW}x{FH}; up to 2 over is trimmed)')
     sheet = Image.new('RGBA', (FW * 4, FH), (0, 0, 0, 0))
     for n, (a, c) in enumerate(runs):
         sub, sm = grid[:, a:c + 1], m[:, a:c + 1]
         rr = np.where((~sm).any(1))[0]; sub, sm = sub[rr.min():rr.max() + 1], sm[rr.min():rr.max() + 1]
-        # one pixel too big: trim the outer row/column that has the fewest drawn cells
-        while sm.shape[0] == FH + 1:
+        # one or two pixels too big: trim the outer row/column that has the fewest drawn cells
+        while FH < sm.shape[0] <= FH + 2:
             t, b = (~sm[0]).sum(), (~sm[-1]).sum()
             sub, sm = (sub[1:], sm[1:]) if t <= b else (sub[:-1], sm[:-1])
-        while sm.shape[1] == FW + 1:
+        while FW < sm.shape[1] <= FW + 2:
             l, r = (~sm[:, 0]).sum(), (~sm[:, -1]).sum()
             sub, sm = (sub[:, 1:], sm[:, 1:]) if l <= r else (sub[:, :-1], sm[:, :-1])
         h, w = sm.shape
