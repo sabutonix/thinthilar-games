@@ -77,6 +77,13 @@ def main():
     for n, (a, c) in enumerate(runs):
         sub, sm = grid[:, a:c + 1], m[:, a:c + 1]
         rr = np.where((~sm).any(1))[0]; sub, sm = sub[rr.min():rr.max() + 1], sm[rr.min():rr.max() + 1]
+        # one pixel too big: trim the outer row/column that has the fewest drawn cells
+        while sm.shape[0] == FH + 1:
+            t, b = (~sm[0]).sum(), (~sm[-1]).sum()
+            sub, sm = (sub[1:], sm[1:]) if t <= b else (sub[:-1], sm[:-1])
+        while sm.shape[1] == FW + 1:
+            l, r = (~sm[:, 0]).sum(), (~sm[:, -1]).sum()
+            sub, sm = (sub[:, 1:], sm[:, 1:]) if l <= r else (sub[:, :-1], sm[:, :-1])
         h, w = sm.shape
         if h > FH or w > FW: sys.exit(f'stage {n+1} is {w}x{h}, bigger than {FW}x{FH}')
         fr = Image.new('RGBA', (FW, FH), (0, 0, 0, 0)); px = fr.load()
