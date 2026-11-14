@@ -178,9 +178,9 @@ textarea{min-height:84px;font-family:ui-monospace,monospace;font-size:.8rem;word
 <dialog id="dlg"><div class="dlg" id="dlgBody"></div></dialog>
 <div id="toast" role="status"></div>
 <canvas id="fx"></canvas>
-<script src="/shared/account.js?v=202611140858"></script>
-<script src="/shared/sound.js?v=202611140858"></script>
-<script src="sprites.js?v=202611140858"></script>
+<script src="/shared/account.js?v=202611140903"></script>
+<script src="/shared/sound.js?v=202611140903"></script>
+<script src="sprites.js?v=202611140903"></script>
 <script>
 "use strict";
 /* ---------- setup ---------- */
@@ -390,9 +390,12 @@ function drawEgg(p,n){
   const shaking = hatchAnim || left<=0;
   if(!RM){ if(shaking) x+= (frame%2?6:-6); else if(frame%12<2) x+=(frame%2?4:-4); }
   if(left<15e3 || shaking){ const a= RM?0.35:0.25+0.2*Math.sin(frame/2); ctx.fillStyle=RAR[p.rar].col; ctx.globalAlpha=a; ctx.beginPath(); ctx.arc(160,y+70,92,0,7); ctx.fill(); ctx.globalAlpha=1; }
+  if(artOk('egg')){ const f= (hatchAnim||left<=0) ? 3 : frac<0.34 ? 0 : frac<0.67 ? 1 : 2; A.drawArt(ctx,'egg',f,x-36,y-72,5); }
+  else {
   A.draw(ctx,'egg',A.EGG_PAL,x,y,pxs);
   const nc=Math.floor(frac*CRACKS.length);
   ctx.fillStyle='#4a3f30'; for(let i=0;i<nc;i++){ const [c,r]=CRACKS[i]; ctx.fillRect(x+c*pxs,y+r*pxs,pxs,pxs); }
+  }
   if(hatchAnim){ const k=(performance.now()-hatchAnim)/2200; if(k>0.75){ ctx.fillStyle='rgba(255,255,255,'+Math.min(1,(k-0.75)*4)+')'; ctx.fillRect(0,0,320,240); } }
 }
 function drawIntro(){
@@ -619,7 +622,7 @@ function askRelease(i,thenEgg){
 function miniCanvas(p,size){
   const c=document.createElement('canvas'); c.width=c.height=size; const x=c.getContext('2d'); x.imageSmoothingEnabled=false;
   const px=Math.floor(size/16), o=Math.floor((size-16*px)/2);
-  if(!p.hatched) A.draw(x,'egg',A.EGG_PAL,o,o,px);
+  if(!p.hatched){ if(artOk('egg')){ const q=Math.max(1,Math.floor(size/40)); A.drawArt(x,'egg',0,Math.floor((size-40*q)/2),size-40*q,q); } else A.draw(x,'egg',A.EGG_PAL,o,o,px); }
   else { const s=spById(p.sp), st=stage(p,now()); if(artOk(s.id)){ const q=Math.max(1,Math.floor(size/40)); A.drawArt(x,s.id,st-1,Math.floor((size-40*q)/2),size-40*q,q); } else A.draw(x, st===1?'blob':s.body, s.pal, o, o, px); }
   c.style.width=c.style.height=Math.min(size,48)+'px'; c.style.imageRendering='pixelated'; return c;
 }
