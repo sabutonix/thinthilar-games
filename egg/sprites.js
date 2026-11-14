@@ -203,7 +203,7 @@ function draw(ctx, name, pal, x, y, px, opts){
 }
 /* Drawn art (made in Gemini, cleaned by tools/art/slice_sprites.py): egg/art/<id>.png = 4 frames of 40x40
    (baby, child, teen, adult). Animals listed here use the art; the rest keep the 16x16 code sprites above. */
-const ART=['cat_orange'];
+const ART=['cat_orange','cat_grey'];
 const IMG={}, TOPS={};
 ART.forEach(id=>{ const im=new Image(); im.onload=()=>{ IMG[id]=im; try{
     const c=document.createElement('canvas'); c.width=im.width; c.height=im.height; const x=c.getContext('2d'); x.drawImage(im,0,0);
