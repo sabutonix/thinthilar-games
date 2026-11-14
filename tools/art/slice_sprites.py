@@ -68,6 +68,11 @@ def main():
         for j in range(k):
             if (a == j).any(): C[j] = pix[a == j].mean(0)
     C = np.round(C).astype(int)
+    # edge pixels next to the magenta blend into purple-tinted dark colours: turn them into the plain dark outline
+    tint = (C[:, 0] > C[:, 1] + 30) & (C[:, 2] > C[:, 1] + 30) & (C.sum(1) < 330)
+    if tint.any() and (~tint).any():
+        ok = np.where(~tint)[0]; dark = ok[C[ok].sum(1).argmin()]
+        C[tint] = C[dark]
     sheet = Image.new('RGBA', (FW * 4, FH), (0, 0, 0, 0))
     for n, (a, c) in enumerate(runs):
         sub, sm = grid[:, a:c + 1], m[:, a:c + 1]
