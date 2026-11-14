@@ -89,6 +89,17 @@ def main():
             l, r = (~sm[:, 0]).sum(), (~sm[:, -1]).sum()
             sub, sm = (sub[:, 1:], sm[:, 1:]) if l <= r else (sub[:, :-1], sm[:, :-1])
         h, w = sm.shape
+        if (h > FH or w > FW) and '--fit' in sys.argv:
+            # too big: shrink the whole stage to fit (area average, then snap back to the palette)
+            im = Image.new('RGBA', (w, h), (0, 0, 0, 0)); ip = im.load()
+            for y in range(h):
+                for x in range(w):
+                    if not sm[y, x]:
+                        j = ((C - sub[y, x]) ** 2).sum(1).argmin(); ip[x, y] = tuple(int(v) for v in C[j]) + (255,)
+            sc = min(FW / w, FH / h); nw, nh = max(1, round(w * sc)), max(1, round(h * sc))
+            im = im.resize((nw, nh), Image.BOX); a = np.array(im).astype(int)
+            sub = a[:, :, :3]; sm = a[:, :, 3] < 128; h, w = sm.shape
+            print(f'stage {n+1} shrunk to {w}x{h}')
         if h > FH or w > FW: sys.exit(f'stage {n+1} is {w}x{h}, bigger than {FW}x{FH}')
         fr = Image.new('RGBA', (FW, FH), (0, 0, 0, 0)); px = fr.load()
         fx, fy = (FW - w) // 2, FH - h
