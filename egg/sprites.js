@@ -204,23 +204,86 @@ function draw(ctx, name, pal, x, y, px, opts){
 /* Drawn art (made in Gemini, cleaned by tools/art/slice_sprites.py): egg/art/<id>.png = 4 frames of 40x40
    (baby, child, teen, adult). Animals listed here use the art; the rest keep the 16x16 code sprites above. */
 const ART=['cat_orange','cat_grey','cat_tux','dog_white','dog_brown','cat_burmese','cat_siamese','cat_persian','dog_pom','dog_golden','gecko','chameleon','myna','owl','turtle','parrot','hedgehog','egg'];
-const IMG={}, TOPS={};
+const IMG={}, TOPS={}, SHUT={};
+/* Closed-eye copy of an animal's art, made automatically: an eye is a small dark patch that is not on the outline
+   and has a light "shine" pixel inside it. It is painted over with the fur colour and a little closed-eye line. */
+function shutEyes(c,x,d){
+  const W=c.width, lum=i=>0.3*d[i]+0.59*d[i+1]+0.11*d[i+2], A=(xx,yy)=>xx>=0&&yy>=0&&xx<W&&yy<40?d[(yy*W+xx)*4+3]:0;
+  const dark=(xx,yy)=>A(xx,yy)>0 && lum((yy*W+xx)*4)<70;
+  const out=document.createElement('canvas'); out.width=W; out.height=40; const o=out.getContext('2d'); o.drawImage(c,0,0);
+  /* fallback for dark faces and big coloured eyes: start at a light shine pixel and take the nearby pixels that differ from the fur around it */
+  const rgb=i=>[d[i],d[i+1],d[i+2]], dist=(p,q)=>Math.abs(p[0]-q[0])+Math.abs(p[1]-q[1])+Math.abs(p[2]-q[2]);
+  function shineEyes(f){
+    let top=40,bot=0; for(let yy=0;yy<40;yy++) for(let xx=f*40;xx<f*40+40;xx++) if(A(xx,yy)){ top=Math.min(top,yy); bot=Math.max(bot,yy); }
+    const lim=top+(bot-top)*0.55, res=[], used=new Set();
+    for(let yy=top;yy<lim;yy++) for(let xx=f*40+1;xx<f*40+39;xx++){
+      const i=(yy*W+xx)*4; if(!A(xx,yy)||lum(i)<170||used.has(yy*W+xx)) continue;
+      let darker=0, edge=false; for(let dy=-1;dy<=1;dy++) for(let dx=-1;dx<=1;dx++){ if(!dx&&!dy) continue; if(!A(xx+dx,yy+dy)){ edge=true; continue; } if(lum(((yy+dy)*W+xx+dx)*4)<lum(i)-60) darker++; }
+      if(edge||darker<6) continue;
+      const cnt={}; let best=null;
+      for(let dy=-4;dy<=4;dy++) for(let dx=-4;dx<=4;dx++){ const m=Math.max(Math.abs(dx),Math.abs(dy)); if(m<3) continue; const a=xx+dx,b=yy+dy; if(!A(a,b)) continue; const k=rgb((b*W+a)*4).join(','); cnt[k]=(cnt[k]||0)+1; if(!best||cnt[k]>cnt[best]) best=k; }
+      if(!best) continue; const fur=best.split(',').map(Number);
+      const px=[], q=[[xx,yy]], seen=new Set([yy*W+xx]);
+      while(q.length){ const [a,b]=q.pop(); px.push([a,b]);
+        for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){ const na=a+dx,nb=b+dy,nk=nb*W+na; if(seen.has(nk)||Math.abs(na-xx)>3||Math.abs(nb-yy)>3||!A(na,nb)) continue;
+          seen.add(nk); if(dist(rgb(nk*4),fur)>60) q.push([na,nb]); } }
+      if(px.length<3||px.length>45) continue;
+      px.forEach(([a,b])=>used.add(b*W+a));
+      const xs=px.map(p=>p[0]), ys=px.map(p=>p[1]); let dk=px[0], dl=999; px.forEach(p=>{ const l=lum((p[1]*W+p[0])*4); if(l<dl){ dl=l; dk=p; } });
+      res.push({x0:Math.min(...xs),x1:Math.max(...xs),y0:Math.min(...ys),y1:Math.max(...ys),col:(dk[1]*W+dk[0])*4,px,fur:'rgb('+fur.join(',')+')'});
+    }
+    return res.length>=2 && res.length<=3 ? res : [];
+  }
+  const ok=[];
+  for(let f=0;f<4;f++){
+    const seen=new Set(), eyes=[];
+    for(let yy=0;yy<40;yy++) for(let xx=f*40;xx<f*40+40;xx++){
+      const k=yy*W+xx; if(seen.has(k)||!dark(xx,yy)) continue;
+      const q=[[xx,yy]], px=[]; seen.add(k); let edge=false;
+      while(q.length){ const [a,b]=q.pop(); px.push([a,b]);
+        for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){ const na=a+dx, nb=b+dy;
+          if(na<f*40||na>=f*40+40||!A(na,nb)){ edge=true; continue; }
+          const nk=nb*W+na; if(!seen.has(nk)&&dark(na,nb)){ seen.add(nk); q.push([na,nb]); } } }
+      if(edge||px.length<2||px.length>40) continue;
+      const xs=px.map(p=>p[0]), ys=px.map(p=>p[1]), x0=Math.min(...xs), x1=Math.max(...xs), y0=Math.min(...ys), y1=Math.max(...ys);
+      let shine=0; for(let b=y0;b<=y1;b++) for(let a=x0;a<=x1;a++){ if(!dark(a,b) && A(a,b) && lum((b*W+a)*4)>190) shine++; }
+      if(shine && shine<=6 && x1-x0<=6 && y1-y0<=6) eyes.push({x0,x1,y0,y1,col:(px[0][1]*W+px[0][0])*4});
+    }
+    if(eyes.length<2) eyes.splice(0,eyes.length,...shineEyes(f));
+    ok[f]= eyes.length>=2 && eyes.length<=3;
+    if(!ok[f]) continue;
+    eyes.forEach(e=>{
+      if(e.px){ o.fillStyle=e.fur; e.px.forEach(([a,b])=>o.fillRect(a,b,1,1)); }
+      else {
+      const fy=Math.max(0,e.y0-1), fi=(fy*W+Math.round((e.x0+e.x1)/2))*4;
+      o.fillStyle= A(Math.round((e.x0+e.x1)/2),fy) ? `rgb(${d[fi]},${d[fi+1]},${d[fi+2]})` : '#000';
+      o.fillRect(e.x0,e.y0,e.x1-e.x0+1,e.y1-e.y0+1); }
+      o.fillStyle=`rgb(${d[e.col]},${d[e.col+1]},${d[e.col+2]})`;
+      const ly=Math.round(e.y0+(e.y1-e.y0)*0.6);
+      o.fillRect(e.x0,ly-1,1,1); o.fillRect(e.x1,ly-1,1,1); if(e.x1-e.x0>=2) o.fillRect(e.x0+1,ly,e.x1-e.x0-1,1); else o.fillRect(e.x0,ly,e.x1-e.x0+1,1);
+    });
+  }
+  out.ok=ok; return ok.some(Boolean) ? out : null;
+}
 ART.forEach(id=>{ const im=new Image(); im.onload=()=>{ IMG[id]=im; try{
     const c=document.createElement('canvas'); c.width=im.width; c.height=im.height; const x=c.getContext('2d'); x.drawImage(im,0,0);
     const d=x.getImageData(0,0,c.width,c.height).data, t=[];
     for(let f=0;f<4;f++){ let top=40; outer: for(let y=0;y<40;y++) for(let xx=0;xx<40;xx++) if(d[(y*c.width+f*40+xx)*4+3]>0){ top=y; break outer; } t.push(top); }
-    TOPS[id]=t; }catch(e){ TOPS[id]=[20,12,6,2]; } };
+    TOPS[id]=t; if(id!=='egg') SHUT[id]=shutEyes(c,x,d); }catch(e){ TOPS[id]=[20,12,6,2]; } };
   im.src='art/'+id+'.png'; });
 const hasArt=id=>!!IMG[id];
+/* frames where the automatic closed eyes looked wrong (checked by eye, 15 Nov 2026) — these keep their eyes open */
+const NO_SHUT={dog_brown:[2,3],parrot:[2],owl:[3],cat_siamese:[3]};
+const canShut=(id,f)=>!!(SHUT[id] && SHUT[id].ok[f] && !(NO_SHUT[id]||[]).includes(f));
 const artTop=(id,f)=>(TOPS[id]||[20,12,6,2])[f];
-/* draw frame f (0-3) of an animal's art at x,y with pixel size px; opts {flip, sil} */
+/* draw frame f (0-3) of an animal's art at x,y with pixel size px; opts {flip, sil, shut (eyes closed)} */
 function drawArt(ctx,id,f,x,y,px,opts){
   opts=opts||{}; const im=IMG[id]; if(!im) return; ctx.save(); ctx.imageSmoothingEnabled=false;
-  let srcEl=im, sx=f*40;
-  if(opts.sil){ const c=document.createElement('canvas'); c.width=c.height=40; const k=c.getContext('2d'); k.drawImage(im,f*40,0,40,40,0,0,40,40); k.globalCompositeOperation='source-in'; k.fillStyle=opts.sil; k.fillRect(0,0,40,40); srcEl=c; sx=0; }
+  let srcEl= (opts.shut && canShut(id,f) && SHUT[id]) || im, sx=f*40;
+  if(opts.sil){ const c=document.createElement('canvas'); c.width=c.height=40; const k=c.getContext('2d'); k.drawImage(srcEl,f*40,0,40,40,0,0,40,40); k.globalCompositeOperation='source-in'; k.fillStyle=opts.sil; k.fillRect(0,0,40,40); srcEl=c; sx=0; }
   if(opts.flip){ ctx.translate(Math.round(x+40*px),Math.round(y)); ctx.scale(-1,1); ctx.drawImage(srcEl,sx,0,40,40,0,0,40*px,40*px); }
   else ctx.drawImage(srcEl,sx,0,40,40,Math.round(x),Math.round(y),40*px,40*px);
   ctx.restore();
 }
-window.PETART = {BODY, SPECIES, RARITY, EGG_PAL, draw, grid, hasArt, artTop, drawArt};
+window.PETART = {BODY, SPECIES, RARITY, EGG_PAL, draw, grid, hasArt, canShut, artTop, drawArt};
 })();

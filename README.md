@@ -28,6 +28,8 @@ Free, phone-first Burmese games. Static files only, hosted on GitHub Pages.
 - Add new animals only at the **end** of `SPECIES` in `egg/sprites.js`; rarity chances are the `w` values in `RARITY`.
 - When you change `egg/sprites.js`, `shared/account.js` or `shared/sound.js`, bump the `?v=` number on their `<script src>` lines (menu, Little Egg, Pahaeli template) so phones don't mix an old cached file with a new page.
 - Drawn animal art: generate in Gemini (4 growth stages in one row, magenta background), then run `python3 tools/art/slice_sprites.py <image> <species_id> --preview check.png` to make `egg/art/<species_id>.png` (4 frames of 40×40), and add the id to `ART` in `egg/sprites.js`. Animals without art keep the 16×16 code sprites.
+- Pet reactions (added 15 Nov 2026): the pet blinks, sleeps with its eyes closed, hops to its food and takes three bites, reacts to being tapped (💛) or rubbed side to side / tapped 3 times quickly (💕, at most +10 happy per hour), grumbles if poked while asleep, and runs up to say hello when you come back after 2+ hours (time last seen: `littleegg.seen`, this phone only). All of it is in `drawPet()` / `startAct()` in `egg/index.html`; motion is skipped when the phone asks for reduced motion.
+- Closed eyes are made automatically from the drawn art (`shutEyes()` in `egg/sprites.js`). New art: check it with sleep in test mode; if a frame looks wrong, add it to `NO_SHUT` and that frame keeps its eyes open.
 - Test mode: open `/egg/?dev=1` for time-travel buttons (+1h, +6h, +1d, hatch now, wipe).
 - Burmese animal names to check: ပိုမရေနီယန် ခွေး (Pomeranian), ဖြူကလေး (hedgehog), ပုတ်သင်ညို (chameleon), ရွှေဝါ ခွေး (Golden retriever).
 

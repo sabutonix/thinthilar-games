@@ -70,6 +70,10 @@ const S={
   newEgg:()=>{ for(let i=0;i<5;i++) tone([N.G5,N.C6,N.E6,N.G6,N.C6][i],i*0.06,0.3,{vol:0.05}); },
   free:  ()=>{ noise(0,0.7,400,{vol:0.08,to:3000}); arp([N.G5,N.E6],0.35,0.5,{vol:0.06}); },
   back:  ()=>arp([N.E5,N.G5,N.C6,N.E6],0.09,0.3,{type:'triangle',vol:0.1}),
+  pet:   ()=>{ tone(N.A5,0,0.09,{type:'triangle',vol:0.07,to:N.E6}); tone(N.E6,0.09,0.12,{vol:0.05}); },
+  purr:  ()=>{ for(let i=0;i<5;i++) noise(i*0.14,0.12,140,{type:'lowpass',vol:0.1}); arp([N.E6,N.G6],0.5,0.2,{vol:0.05}); },
+  grumble:()=>tone(N.E4,0,0.2,{type:'triangle',vol:0.07,to:N.C4}),
+  hello: ()=>{ arp([N.G5,N.C6],0.12,0.16,{type:'triangle',vol:0.09}); tone(N.E6,0.3,0.2,{vol:0.06}); },
   sad:   ()=>arp([N.E5,N.D5,N.C5,N.A4],0.25,0.45,{vol:0.07})
 };
 /* tiny tap/click sounds wait one moment so a bigger sound from the same tap can replace them */
