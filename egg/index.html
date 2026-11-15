@@ -185,7 +185,8 @@ textarea{min-height:84px;font-family:ui-monospace,monospace;font-size:.8rem;word
 <script>
 "use strict";
 /* ---------- setup ---------- */
-const KEY='littleegg.v1';                 // player's pet lives here — keep this key name
+const TEST=new URLSearchParams(location.search).has('dev');
+const KEY= TEST ? 'littleegg.dev.v1' : 'littleegg.v1';   // player's pet lives in littleegg.v1 — keep that key name. Test mode (?dev=1) uses its own pets and never touches the real ones or the account
 const A=PETART, SP=A.SPECIES, RAR=A.RARITY;
 const spById=id=>SP.find(s=>s.id===id);
 const artOk=id=>!!(A.hasArt && A.hasArt(id));   // false if an old cached sprites.js is loaded
@@ -601,7 +602,7 @@ function touchPet(rubbed){
   cared(); save();
 }
 /* welcome back: if you've been away a while, the pet runs up to say hello */
-const SEEN='littleegg.seen';
+const SEEN= TEST ? 'littleegg.dev.seen' : 'littleegg.seen';
 function greet(){
   let last=0; try{ last=+localStorage.getItem(SEEN)||0; }catch(e){}
   const n=now(), p=cur();
@@ -639,7 +640,7 @@ function reveal(p){
   $('#rvArt').appendChild(petCanvas(p.sp,null,160,1));   // the baby — how it grows up stays a surprise
   const take=()=>{ p.name=($('#nm').value.trim()||sug).slice(0,12); save(); refresh(); };
   $('#nmOk').onclick=()=>{ take(); closeDlg(); toast(t('hatchedToast',{name:p.name})); pop('💛');
-    if(!TTLAccount.user() && !S.invited){ S.invited=1; save(); setTimeout(()=>{ if(!dlg.open) TTLAccount.invite(t('saveInvite',{name:p.name})); },1600); } };
+    if(!DEV && !TTLAccount.user() && !S.invited){ S.invited=1; save(); setTimeout(()=>{ if(!dlg.open) TTLAccount.invite(t('saveInvite',{name:p.name})); },1600); } };
   $('#nmShare').onclick=()=>{ take(); shareCard(p); };
   TTLSound.play('hatch',p.rar);
   if(p.rar>=1) confetti(p.rar>=3?3:p.rar);
@@ -804,7 +805,7 @@ function applyLang(){
 $('#bLang').onclick=()=>{ lang= lang==='my'?'en':'my'; try{ localStorage.setItem('tg.lang',lang); }catch(e){} applyLang(); };
 $('#bDex').onclick=showDex;
 $('#bHelp').onclick=showHelp;
-TTLAccount.mount('#bAcct',['egg']);
+TTLAccount.mount('#bAcct', DEV ? [] : ['egg']);   // test mode: the account keeps syncing the real pets, but never reloads this test page
 TTLSound.bind($('#bSnd'));
 /* ---------- shell styles ---------- */
 const SKINS=[['classic','ဂန္ထဝင် အပြာ','Classic blue'],['candy_pink','ပန်းရောင် သကြားလုံး','Candy pink'],['candy_lilac','ခရမ်းနု သကြားလုံး','Candy lilac'],
@@ -824,7 +825,8 @@ devEl.addEventListener('animationend',()=>devEl.classList.remove('wob'));
 window.__skinReady=true; applySkin();
 document.addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b || b.id==='bSnd') return; TTLSound.play(b.closest('#actions')||b.closest('.slots')?'tap':'click'); });
 if(DEV){
-  const d=$('#dev'), add=(l,fn)=>{ const b=document.createElement('button'); b.textContent=l; b.onclick=()=>{ fn(); try{ localStorage.setItem('littleegg.dev',off); }catch(e){} refresh(); tick(); }; d.appendChild(b); };
+  const d=$('#dev'); d.insertAdjacentHTML('beforeend','<div style="width:100%;text-align:center;font-size:.78rem;color:var(--muted)">🧪 TEST MODE — separate test pets; your real pets are not touched</div>');
+  const add=(l,fn)=>{ const b=document.createElement('button'); b.textContent=l; b.onclick=()=>{ fn(); try{ localStorage.setItem('littleegg.dev',off); }catch(e){} refresh(); tick(); }; d.appendChild(b); };
   add('+1h',()=>off+=HOUR); add('+6h',()=>off+=6*HOUR); add('+1d',()=>off+=DAY); add('hatch now',()=>{ const p=cur(); if(p&&!p.hatched) p.hatchAt=now(); });
   add('reset time',()=>off=0); add('wipe all',()=>{ if(confirm('Wipe?')){ S=blank(); off=0; save(); } });
 }
