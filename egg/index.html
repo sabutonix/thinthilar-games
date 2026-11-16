@@ -155,6 +155,12 @@ textarea{min-height:84px;font-family:ui-monospace,monospace;font-size:.8rem;word
 .letter{background:#fffbea;border:1px solid #eadfb4;border-radius:12px;padding:16px 18px;white-space:pre-line;font-family:Georgia,'Noto Serif Myanmar',serif;font-size:1.05rem;line-height:1.8;color:#3b3220;text-align:left;box-shadow:0 2px 6px rgba(0,0,0,.08)}
 .calls{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0}
 .calls .btn{flex:1 1 30%;min-width:90px;margin:0}
+.boing{animation:boing .5s}
+@keyframes boing{0%{transform:none}30%{transform:scale(1.12,.9)}60%{transform:translateY(-12px)}100%{transform:none}}
+.friends{display:flex;flex-direction:column;gap:6px;margin:8px 0}
+.friends div{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:12px;padding:4px 10px;text-align:left}
+.friends span{flex:1;font-size:.9rem}
+.friends button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:4px 10px;font:inherit;font-size:.85rem;color:#2563eb}
 .bigemo{font-size:4rem;line-height:1.1;margin:6px 0}
 .diary{list-style:none;padding:0;margin:8px 0;text-align:left}
 .diary li{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
@@ -198,7 +204,7 @@ textarea{min-height:84px;font-family:ui-monospace,monospace;font-size:.8rem;word
 <script src="/shared/account.js?v=202611151400"></script>
 <script src="/shared/sound.js?v=202611151400"></script>
 <script src="sprites.js?v=202611151400"></script>
-<script src="life.js?v=202611162330"></script>
+<script src="life.js?v=202611170030"></script>
 <script>
 "use strict";
 /* ---------- setup ---------- */
@@ -253,9 +259,18 @@ my:{tag:'ဥလေးတစ်လုံး မွေးကြည့်ရအေ�
  mTraitT:'{name} ရဲ့ စရိုက် ပေါ်လာပြီ!',mTrickT:'{name} လှည့်ကွက် တစ်ခု တတ်သွားပြီ!',mTrickD:'ဘယ်ညာ ပွတ်ပေးရင် (ဒါမှမဟုတ် ၃ ခါ မြန်မြန် နှိပ်ရင်) ပြလိမ့်မယ်။',showMe:'ပြပါဦး!',
  tricks:{jump:'ခုန်ပြ',spin:'လှည့်ပြ',beg:'မတ်တပ်ရပ်ပြ'},
  mLetterT:'{name} စာလေး ရေးထားတယ် 💌',mDreamT:'💭 မနေ့ညက {name} အိပ်ရင်း စကားပြောတယ်…',grownNote:'{name} ရဲ့ စာ',
+ visitBtn:'🔗 သူငယ်ချင်းကို အလည်ဖိတ်မယ်',visitT:'{name} လာလည်တယ်!',visitShare:'ငါ့ရဲ့ {sp} “{name}” ဆီ လာလည်ပါဦး! 🥚',
+ visitLinkD:'ဒီလင့်ခ်ကို သူငယ်ချင်းဆီ ပို့ပါ။ သူတို့က {name} ကို လာတွေ့နိုင်တယ်။ သူတို့မှာ အကောင်လေး ရှိရင် နှစ်ကောင် အတူ ဆော့နိုင်တယ်။',
+ visitBad:'အလည်လင့်ခ် မမှန်ပါ',visitOwn:'ဒါက {name} ရဲ့ ကိုယ်ပိုင် လင့်ခ်ပါ — သူငယ်ချင်းဆီ ပို့ပေးပါ!',shareBtn:'မျှဝေမယ်',
+ getOwn:'🥚 ကိုယ်ပိုင် ဥလေး ယူမယ်',petIt:'💛 {name} ကို ချော့မယ်',pdStart:'🎾 {name} နဲ့ အတူဆော့မယ်',
+ pdLater:'မင်းရဲ့ အကောင်လေးက အခု မဆော့နိုင်သေးဘူး (အိပ်နေတယ်၊ အပြင်ရောက်နေတယ် ဒါမှမဟုတ် ဥပဲ ရှိသေးတယ်)။ {name} ကို 📖 ထဲက “သူငယ်ချင်းများ” မှာ သိမ်းထားတယ် — အချိန်မရွေး ပြန်ဖိတ်လို့ရတယ်။',
+ pdSub:'အတူဆော့ချိန်! ဘာလုပ်ကြမလဲ ရွေးပါ',pdHello:'နှုတ်ဆက်',pdBall:'ဘောလုံးကစား',pdSnack:'မုန့်ဝေစား',pdHome:'အိမ်ပြန်',
+ pdSame:'နှစ်ကောင်လုံး {t} တွေပဲ! 💛',pdEndT:'{name} ပျော်ပျော်ကြီး အိမ်ပြန်သွားပြီ 🏠',pdEndD:'{my} ကိုလည်း သူတို့ဆီ ပြန်လည်ခိုင်းမလား?',pdSend:'🔗 {my} ကို အလည်လွှတ်မယ်',
+ friendsT:'🤝 သူငယ်ချင်းများ',noFriends:'မရှိသေးပါ — သူငယ်ချင်းရဲ့ အလည်လင့်ခ်ကို ဖွင့်ပြီး သူတို့ အကောင်လေးနဲ့ တွေ့ပါ။',pdBtn:'အတူဆော့',pdNo:'မင်းရဲ့ အကောင်လေးက အခု မဆော့နိုင်သေးဘူး',
+ hVisitT:'🤝 သူငယ်ချင်းဆီ အလည်သွားခြင်း',hVisit:'“အခြေအနေ → သူငယ်ချင်းကို အလည်ဖိတ်မယ်” နဲ့ လင့်ခ်ယူပြီး ပို့ပါ။ လင့်ခ်ဖွင့်တဲ့သူက မင်းရဲ့ အကောင်လေးကို တွေ့ရမယ်။ သူတို့မှာ အကောင်လေးရှိရင် နှစ်ကောင် နှုတ်ဆက်၊ ဘောလုံးကစား၊ မုန့်ဝေစားနိုင်တယ် (တစ်နေ့ တစ်ခါ ပျော်ရွှင်မှု တိုးတယ်)။ တွေ့ဖူးတဲ့ သူငယ်ချင်းတွေကို 📖 ထဲမှာ သိမ်းထားတယ်။ သူတို့ဆီက လင့်ခ်ပြန်ပို့မှ သူတို့ အကောင်လေးက မင်းဆီ လာလည်နိုင်မယ်။',
  diary:'📔 နေ့စဉ်မှတ်တမ်း',dDay:'ရက် {d}',read:'ဖတ်မယ်',keepT:'🎁 အမှတ်တရ စင်',keepN:'{n}/{m} စုမိပြီ',
  dk:{hatch:'ဥက ပေါက်ပြီး {name} ထွက်လာတယ်',word:'ပထမဆုံး စကား — မင်းကို “{a}” လို့ ခေါ်တယ်',gift:'ပထမဆုံး လက်ဆောင် — {a}',newgift:'လက်ဆောင်အသစ် — {a}',trait:'စရိုက် ပေါ်လာတယ် — {a}',
-  trick:'လှည့်ကွက် တတ်သွားတယ် — {a}',letter:'စာလေး ရေးပေးတယ် 💌',dream:'အိပ်မက် မက်တယ် 💭',grown:'အရွယ်ရောက်ပြီ — {a}',away:'ထွက်ပြေးသွားတယ် 😢',back:'ပြန်လာတယ် 🎉'},
+  trick:'လှည့်ကွက် တတ်သွားတယ် — {a}',friend:'သူငယ်ချင်းအသစ် ရတယ် — {a}',letter:'စာလေး ရေးပေးတယ် 💌',dream:'အိပ်မက် မက်တယ် 💭',grown:'အရွယ်ရောက်ပြီ — {a}',away:'ထွက်ပြေးသွားတယ် 😢',back:'ပြန်လာတယ် 🎉'},
  stages:['ဥ','မွေးကင်းစ','ကလေး','ဆယ်ကျော်သက်','အရွယ်ရောက်'],
  mH:'ဗိုက်',mJ:'ပျော်',mC:'သန့်',mE:'အား',age:'အသက် {d} ရက်',care:'ပြုစုမှု',
  forms:{shiny:'အရမ်းချစ်စရာ ✨',normal:'ပုံမှန်',scruffy:'ဖရိုဖရဲလေး'},
@@ -318,9 +333,18 @@ en:{tag:"Let's raise a little egg",foot:'Free to play',
  mTraitT:"{name}'s personality is showing!",mTrickT:'{name} learned a trick!',mTrickD:'Rub it side to side (or tap 3 times fast) to see it.',showMe:'Show me!',
  tricks:{jump:'Big jump',spin:'Spin',beg:'Stand up'},
  mLetterT:'{name} wrote you a letter 💌',mDreamT:'💭 Last night {name} talked in its sleep…',grownNote:'A note from {name}',
+ visitBtn:'🔗 Invite a friend to visit',visitT:'{name} came to visit!',visitShare:'Come and meet my {sp} “{name}”! 🥚',
+ visitLinkD:'Send this link to a friend. They can meet {name} — and if they have a pet, the two can play together.',
+ visitBad:"That visit link doesn't work",visitOwn:"This is {name}'s own link — send it to a friend!",shareBtn:'Share',
+ getOwn:'🥚 Get your own egg',petIt:'💛 Pet {name}',pdStart:'🎾 Playdate with {name}',
+ pdLater:"Your pet can't play right now (asleep, away, or still an egg). {name} is saved under Friends in 📖 — invite it back any time.",
+ pdSub:'Playdate! Choose what they do',pdHello:'Say hello',pdBall:'Play ball',pdSnack:'Share a snack',pdHome:'Go home',
+ pdSame:"They're both {t}! 💛",pdEndT:'{name} went home happy 🏠',pdEndD:'Send {my} to visit them back?',pdSend:'🔗 Send {my} to visit',
+ friendsT:'🤝 Friends',noFriends:"None yet — open a friend's visit link to meet their pet.",pdBtn:'Playdate',pdNo:"Your pet can't play right now",
+ hVisitT:'🤝 Visiting friends',hVisit:"Get a link from Status → Invite a friend to visit, and send it. Whoever opens it meets your pet. If they have a pet too, the two can say hello, play ball and share a snack (a happiness boost once a day). Friends you've met are kept in 📖. For their pet to visit you, they send you their link.",
  diary:'📔 Diary',dDay:'Day {d}',read:'Read',keepT:'🎁 Keepsake shelf',keepN:'{n}/{m} collected',
  dk:{hatch:'Hatched — hello, {name}!',word:'First word — called you “{a}”',gift:'First present — {a}',newgift:'New keepsake — {a}',trait:'Personality showed — {a}',
-  trick:'Learned a trick — {a}',letter:'Wrote you a letter 💌',dream:'Had a dream 💭',grown:'All grown up — {a}',away:'Ran away 😢',back:'Came back 🎉'},
+  trick:'Learned a trick — {a}',friend:'Made a friend — {a}',letter:'Wrote you a letter 💌',dream:'Had a dream 💭',grown:'All grown up — {a}',away:'Ran away 😢',back:'Came back 🎉'},
  stages:['Egg','Baby','Child','Teen','Adult'],
  mH:'Tummy',mJ:'Happy',mC:'Clean',mE:'Energy',age:'{d} days old',care:'Care',
  forms:{shiny:'Extra lovely ✨',normal:'Normal',scruffy:'A bit scruffy'},
@@ -442,7 +466,7 @@ function fill(p,s){ const k=PL.sndKind(p.sp); return s.split('{name}').join(p.na
 function pickLine(p,sit){
   if(!PL) return null; const set=PL.L[sit]; if(!set) return null;
   let pool;
-  if(stage(p,now())===1){ pool=set.baby&&set.baby[lang]; if(!pool) return null; }
+  if((p._st||stage(p,now()))===1){ pool=set.baby&&set.baby[lang]; if(!pool) return null; }
   else { pool=set[lang].slice(); const tr=p.trait&&set[p.trait]&&set[p.trait][lang]; if(tr) pool=pool.concat(tr,tr); }
   return fill(p,pool[Math.floor(Math.random()*pool.length)]);
 }
@@ -456,7 +480,7 @@ function needSit(p,n){ if(sleeping(p,n)) return null; if(p.sick) return 'sick'; 
 function timeSit(n){ const h=new Date(n).getHours(); return h<11?'morning': h<17?'noon':'evening'; }
 function chatter(){
   const p=cur(), n=now(), tn=performance.now();
-  if(!p||!p.hatched||p.away||G||hatchAnim||dlg.open||document.hidden||tn<nextChat||sleeping(p,n)) return;
+  if(!p||!p.hatched||p.away||G||PD||hatchAnim||dlg.open||document.hidden||tn<nextChat||sleeping(p,n)) return;
   say(needSit(p,n)||'idle');
 }
 const dayKey=ts=>{ const d=new Date(ts); return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); };
@@ -514,8 +538,8 @@ const DIRT_A=[[17,31],[22,34],[20,28],[15,36]];
 function drawPet(p,n){
   const night=isNight(n), asleep=sleeping(p,n), st=stage(p,n), s=spById(p.sp), tn=performance.now();
   bg(night);
-  const art=artOk(s.id), body= st===1 ? 'blob' : s.body, pxs= art ? 5 : [0,6,7,9,11][st], size=(art?40:16)*pxs;
-  const maxX=160-size/2-8;
+  const art=artOk(s.id), body= st===1 ? 'blob' : s.body, pxs= art ? (G?4:5) : [0,6,7,9,11][st], size=(art?40:16)*pxs;
+  const maxX= G ? Math.round(160-size*0.28) : 160-size/2-8;   // in the catch game the pet is a little smaller and can run right to both edges
   if(act && tn>act.t0+act.dur) act=null;
   if(G){ px0=G.x; if(Math.abs(G.tx-G.x)>2) dir= G.tx>G.x?1:-1; }
   else if(!act && !RM && !asleep && frame%4===0 && frame!==lastWalk){ lastWalk=frame; if(Math.random()<.3) dir=-dir; px0=Math.max(-maxX,Math.min(maxX,px0+dir*10)); }
@@ -560,7 +584,7 @@ function drawPet(p,n){
   if(p.form==='scruffy'){ ctx.fillStyle='rgba(90,70,50,.75)'; (art?DIRT_A:DIRT).forEach(([c,r])=>ctx.fillRect(x+c*pxs,y+r*pxs,pxs,pxs)); }
   ctx.restore();
   if(food && food.sz) emo(act.e||'🍚',food.x,food.y,food.sz);
-  if(G){ G.catchY=(art ? y+A.artTop(s.id,st-1)*pxs : y)+22; G.half=Math.max(30,size*(art?0.2:0.4)); G.maxX=maxX; drawGame(); }
+  if(G){ G.catchY=(art ? y+A.artTop(s.id,st-1)*pxs : y)+22; G.half=Math.max(38,size*(art?0.24:0.4)); G.maxX=maxX; drawGame(); }
   /* where the animal actually is inside its box, for bubbles and sparkles */
   const topY= art ? y+A.artTop(s.id,st-1)*pxs : y, rightX= art ? x+size*0.72 : x+size;
   if(p.form==='shiny' && !asleep){ emo('✨',rightX+6,topY+10+(frame%4<2?0:4),20); emo('✨',x+size*(art?0.22:0)-6,topY+(214-topY)*0.5,16); }
@@ -587,6 +611,7 @@ function render(){
   if(!p) drawIntro();
   else if(!p.hatched) drawEgg(p,n);
   else if(p.away) drawAway(p,n);
+  else if(PD) drawPD(p,n);
   else drawPet(p,n);
 }
 function pop(e){ fxs.push({e,dx:(Math.random()*40-20),until:performance.now()+1500}); }
@@ -601,6 +626,7 @@ function ui(){
   else if(!p.hatched){ const left=p.hatchAt-n; st= left>0 ? t('hatchIn',{t:fmt(left)}) : t('hatching'); sub= left>0 ? t('warm') : ''; if(p.lucky) sub=t('lucky'); }
   else if(p.away){ st=t('awayS',{name:p.name}); sub=t('awayDays',{n:num(p.away.days.length)});
     const done=p.away.days.includes(dayKey(n)); acts=[['',done?t('leftToday'):t('leaveFood'),leaveFood,'gold',done]]; cls='one'; }
+  else if(PD){ st=p.name+' & '+PD.v.n; sub=t('pdSub'); acts=[['👋',t('pdHello'),()=>pdDo('hello')],['🎾',t('pdBall'),()=>pdDo('ball')],['🍡',t('pdSnack'),()=>pdDo('snack')],['🏠',t('pdHome'),pdEnd]]; cls='two'; }
   else if(G){ st=t('catchT',{n:num(G.score)}); sub=t('catchD')+(p.best?' · '+t('best')+' '+num(p.best):''); acts=[['◀',t('left'),()=>gameMove(-60)],['▶',t('right'),()=>gameMove(60)]]; cls='two'; }
   else {
     const s=spById(p.sp), stg=stage(p,n);
@@ -629,7 +655,7 @@ function drawSlots(){
     if(p){ b.className='slot'+(i===S.cur?' on':''); b.appendChild(miniCanvas(p,48));
       const nm=document.createElement('span'); nm.className='nm'; nm.textContent= p.hatched ? p.name : (n>=p.hatchAt?t('ready'):t('eggLabel')); b.appendChild(nm);
       if(needs(p) && i!==S.cur){ const d=document.createElement('span'); d.className='dot'; d.textContent='!'; b.appendChild(d); }
-      b.setAttribute('aria-pressed',i===S.cur); b.onclick=()=>{ if(S.cur!==i){ S.cur=i; G=null; act=null; hideSay(); save(); refresh(); render(); } };
+      b.setAttribute('aria-pressed',i===S.cur); b.onclick=()=>{ if(S.cur!==i){ S.cur=i; G=null; PD=null; act=null; hideSay(); save(); refresh(); render(); } };
     } else if(adds-- > 0){ b.className='slot add'; b.innerHTML='<span style="font-size:1.4rem">🥚</span>'+esc('+ '+t('newSlot')); b.onclick=getEggFlow; }
     else { b.className='slot lock'; b.innerHTML='<span style="font-size:1.2rem">🔒</span>'+esc(t('lockSlot')); b.onclick=()=>toast(t('needAdult')); }
     box.appendChild(b);
@@ -679,7 +705,7 @@ function startGame(){
 function gameLoop(){
   if(!G) return; const tn=performance.now(), dt=Math.min(50,tn-G.last); G.last=tn; const el=tn-G.t0;
   if(el>=GAME_MS){ endGame(); return; }
-  const sp=0.36*dt; G.x= Math.abs(G.tx-G.x)<=sp ? G.tx : G.x+Math.sign(G.tx-G.x)*sp;
+  const sp=0.5*dt; G.x= Math.abs(G.tx-G.x)<=sp ? G.tx : G.x+Math.sign(G.tx-G.x)*sp;
   if(el>0){ G.next-=dt;
     if(G.next<=0){ const pr=el/GAME_MS; G.next=720-320*pr; const r=Math.random(), kind= r<0.08?'star' : r<0.26?'chili' : 'treat';
       G.items.push({x:28+Math.random()*264,y:-14,v:(0.075+0.06*pr)*(0.9+Math.random()*0.3),kind,e: kind==='star'?'⭐':kind==='chili'?'🌶️':TREATS[Math.floor(Math.random()*TREATS.length)]}); } }
@@ -737,7 +763,7 @@ cv.addEventListener('click',()=>{
   touchPet(false);
 });
 function touchPet(rubbed){
-  const p=cur(), n=now(), tn=performance.now(); if(!p||!p.hatched||p.away||G||hatchAnim) return;
+  const p=cur(), n=now(), tn=performance.now(); if(!p||!p.hatched||p.away||G||PD||hatchAnim) return;
   if(sleeping(p,n)){ startAct('grumble'); TTLSound.play('grumble'); if(tn-shhAt>8000){ shhAt=tn; toast(t('shh',{name:p.name})); } else if(Math.random()<.5) say('sleeptalk'); return; }
   if(act && (act.kind==='eat'||act.kind==='hello') && tn<act.t0+act.dur) return;
   taps.push(tn); taps=taps.filter(x=>tn-x<1500);
@@ -817,7 +843,7 @@ function showInfo(){
     <h2>${esc(p.name)}</h2><p class="muted">${esc(spName(s))} · ${esc(T[lang].stages[stg])} · ${esc(t('age',{d:num(d)}))}${p.form?' · '+esc(T[lang].forms[p.form]):''}</p></div>
     ${persRow(p)}
     ${meter(t('mH'),p.h)}${meter(t('mJ'),p.j)}${meter(t('mC'),p.c)}${meter(t('mE'),p.e)}${meter(t('care'),careAvg(p))}
-    <div class="btns"><button class="btn sec" id="iDiary">${esc(t('diary'))}</button></div>
+    <div class="btns"><button class="btn sec" id="iDiary">${esc(t('diary'))}</button><button class="btn sec" id="iVisit">${esc(t('visitBtn'))}</button></div>
     <div class="btns"><button class="btn" id="iShare">${esc(t('share'))}</button>${S.tok>0?`<button class="btn gold" id="iNew">🥚 ${esc(t('newEgg'))}</button>`:''}</div>
     <div class="btns"><button class="btn sec" id="iFree">${esc(t('free'))}</button><button class="btn sec" id="iBk">${esc(t('backup'))}</button></div>
     <button class="btn sec" id="dClose">${esc(t('close'))}</button>`);
@@ -825,6 +851,7 @@ function showInfo(){
   $('#iShare').onclick=()=>shareCard(p);
   $('#iBk').onclick=showBackup;
   $('#iDiary').onclick=()=>showDiary(p);
+  $('#iVisit').onclick=()=>shareVisit(p);
   const nb=$('#iNew'); if(nb) nb.onclick=getEggFlow;
   $('#iFree').onclick=()=>askRelease(S.cur);
 }
@@ -848,7 +875,7 @@ function dueMoment(p,n){
 }
 function moments(){
   const p=cur(), n=now(), tn=performance.now();
-  if(!p||G||hatchAnim||dlg.open||document.hidden||tn<momentAt||(act&&tn<act.t0+act.dur)||sleeping(p,n)) return;
+  if(!p||G||PD||hatchAnim||dlg.open||document.hidden||tn<momentAt||(act&&tn<act.t0+act.dur)||sleeping(p,n)) return;
   const k=dueMoment(p,n); if(!k) return;
   momentAt=tn+60000;
   if(k==='daily'){ giveGift(p,false); return; }
@@ -971,6 +998,7 @@ function showHelp(){
     ${sec('hGrowT',`<p>${esc(t('hGrow'))}</p>`)}
     ${sec('hPersT',`<p>${esc(t('hPers'))}</p>`)}
     ${sec('hDaysT',`<p>${esc(t('hDays'))}</p>`)}
+    ${sec('hVisitT',`<p>${esc(t('hVisit'))}</p>`)}
     ${sec('hAwayT',`<p>${esc(t('hAway'))}</p>`)}
     ${sec('hSlotT',`<p>${esc(t('hSlot'))}</p>`)}
     ${sec('hBookT',`<p>${esc(t('hBook'))}</p>`)}
@@ -990,8 +1018,9 @@ function showDex(){
   for(let i=0;i<3;i++) cells+=`<div><span></span>${esc(t('unknown'))}</div>`;
   const past=(S.past||[]).slice().reverse().map(q=>`<div>• ${esc(q.name)} — ${esc(spName(spById(q.sp)||SP[0]))}${q.form?' ('+esc(T[lang].forms[q.form])+')':''}${q.freed?' · '+esc(t('freedTag')):''}</div>`).join('') || `<div class="muted">${esc(t('noPast'))}</div>`;
   openDlg(`<h2>📖 ${esc(t('dex'))}</h2><p class="muted">${esc(t('found',{n:num(found),m:num(SP.length)}))}</p>
-    <div class="dex" id="dexGrid">${cells}</div>${shelfHtml()}<h2 style="font-size:1.1rem">${esc(t('myPets'))}</h2><div class="past">${past}</div>
+    <div class="dex" id="dexGrid">${cells}</div>${shelfHtml()}${friendsHtml()}<h2 style="font-size:1.1rem">${esc(t('myPets'))}</h2><div class="past">${past}</div>
     <button class="btn sec" id="dClose">${esc(t('close'))}</button>`);
+  document.querySelectorAll('.friends div').forEach(el=>{ const fr=(S.friends||[])[+el.dataset.i]; if(!fr) return; el.querySelector('i').replaceWith(visitCanvas(fr,40)); el.querySelector('button').onclick=()=>{ if(canPD()){ closeDlg(); startPD(fr); } else { TTLSound.play('nope'); toast(t('pdNo')); } }; });
   document.querySelectorAll('#dexGrid div').forEach(el=>{
     const id=el.dataset.sp, c=document.createElement('canvas'); c.width=c.height=64; const x=c.getContext('2d');
     if(id){ const s=spById(id); if(artOk(id)) A.drawArt(x,id,3,-8,-14,2,S.dex[id]?{}:{sil:'#b7bfca'}); else A.draw(x,s.body,s.pal,0,0,4,S.dex[id]?{}:{sil:'#b7bfca'}); }
@@ -1048,6 +1077,121 @@ async function shareCard(p){
   if(blob){ const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='little-egg.png'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),4000); }
 }
 
+/* ---------- visiting: a link that carries one pet (no server needed) ----------
+   Link format ?v=V1… — don't change VK or the field letters: links already sent to friends would stop working. */
+const VK=[86,105,115,105,116,80,101,116,33];
+function vEnc(o){ const b=new TextEncoder().encode(JSON.stringify(o)); let bin=''; b.forEach((x,i)=>bin+=String.fromCharCode(x^VK[i%VK.length])); return 'V1'+btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); }
+function vDec(q){ try{ if(q.slice(0,2)!=='V1') return null; let s=q.slice(2).replace(/-/g,'+').replace(/_/g,'/'); s+='='.repeat((4-s.length%4)%4);
+    const bin=atob(s), b=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) b[i]=bin.charCodeAt(i)^VK[i%VK.length];
+    const o=JSON.parse(new TextDecoder().decode(b)); if(!o||typeof o.n!=='string'||!spById(o.s)) return null;
+    return {n:o.n.slice(0,12),s:o.s,r:Math.max(0,Math.min(RAR.length-1,o.r|0)),g:Math.max(1,Math.min(4,o.g|0)),f:['shiny','normal','scruffy'].includes(o.f)?o.f:0,
+      t:(PL&&PL.TRAITS[o.t])?o.t:0,i:String(o.i||'').slice(0,10),b:Math.max(0,Math.min(999,o.b|0)),k:Math.max(0,Math.min(99,o.k|0)),d:Math.max(0,Math.min(9999,o.d|0))};
+  }catch(e){ return null; } }
+const petId=p=>Math.floor(p.hatched/1000).toString(36);
+function visitData(p){ const n=now(); return {n:p.name,s:p.sp,r:p.rar,g:stage(p,n),f:p.form||0,t:(p.trait&&p.mo&&p.mo.trait)?p.trait:0,i:petId(p),b:p.best||0,k:Object.keys(S.keep||{}).length,d:Math.floor(ageMs(p,n)/DAY)}; }
+function visitUrl(p){ return location.origin+location.pathname+'?v='+vEnc(visitData(p)); }
+function shareVisit(p){
+  const url=visitUrl(p), text=t('visitShare',{sp:spName(spById(p.sp)),name:p.name});
+  openDlg(`<h2>${esc(t('visitBtn'))}</h2><p class="muted">${esc(t('visitLinkD',{name:p.name}))}</p>
+    <input type="text" id="vUrl" readonly value="${esc(url)}">
+    <div class="btns">${navigator.share?`<button class="btn" id="vShare">${esc(t('shareBtn'))}</button>`:''}<button class="btn ${navigator.share?'sec':''}" id="vCopy">${esc(t('copy'))}</button></div>
+    <button class="btn sec" id="dClose">${esc(t('close'))}</button>`);
+  const sh=$('#vShare'); if(sh) sh.onclick=async()=>{ try{ await navigator.share({text,url}); }catch(e){} };
+  $('#vCopy').onclick=async()=>{ const el=$('#vUrl'); try{ await navigator.clipboard.writeText(text+' '+url); }catch(e){ el.select(); try{ document.execCommand('copy'); }catch(e2){} } toast(t('copied')); };
+}
+let VISIT=null, visitOpen=false, PD=null;
+function checkVisit(){ const q=new URLSearchParams(location.search).get('v'); if(!q) return; const v=vDec(q); if(!v){ setTimeout(()=>toast(t('visitBad')),600); clearVisitUrl(); return; } VISIT=v; }
+function clearVisitUrl(){ try{ const u=new URL(location.href); if(!u.searchParams.has('v')) return; u.searchParams.delete('v'); history.replaceState(null,'',u.pathname+u.search+u.hash); }catch(e){} }
+dlg.addEventListener('close',()=>{ if(visitOpen){ visitOpen=false; clearVisitUrl(); } });
+const asPet=v=>({name:v.n,sp:v.s,trait:v.t||null,form:v.f||null,_st:v.g});       // a visiting pet, enough for it to talk
+function visitCanvas(v,size){ const c=petCanvas(v.s,v.f||null,size>=160?160:40,v.g); if(size<160){ c.style.width=c.style.height=size+'px'; c.style.imageRendering='pixelated'; } return c; }
+function addFriend(v){ S.friends=S.friends||[]; const i=S.friends.findIndex(f=>f.i===v.i&&f.s===v.s); const old= i>=0 ? S.friends.splice(i,1)[0] : null;
+  const fr=Object.assign({},v,{day:old?old.day:null,c:old?old.c:0}); S.friends.unshift(fr); if(S.friends.length>20) S.friends.length=20; save(); return fr; }
+function canPD(){ const p=cur(), n=now(); return !!(p && p.hatched && !p.away && !sleeping(p,n) && !G && !PD); }
+function vInfo(v){ const s=spById(v.s); return spName(s)+' · '+T[lang].stages[v.g]+(v.t?' · '+PL.TRAITS[v.t].e+' '+PL.TRAITS[v.t][lang]:''); }
+function showVisit(v){
+  const mine=S.pets.find(p=>p.hatched && petId(p)===v.i && p.sp===v.s);
+  if(mine){ openDlg(`<div class="reveal"><div id="vArt"></div><p>${esc(t('visitOwn',{name:mine.name}))}</p></div><button class="btn" id="dClose">${esc(t('ok'))}</button>`); $('#vArt').appendChild(visitCanvas(v,160)); visitOpen=true; return; }
+  const hasPets=S.pets.length>0, fr= hasPets ? addFriend(v) : v, ok=canPD(), q=asPet(v), my=cur();
+  const line=()=>pickLine(q,'meet')||'';
+  openDlg(`<div class="reveal"><span class="pill" style="background:${RAR[v.r].col}">${esc(rarName(v.r))}</span><div id="vArt"></div>
+    <h2>${esc(t('visitT',{name:v.n}))}</h2><p class="muted">${esc(vInfo(v))}<br>${esc(t('age',{d:num(v.d)}))}${v.b?' · 🍡 '+esc(t('best'))+' '+num(v.b):''}${v.k?' · 🎁 '+num(v.k):''}</p>
+    <p class="letter" id="vSay" style="text-align:center">${esc(line())}</p></div>
+    ${!hasPets?`<button class="btn gold" id="vEgg">${esc(t('getOwn'))}</button>`: ok?`<button class="btn gold" id="vPD">${esc(t('pdStart',{name:my.name}))}</button>`:`<p class="muted">${esc(t('pdLater',{name:v.n}))}</p>`}
+    <div class="btns"><button class="btn sec" id="vPet">${esc(t('petIt',{name:v.n}))}</button><button class="btn sec" id="dClose">${esc(t('close'))}</button></div>`);
+  visitOpen=true; TTLSound.play('hello');
+  const art=visitCanvas(v,160); $('#vArt').appendChild(art);
+  $('#vPet').onclick=()=>{ TTLSound.play('pet'); art.classList.remove('boing'); void art.offsetWidth; art.classList.add('boing'); $('#vSay').textContent=(pickLine(q,'petted')||'💛'); };
+  const e=$('#vEgg'); if(e) e.onclick=()=>{ closeDlg(); getEggFlow(); };
+  const b=$('#vPD'); if(b) b.onclick=()=>{ closeDlg(); startPD(fr); };
+}
+function friendsHtml(){
+  const F=S.friends||[];
+  return `<h2 style="font-size:1.1rem">${esc(t('friendsT'))}</h2>`+(F.length?`<div class="friends">${F.map((f,i)=>`<div data-i="${i}"><i></i><span><b>${esc(f.n)}</b><br>${esc(vInfo(f))}</span><button>${esc(t('pdBtn'))}</button></div>`).join('')}</div>`:`<p class="muted">${esc(t('noFriends'))}</p>`);
+}
+/* ---------- playdate: your pet and a visiting pet on the screen together ---------- */
+const PD_MS={arrive:1400,hello:1600,ball:2900,snack:2200};
+function startPD(fr){
+  const p=cur(); if(!canPD()) return; act=null; hideSay();
+  const today=dayKey(now()), first=!fr.c;
+  PD={v:fr,f:asPet(fr),fresh:fr.day!==today,did:{},anim:null};
+  fr.day=today; fr.c=(fr.c||0)+1; if(first) diary(p,'friend',fr.n); cared(); save();
+  pdAnim('arrive'); TTLSound.play('hello'); refresh();
+  setTimeout(()=>{ if(!PD) return; pdSay(PD.f,'meet'); if(first) confetti(); },1000);
+  setTimeout(()=>{ if(!PD) return; pdSay(p,'meet'); if(fr.t && p.trait===fr.t && p.mo && p.mo.trait) setTimeout(()=>toast(t('pdSame',{t:trName(fr.t)})),1200); },2900);
+}
+function pdSay(q,sit){ const s=pickLine(q,sit); if(s) showSay(q.name+': '+s); }
+function pdAnim(k){ PD.anim={k,t0:performance.now(),dur:PD_MS[k]}; if(!RM) requestAnimationFrame(pdLoop); }
+function pdLoop(){ if(!PD||!PD.anim) return; try{ render(); }catch(e){} if(PD && PD.anim) requestAnimationFrame(pdLoop); }
+function pdDo(k){
+  const p=cur(); if(!PD||!p||(PD.anim && performance.now()<PD.anim.t0+PD.anim.dur)) return;
+  pdAnim(k);
+  if(k==='hello'){ TTLSound.play('hello'); pdSay(p,'meet'); setTimeout(()=>{ if(PD){ pop('💛'); pdSay(PD.f,'petted'); } },1100); }
+  else if(k==='ball'){ pdSay(p,'pdBall'); setTimeout(()=>{ if(PD) pdSay(PD.f,'pdBall'); },1500); setTimeout(()=>{ if(PD){ TTLSound.play('done'); pop('⭐'); } },2450); }
+  else { TTLSound.play('snack'); pdSay(PD.f,'pdSnack'); setTimeout(()=>{ if(PD){ pop('😋'); pdSay(p,'snack'); } },1600); }
+  if(PD.fresh && !PD.did[k]){ PD.did[k]=1; p.j=clamp(p.j+5); if(k==='snack') p.h=clamp(p.h+5); if(k==='ball') habit(p,'p'); }
+  cared(); save();
+}
+function pdEnd(){
+  const p=cur(), fr=PD&&PD.v; PD=null; hideSay(); refresh(); if(!p||!fr) return;
+  TTLSound.play('back');
+  openDlg(`<div class="reveal"><div id="vArt"></div><h2>${esc(t('pdEndT',{name:fr.n}))}</h2><p class="letter" style="text-align:center">${esc(fr.n+': '+(pickLine(asPet(fr),'bye')||'👋'))}</p><p>${esc(t('pdEndD',{my:p.name}))}</p></div>
+    <button class="btn gold" id="vBack">${esc(t('pdSend',{my:p.name}))}</button><button class="btn sec" id="dClose">${esc(t('close'))}</button>`);
+  $('#vArt').appendChild(visitCanvas(fr,160)); $('#vBack').onclick=()=>shareVisit(p);
+}
+function drawOne(q,st,cx,flip,o){
+  const s=spById(q.sp), art=artOk(s.id), pxs= art?3:[0,4,5,6,7][st], size=(art?40:16)*pxs, dy=Math.round(o.dy||0);
+  const x=Math.round(cx-size/2+(o.dx||0)), y=214-size+dy+(!art&&st===1?pxs*2:0), base=214+dy;
+  ctx.save(); ctx.translate(cx,base); ctx.scale(o.sx||1,o.sy||1); ctx.translate(-cx,-base);
+  if(art) A.drawArt(ctx,s.id,st-1,x,y,pxs,{flip,shut:!!o.shut}); else A.draw(ctx,st===1?'blob':s.body,s.pal,x,y,pxs,{flip});
+  ctx.restore();
+}
+function drawPD(p,n){
+  const tn=performance.now(); bg(false);
+  if(PD.anim && tn>PD.anim.t0+PD.anim.dur) PD.anim=null;
+  const m={dy:0,dx:0,sx:1,sy:1,shut:false}, f={dy:0,dx:0,sx:1,sy:1,shut:false}, kind=PD.anim?PD.anim.k:'idle', k=PD.anim?tn-PD.anim.t0:0;
+  let fcx=230, ex=null;
+  if(kind==='idle'){ if(frame%2) m.dy=-2; else f.dy=-2; }
+  else if(kind==='arrive'){ const u=Math.min(1,k/900); fcx=370-140*u; if(k<900) f.dy=hop(k%300,300,6); else { m.dy=hop(k-900,450,12); m.shut=true; } }
+  else if(kind==='hello'){ if(k<500) m.dy=hop(k,500,14); if(k>=400&&k<900) f.dy=hop(k-400,500,14); if(k>=1000){ m.dy=f.dy=hop(k-1000,500,14); m.shut=f.shut=true; ex=['💛',160,120-(k-1000)/20,28]; } }
+  else if(kind==='ball'){
+    if(k<2400){ const pass=Math.floor(k/800), u=(k%800)/800, from=pass%2?208:112, to=pass%2?112:208;
+      if(PD.anim.pass!==pass){ PD.anim.pass=pass; TTLSound.play('pet'); }
+      ex=['🎾',from+(to-from)*u,168-60*4*u*(1-u),22]; const rc=pass%2?m:f; if(u>0.7) rc.dy=hop((u-0.7)*800,240,9); }
+    else { m.dy=f.dy=hop(k-2400,500,14); m.shut=f.shut=true; } }
+  else if(kind==='snack'){
+    if(k<500){ const u=k/500; ex=['🍡',160,-20+225*u*u,28]; }
+    else if(k<1600){ const b=Math.floor((k-500)/370), kb=(k-500)%370; ex=['🍡',160,205,[28,20,12][b]||0]; if(kb<150){ const who=b%2?f:m; who.sy=0.9; who.sx=1.06; who.dx= who===m?5:-5; } }
+    else { m.dy=f.dy=hop(k-1600,550,14); m.shut=f.shut=true; } }
+  if(RM){ m.dy=m.dx=f.dy=f.dx=0; m.sx=m.sy=f.sx=f.sy=1; }
+  drawOne(p,stage(p,n),90,false,m); drawOne(PD.f,PD.v.g,fcx,true,f);
+  if(ex && ex[3]) emo(ex[0],ex[1],ex[2],ex[3]);
+  ctx.font='700 13px "Noto Sans Myanmar",sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillStyle='#4b5563';
+  ctx.fillText(p.name,90,229); if(fcx<300) ctx.fillText(PD.v.n,fcx,229);
+  fxs=fxs.filter(x=>x.until>tn);
+  fxs.forEach(x=>{ const u=1-(x.until-tn)/1500; emo(x.e,160+x.dx,100-u*30,26); });
+}
+
 /* ---------- confetti ---------- */
 function confetti(level){
   if(RM) return; const c=$('#fx'), x=c.getContext('2d'); c.width=innerWidth; c.height=innerHeight;
@@ -1096,10 +1240,11 @@ if(DEV){
 function tick(){
   sim(); checkHatch();
   if(grownQ.length && !dlg.open){ const p=grownQ.shift(); const i=S.pets.indexOf(p); if(i>=0){ S.cur=i; save(); refresh(); grownUp(p); } }
+  if(VISIT && !dlg.open && !hatchAnim && !G && !PD && (artOk(VISIT.s) || performance.now()>4000)){ const v=VISIT; VISIT=null; showVisit(v); }
   moments(); chatter();
   ui();
 }
-applyLang(); tick(); render(); greet();
+applyLang(); checkVisit(); tick(); render(); greet();
 setInterval(()=>{ try{ render(); }catch(e){ console.error(e); } }, RM?1000:250);
 setInterval(()=>{ try{ tick(); }catch(e){ console.error(e); } }, 1000);
 document.addEventListener('visibilitychange',()=>{ if(!document.hidden){ tick(); greet(); } else markSeen(); });

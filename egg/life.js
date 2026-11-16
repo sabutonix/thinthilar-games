@@ -126,6 +126,17 @@ const L={
         tidy:{my:['ငါ့ အမွေးလေး သေသပ်နေလား?','ဒီနားမှာ ဖုန်ရှိနေသလား…?'],en:['Is my fur neat?','Is that dust over there…?']},
         sleepy:{my:['အား… ☁️','ခဏလေး မှေးမယ်နော်…'],en:['*yawn* ☁️','Just resting my eyes…']},
         shy:{my:['…','{you}… ဟိုလေ… ဘာမှ မဟုတ်ပါဘူး။'],en:['…','{you}… um… never mind.']}},
+  /* when two pets meet (visit link / playdate) — no {you} here: the listener is another pet or a visitor */
+  meet:{my:['ဟိုင်း! ငါတို့ သူငယ်ချင်း လုပ်ကြမလား?','မင်္ဂလာပါ! တွေ့ရတာ ဝမ်းသာတယ်!','လာလည်ရတာ ပျော်တယ်!'],en:['Hi! Want to be friends?','Hello! Nice to meet you!','So happy to visit!'],
+        baby:{my:['{snd}! {snd}!','ဟီး… {snd}?'],en:['{snd}! {snd}!','Hee… {snd}?']},
+        shy:{my:['…ဟိုင်း။'],en:['…hi.']},playful:{my:['ဆော့ကြမယ်! ဆော့ကြမယ်!'],en:['Let\'s play! Let\'s play!']},foodie:{my:['ဟိုင်း! မုန့် ပါလာလား? 😋'],en:['Hi! Did you bring snacks? 😋']}},
+  pdBall:{my:['ဖမ်းထား!','ငါ့အလှည့်! ငါ့အလှည့်!','ကောင်းတယ်!'],en:['Catch!','My turn! My turn!','Nice one!'],
+          baby:{my:['{snd}!'],en:['{snd}!']}},
+  pdSnack:{my:['တစ်ဝက်စီ စားကြမယ်နော်။','အတူတူစားတော့ ပိုအရသာရှိတယ်!'],en:['Half each, okay?','Tastes better together!'],
+           baby:{my:['မုန့်! {snd}!'],en:['Snack! {snd}!']},
+           foodie:{my:['…ငါ့ဘက်က နည်းနည်း ပိုကြီးတာ ယူမယ်နော် 😋'],en:['…I\'ll take the slightly bigger half 😋']}},
+  bye:{my:['နောက်လည်း လာလည်မယ်နော်!','တာ့တာ! 👋','ဒီနေ့ အရမ်းပျော်တယ်!'],en:['I\'ll come again soon!','Bye-bye! 👋','Today was so fun!'],
+       baby:{my:['{snd}… 👋'],en:['{snd}… 👋']}},
   gift:{my:['ရော့! {you} အတွက်!','ဒါလေး တွေ့ခဲ့တယ်… ယူပါ!'],en:['Here! For you, {you}!','I found this… it\'s yours!'],
         shy:{my:['…ဒါလေး… {you} အတွက်။'],en:['…this… is for you.']}}
 };
