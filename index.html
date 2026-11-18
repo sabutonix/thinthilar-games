@@ -88,15 +88,15 @@ footer a{color:inherit}
       <span class="art egg">🥚</span>
       <span><b id="eT"></b><small id="eDesc"></small><span class="row" id="eStatus"></span></span>
     </a>
+    <a class="card live" href="farm/"><span class="art">🌾</span><span><b id="farmT"></b><small id="farmD"></small></span></a>
   </section>
   <h2 id="hSoon"></h2>
   <section class="shelf">
-    <div class="card soon"><span class="art">🌾</span><span><b id="farmT"></b><small id="farmD"></small><span class="row"><span class="pill" id="s1"></span></span></span></div>
     <div class="card soon"><span class="art">🚗</span><span><b id="carT"></b><small id="carD"></small><span class="row"><span class="pill" id="s2"></span></span></span></div>
   </section>
   <footer><span id="foot"></span> · <a href="https://thinthilar.com">thinthilar.com</a> · <a href="privacy/">Privacy</a></footer>
 </div>
-<script src="/shared/account.js?v=202611140903"></script>
+<script src="/shared/account.js?v=farm1"></script>
 <script>
 const EPOCH = Date.UTC(2026,10,7,17,30); // must match pahaeli/
 const todayIdx = Math.max(0, Math.floor((Date.now()-EPOCH)/864e5));
@@ -104,12 +104,12 @@ const MYD='၀၁၂၃၄၅၆၇၈၉';
 const T={
  my:{h1:"ဂိမ်းများ",tag:"အခမဲ့ မြန်မာဂိမ်းများ — ဖုန်းနဲ့ ချက်ချင်းကစားလို့ရ",live:"ယခု ကစားနိုင်သည်",soon:"မကြာမီ လာမည်",
   pDesc:"နေ့စဉ် ပဟေဠိ ၃ မျိုး — စကားလုံး၊ စကားပုံ၊ အုပ်စုခွဲ",done:"ယနေ့ {n}/၃ ပြီး",none:"ယနေ့ ပဟေဠိ အသစ်",all:"ယနေ့ အားလုံးပြီး ✓",
-  streak:"🔥 {n} ရက်ဆက်",farmT:"လယ်ယာ",farmD:"ကိုယ်ပိုင်လယ်ယာ စိုက်ပျိုးပြီး မိတ်ဆွေတွေရဲ့ လယ်ယာကို လည်ပတ်ပါ",carT:"ကားမောင်း",carD:"ရန်ကုန်လမ်းတွေပေါ် ကားမောင်းပြီး မိတ်ဆွေတွေရဲ့ အမှတ်ကို ကျော်ပါ",
+  streak:"🔥 {n} ရက်ဆက်",farmT:"လယ်ယာ",farmD:"သီးနှံစိုက်၊ ကြက်ဥကောက်ပြီး ရွာဈေးကို ပို့ပါ",carT:"ကားမောင်း",carD:"ရန်ကုန်လမ်းတွေပေါ် ကားမောင်းပြီး မိတ်ဆွေတွေရဲ့ အမှတ်ကို ကျော်ပါ",
   soonPill:"မကြာမီ",foot:"အခမဲ့ ကစားနိုင်ပါသည်",
   eT:"ဥလေး",eDesc:"ဥလေးတစ်လုံး မွေးပြီး ကြီးပြင်းအောင် ပြုစုပါ — ရှားပါး တိရစ္ဆာန်တွေ စုဆောင်းပါ",eNew:"အသစ် ✨",eEgg:"🥚 ဥ ပေါက်ခါနီး",eAway:"😢 ထွက်သွားပြီ"},
  en:{h1:"Games",tag:"Free Myanmar games — play right away on your phone",live:"Play now",soon:"Coming soon",
   pDesc:"3 daily Burmese puzzles — Word, Proverb, Groups",done:"{n}/3 done today",none:"New puzzles today",all:"All done today ✓",
-  streak:"🔥 {n}-day streak",farmT:"Farm",farmD:"Grow your own farm and visit your friends' farms",carT:"Car",carD:"Drive the streets of Yangon and beat your friends' scores",
+  streak:"🔥 {n}-day streak",farmT:"Farm",farmD:"Grow crops, collect eggs and fill village market orders",carT:"Car",carD:"Drive the streets of Yangon and beat your friends' scores",
   soonPill:"Coming soon",foot:"Free to play",
   eT:"Little Egg",eDesc:"Hatch a mystery egg and raise your pocket pet — collect rare animals",eNew:"New ✨",eEgg:"🥚 About to hatch",eAway:"😢 Ran away"}
 };
@@ -121,7 +121,7 @@ function render(){
   const t=T[lang]; document.documentElement.lang=lang==='my'?'my':'en';
   for(const k of ['h1','tag','pDesc','eT','eDesc','farmT','farmD','carT','carD','foot']) document.getElementById(k).textContent=t[k];
   document.getElementById('hLive').textContent=t.live; document.getElementById('hSoon').textContent=t.soon;
-  document.getElementById('s1').textContent=t.soonPill; document.getElementById('s2').textContent=t.soonPill;
+  document.getElementById('s2').textContent=t.soonPill;
   document.getElementById('lang').textContent= lang==='my'?'EN':'မြန်';
   const done=['A','B','C'].filter(m=>(ps.games[m+'-'+todayIdx]||{}).done).length;
   const best=Math.max(0,...['A','B','C'].map(m=>{ const s=(ps.stats||{})[m]; return s && s.last>=todayIdx-1 ? s.streak : 0; }));

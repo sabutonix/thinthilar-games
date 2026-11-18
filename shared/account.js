@@ -10,6 +10,8 @@ const SB_KEY='sb_publishable_8ElijCo3o5fFzw6VqtMuJA_WQsWB7vS';   // public by de
 const AK='tg.auth', SK='tg.sync';
 
 const GAMES={
+  farm:{ls:'ttl.farm.v1',my:'လယ်ယာ',en:'Farm',empty:d=>!d?.actions,
+    sum:(d,L)=>L==='my'?d.coins+' ဒင်္ဂါး':d.coins+' coins'},
   egg:{ls:'littleegg.v1', my:'ဥလေး', en:'Little Egg',
     pets:d=> d ? (d.pets || (d.pet?[d.pet]:[])) : [],
     empty(d){ return !d || (!this.pets(d).length && !(d.past&&d.past.length) && !Object.keys(d.dex||{}).length); },
@@ -237,3 +239,4 @@ function mount(el,games){
 }
 window.TTLAccount={mount,open,invite,signIn,signOut,user,onUser:f=>listeners.push(f),sync:()=>sync(true)};
 })();
+
